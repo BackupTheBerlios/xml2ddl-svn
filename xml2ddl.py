@@ -67,76 +67,7 @@ class Xml2Ddl:
         self._setDefaults()
         
         self.dbmsType = dbms.lower()
-        if self.dbmsType == 'firebird':
-            self.params['table_desc'] = "UPDATE RDB$RELATIONS SET RDB$DESCRIPTION = %(desc)s\n\tWHERE RDB$RELATION_NAME = upper('%(table)s')"
-            self.params['column_desc'] = "UPDATE RDB$RELATION_FIELDS SET RDB$DESCRIPTION = %(desc)s\n\tWHERE RDB$RELATION_NAME = upper('%(table)s') AND RDB$FIELD_NAME = upper('%(column)s')"
-            self.params['max_id_len'] = { 'default' : 256 }
-            self.params['keywords'] = """
-                ACTION ACTIVE ADD ADMIN AFTER ALL ALTER AND ANY AS ASC ASCENDING AT AUTO AUTODDL AVG BASED BASENAME BASE_NAME 
-                BEFORE BEGIN BETWEEN BLOB BLOBEDIT BUFFER BY CACHE CASCADE CAST CHAR CHARACTER CHARACTER_LENGTH CHAR_LENGTH
-                CHECK CHECK_POINT_LEN CHECK_POINT_LENGTH COLLATE COLLATION COLUMN COMMIT COMMITTED COMPILETIME COMPUTED CLOSE 
-                CONDITIONAL CONNECT CONSTRAINT CONTAINING CONTINUE COUNT CREATE CSTRING CURRENT CURRENT_DATE CURRENT_TIME 
-                CURRENT_TIMESTAMP CURSOR DATABASE DATE DAY DB_KEY DEBUG DEC DECIMAL DECLARE DEFAULT
-                DELETE DESC DESCENDING DESCRIBE DESCRIPTOR DISCONNECT DISPLAY DISTINCT DO DOMAIN DOUBLE DROP ECHO EDIT ELSE 
-                END ENTRY_POINT ESCAPE EVENT EXCEPTION EXECUTE EXISTS EXIT EXTERN EXTERNAL EXTRACT FETCH FILE FILTER FLOAT 
-                FOR FOREIGN FOUND FREE_IT FROM FULL FUNCTION GDSCODE GENERATOR GEN_ID GLOBAL GOTO GRANT GROUP GROUP_COMMIT_WAIT 
-                GROUP_COMMIT_ WAIT_TIME HAVING HELP HOUR IF IMMEDIATE IN INACTIVE INDEX INDICATOR INIT INNER INPUT INPUT_TYPE 
-                INSERT INT INTEGER INTO IS ISOLATION ISQL JOIN KEY LC_MESSAGES LC_TYPE LEFT LENGTH LEV LEVEL LIKE LOGFILE 
-                LOG_BUFFER_SIZE LOG_BUF_SIZE LONG MANUAL MAX MAXIMUM MAXIMUM_SEGMENT MAX_SEGMENT MERGE MESSAGE MIN MINIMUM 
-                MINUTE MODULE_NAME MONTH NAMES NATIONAL NATURAL NCHAR NO NOAUTO NOT NULL NUMERIC NUM_LOG_BUFS NUM_LOG_BUFFERS 
-                OCTET_LENGTH OF ON ONLY OPEN OPTION OR ORDER OUTER OUTPUT OUTPUT_TYPE OVERFLOW PAGE PAGELENGTH PAGES PAGE_SIZE 
-                PARAMETER PASSWORD PLAN POSITION POST_EVENT PRECISION PREPARE PROCEDURE PROTECTED PRIMARY PRIVILEGES PUBLIC QUIT 
-                RAW_PARTITIONS RDB$DB_KEY READ REAL RECORD_VERSION REFERENCES RELEASE RESERV RESERVING RESTRICT RETAIN RETURN 
-                RETURNING_VALUES RETURNS REVOKE RIGHT ROLE ROLLBACK RUNTIME SCHEMA SECOND SEGMENT SELECT SET SHADOW SHARED SHELL 
-                SHOW SINGULAR SIZE SMALLINT SNAPSHOT SOME SORT SQLCODE SQLERROR SQLWARNING STABILITY STARTING STARTS STATEMENT 
-                STATIC STATISTICS SUB_TYPE SUM SUSPEND TABLE TERMINATOR THEN TIME TIMESTAMP TO TRANSACTION TRANSLATE TRANSLATION 
-                TRIGGER TRIM TYPE UNCOMMITTED UNION UNIQUE UPDATE UPPER USER USING VALUE VALUES VARCHAR VARIABLE VARYING VERSION 
-                VIEW WAIT WEEKDAY WHEN WHENEVER WHERE WHILE WITH WORK WRITE YEAR YEARDAY""".split()
-            
             #print 'FireBird: ',len(self.params['keywords'])
-        elif self.dbmsType == 'mysql':
-            self.params['table_desc'] = "ALTER TABLE %(table)s COMMENT %(desc)s"
-            self.params['column_desc'] = "ALTER TABLE %(table)s MODIFY %(column)s %(type)sCOMMENT %(desc)s"
-            self.params['max_id_len'] = { 'default' : 64 }
-            self.params['has_auto_increment'] = True
-
-            self.params['keywords'] = """
-                ADD ALL ALTER ANALYZE AND AS ASC ASENSITIVE AUTO_INCREMENT BDB BEFORE BERKELEYDB BETWEEN BIGINT BINARY
-                BLOB BOTH BY CALL CASCADE CASE CHANGE CHAR CHARACTER CHECK COLLATE COLUMN COLUMNS CONDITION CONNECTION
-                CONSTRAINT CONTINUE CREATE CROSS CURRENT_DATE CURRENT_TIME CURRENT_TIMESTAMP CURSOR DATABASE 
-                DATABASES DAY_HOUR DAY_MICROSECOND DAY_MINUTE DAY_SECOND DEC DECIMAL DECLARE DEFAULT DELAYED DELETE DESC
-                DESCRIBE DETERMINISTIC DISTINCT DISTINCTROW DIV DOUBLE DROP ELSE ELSEIF ENCLOSED ESCAPED EXISTS EXIT 
-                EXPLAIN FALSE FETCH FIELDS FLOAT FOR FORCE FOREIGN FOUND FRAC_SECOND FROM FULLTEXT GRANT GROUP
-                HAVING HIGH_PRIORITY HOUR_MICROSECOND HOUR_MINUTE HOUR_SECOND IF IGNORE IN INDEX INFILE INNER INNODB
-                INOUT INSENSITIVE INSERT INT INTEGER INTERVAL INTO IO_THREAD IS ITERATE JOIN KEY KEYS KILL LEADING
-                LEAVE LEFT LIKE LIMIT LINES LOAD LOCALTIME LOCALTIMESTAMP LOCK LONG LONGBLOB LONGTEXT LOOP LOW_PRIORITY 
-                MASTER_SERVER_ID MATCH MEDIUMBLOB MEDIUMINT MEDIUMTEXT MIDDLEINT MINUTE_MICROSECOND MINUTE_SECOND MOD NATURAL
-                NOT NO_WRITE_TO_BINLOG NULL NUMERIC ON OPTIMIZE OPTION OPTIONALLY OR ORDER OUT OUTER OUTFILE PRECISION PRIMARY
-                PRIVILEGES PROCEDURE PURGE READ REAL REFERENCES REGEXP RENAME REPEAT REPLACE REQUIRE RESTRICT RETURN REVOKE RIGHT
-                RLIKE SECOND_MICROSECOND SELECT SENSITIVE SEPARATOR SET SHOW SMALLINT SOME SONAME SPATIAL SPECIFIC
-                SQL SQLEXCEPTION SQLSTATE SQLWARNING SQL_BIG_RESULT SQL_CALC_FOUND_ROWS SQL_SMALL_RESULT SQL_TSI_DAY 
-                SQL_TSI_FRAC_SECOND SQL_TSI_HOUR SQL_TSI_MINUTE SQL_TSI_MONTH SQL_TSI_QUARTER SQL_TSI_SECOND SQL_TSI_WEEK
-                SQL_TSI_YEAR SSL STARTING STRAIGHT_JOIN STRIPED TABLE TABLES TERMINATED THEN TIMESTAMPADD TIMESTAMPDIFF TINYBLOB
-                TINYINT TINYTEXT TO TRAILING TRUE UNDO UNION UNIQUE UNLOCK UNSIGNED UPDATE USAGE USE USER_RESOURCES USING
-                UTC_DATE UTC_TIME UTC_TIMESTAMP VALUES VARBINARY VARCHAR VARCHARACTER VARYING WHEN WHERE WHILE WITH
-                WRITE XOR YEAR_MONTH ZEROFILL""".split() 
-            #print 'MySql: ',len(self.params['keywords'])
-        elif self.dbmsType == 'postgres':
-            self.params['max_id_len'] ={ 'default' : 63 },
-            self.params['keywords'] = """
-                ALL AND ANY AS ASC AUTHORIZATION BETWEEN BINARY BOTH CASE CAST CHECK COLLATE COLUMN CONSTRAINT CREATE
-                CROSS CURRENT_DATE CURRENT_TIME CURRENT_TIMESTAMP CURRENT_USER DEFAULT DEFERRABLE DESC DISTINCT ELSE
-                END EXCEPT FALSE FOR FOREIGN FREEZE FROM FULL GRANT GROUP HAVING ILIKE IN INITIALLY INNER INTERSECT
-                INTO IS ISNULL JOIN LEADING LEFT LIKE LIMIT LOCALTIME LOCALTIMESTAMP NATURAL NEW NOT NOTNULL NULL 
-                OFF OLD ON ONLY OR ORDER OUTER OVERLAPS PRIMARY REFERENCES RIGHT SELECT SESSION_USER SIMILAR SOME TABLE 
-                THEN TO TRAILING TRUE UNION UNIQUE USER USING VERBOSE WHEN WHERE""".split()
-            #print 'Postgres: ',len(self.params['keywords'])
-        
-        
-        #For reference here are the list of keywords for a real language -- python (case sensitive too):
-        python_kwds = """and del for is raise assert elif from lambda return break else global not try class except if or while    
-            continue exec import pass yield def finally in print""".split()
-        #print 'Python:', len(python_kwds)
 
 
     def retColDefs(self, doc, strPreDdl, strPostDdl):
@@ -163,49 +94,11 @@ class Xml2Ddl:
             strRet += ' DEFAULT null'
         
         if col.hasAttribute('autoincrement') and col.getAttribute('autoincrement').lower() == "yes":
-            strRet += self.addAutoIncrement(col, strPreDdl, strPostDdl)
+            strTableName = col.parentNode.parentNode.getAttribute('name')
+            strRet += self.ddlInterface.addAutoIncrement(strTableName, strColName, col.getAttribute('default'), strPreDdl, strPostDdl)
 
         return strRet
     
-    def getSeqName(self, strTableName, strColName):
-        return '%s_%s_seq' % (strTableName, strColName)
-    
-    def getAiTriggerName(self, strTableName, strColName):
-        return 'ai_%s_%s' % (strTableName, strColName)
-    
-    def addAutoIncrement(self, col, strPreDdl, strPostDdl):
-        strTableName = col.parentNode.parentNode.getAttribute('name')
-        
-        info = {
-            'table_name' : strTableName,
-            'col_name'   : col.getAttribute('name'),
-            'seq_name'   : self.getSeqName(strTableName, col.getAttribute('name')),
-            'ai_trigger' : self.getAiTriggerName(strTableName, col.getAttribute('name')),
-        }
-        
-        if self.params['has_auto_increment']:
-            return ' AUTO_INCREMENT'
-    
-        if self.dbmsType == 'firebird':
-            strPreDdl.append(('autoincrement generator',
-                'CREATE GENERATOR %(seq_name)s' % info))
-            strPostDdl.append(('autoincrement trigger',
-                """CREATE TRIGGER %(ai_trigger)s FOR %(table_name)s
-                BEFORE INSERT AS
-                BEGIN
-                    NEW.%(col_name)s = GEN_ID(%(seq_name)s, 1);
-                END""" % info))
-            return ''
-        
-        strPreDdl.append(('autoincrement', 
-            'CREATE SEQUENCE %(seq_name)s' % info))
-            
-        if col.getAttribute('default'):
-            print "Error: can't have a default and autoincrement together"
-            return ''
-            
-        return " DEFAULT nextval('%(seq_name)s')" % info
-        
     def getColType(self, col):
         strColType = col.getAttribute('type')
         nSize = None
@@ -385,14 +278,6 @@ class Xml2Ddl:
         self.addRelations(doc)
         self.addDataset(doc)
     
-    def addTableComment(self, tableName, desc):
-        """ TODO: Fix the desc for special characters """
-        info = {
-            'table' : tableName,
-            'desc' : self.ddlInterface.quoteString(desc),
-        }
-        self.ddls.append(('Table Comment',
-            self.params['table_desc'] % info ))
 
     def addColumnComments(self, doc):
         """ TODO: Fix the desc for special characters """
@@ -402,15 +287,6 @@ class Xml2Ddl:
             if column.hasAttribute('desc'):
                 self.addColumnComment(column, strTableName, column.getAttribute('name'), column.getAttribute('desc'))
 
-    def addColumnComment(self, col, strTableName, strColumnName, strDesc):
-        info = {
-            'table' : strTableName,
-            'column' : strColumnName,
-            'desc' :  self.ddlInterface.quoteString(strDesc),
-            'type' : self.getColType(col) + ' ',
-        }
-        self.ddls.append(('Column comment',
-            self.params['column_desc'] % info ))
 
     def createTables(self, xml):
         self.ddls = []

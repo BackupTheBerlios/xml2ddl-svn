@@ -46,16 +46,14 @@ class FindChanges:
     def setDbms(self, dbmsType):
         self._defaults()
         self.reset()
-        self.ddli = createDdlInterface(dbmsType)
         
         self.dbmsType = dbmsType.lower()
         self.xml2ddl.setDbms(self.dbmsType)
+        self.ddli = createDdlInterface(self.dbmsType)
         
         if self.dbmsType not in ['postgres', 'postgres7', 'mysql', 'oracle', 'firebird']:
             print "Unknown dbms %s" % (dbmsType)
-        elif self.dbmsType == 'postgres7':
-            self.params['no_alter_column_type'] = True
-        elif self.dbmsType == 'firebird':
+        if self.dbmsType == 'firebird':
             self.params['rename_keyword'] = 'ALTER'
             self.params['drop_constraints_on_col_rename'] = True
             self.params['drop_table_has_cascade'] = False
@@ -69,25 +67,17 @@ class FindChanges:
             self.params['drop_index'] = 'DROP INDEX %(index_name)s ON %(table_name)s'
             
 
-    def retColTypeEtc(self, col):
-        strNull = ''
-        if col.getAttribute('null'):
-            strVal = col.getAttribute('null')
-            if re.compile('not|no', re.IGNORECASE).search(strVal):
-                strNull = ' NOT NULL'
-        
-        strType = col.getAttribute('type')
-        strSize = col.getAttribute('size')
-        strPrec = col.getAttribute('precision')
-        
-        if strPrec:
-            strRet = '%s(%s, %s)%s' % (strType, strSize, strPrec, strNull)
-        elif strSize:
-            strRet = '%s(%s)%s' % (strType, strSize, strNull)
-        else:
-            strRet = '%s%s' % (strType, strNull)
-
-        return strRet
+    def changeAutoIncrement(self, strTableName, old, new):
+        # Remove old, and new
+        strOldAuto = old.getAttribute('autoincrement').lower()
+        strNewAuto = new.getAttribute('autoincrement').lower()
+        if strOldAuto != strNewAuto:
+            if strNewAuto == 'yes':
+                # Hmm, if we created the column the autoincrement would already be there anyway.
+                pass
+                #print "Add Autoincrement TODO"
+            else:
+                self.ddli.dropAutoIncrement(strTableName, old, self.diffs)
 
     def changeCol(self, strTableName, old, new):
         self.changeColType(strTableName, old, new)
@@ -99,11 +89,11 @@ class FindChanges:
         self.changeColComments(strTableName, old, new)
 
     def changeColType(self, strTableName, old, new):
-        strOldColType = self.retColTypeEtc(old)
-        strNewColType = self.retColTypeEtc(new)
+        strOldColType = self.ddli.retColTypeEtc(old)
+        strNewColType = self.ddli.retColTypeEtc(new)
         
         if self.normalizedColType(strNewColType) != self.normalizedColType(strOldColType):
-            self.doChangeColType(strTableName, old.getAttribute('name'), strNewColType)
+            self.ddli.doChangeColType(strTableName, old.getAttribute('name'), strNewColType, self.diffs)
 
     def normalizedColType(self, strColTypeEtc):
         if not self.bGenerated:
@@ -119,45 +109,6 @@ class FindChanges:
         
         return strColTypeEtc
     
-    def changeAutoIncrement(self, strTableName, old, new):
-        strOldAuto = old.getAttribute('autoincrement').lower()
-        strNewAuto = new.getAttribute('autoincrement').lower()
-        if strOldAuto != strNewAuto:
-            if strNewAuto == 'yes':
-                # Hmm, if we created the column the autoincrement would already be there anyway.
-                pass
-                #print "Add Autoincrement TODO"
-            else:
-                self.dropAutoIncrement(strTableName, old)
-
-    def dropAutoIncrement(self, strTableName, col):
-        info = {
-            'table_name' : strTableName,
-            'col_name'   : col.getAttribute('name'),
-            'seq_name'   : self.xml2ddl.getSeqName(strTableName, col.getAttribute('name')),
-            'ai_trigger' : self.xml2ddl.getAiTriggerName(strTableName, col.getAttribute('name')),
-        }
-        if self.xml2ddl.params['has_auto_increment']:
-            old = col.cloneNode(False)
-            old.setAttribute('type', "bla") # Pretend the old type was different
-            self.changeColType(strTableName, old, col)
-            return
-
-        
-        if self.dbmsType == 'firebird':
-            self.diffs.append(('Drop Autoincrement Trigger', 
-                'DROP TRIGGER %(ai_trigger)s' % info))
-            
-            self.diffs.append(('Drop Autoincrement', 
-                'DROP GENERATOR %(seq_name)s' % info))
-            return
-            
-        # For postgres
-        self.diffs.append(('Drop Autoincrement', 
-            'DROP SEQUENCE %(seq_name)s' % info))
-        
-        self.dropDefault(strTableName, col)
-    
     def changeColDefaults(self, strTableName, old, new):
         strOldDefault = old.getAttribute('default')
         strNewDefault = new.getAttribute('default')
@@ -168,7 +119,7 @@ class FindChanges:
                 'change_type_keyword' : 'ALTER',
                 'new_default' : strNewDefault,
                 'default_keyword' : 'SET DEFAULT',
-                'column_type' : self.retColTypeEtc(new),
+                'column_type' : self.ddli.retColTypeEtc(new),
                 'TYPE' : self.params['TYPE'],
             }
             
@@ -182,37 +133,13 @@ class FindChanges:
                     ('Change Default', 
                     'ALTER TABLE %(table_name)s %(change_type_keyword)s %(column_name)s %(default_keyword)s %(new_default)s' % info))
 
-    def dropDefault(self, strTableName, col):
-        info = {
-            'table_name' : self.ddli.quoteName(strTableName),
-            'column_name' : self.ddli.quoteName(col.getAttribute('name')),
-            'change_type_keyword' : 'ALTER',
-            'new_default' : 'null', # FIX TODO Null, 0 or ''
-            'default_keyword' : 'SET DEFAULT',
-            'column_type' : self.retColTypeEtc(col),
-            'TYPE' : self.params['TYPE'],
-        }
-            
-        if self.params['no_alter_default']:
-            # Firebird
-            self.diffs.append(
-                ('Drop Default', 
-                'ALTER TABLE %(table_name)s %(change_type_keyword)s %(column_name)s %(TYPE)s%(column_type)s' % info))
-        else:
-            self.diffs.append(
-                ('Drop Default', 
-                'ALTER TABLE %(table_name)s %(change_type_keyword)s %(column_name)s %(default_keyword)s %(new_default)s' % info))
-
     def changeColComments(self, strTableName, old, new):
         # Check for difference in comments.
         strNewComment = safeGet(new, 'desc')
         strOldComment = safeGet(old, 'desc')
         if strNewComment and strNewComment != strOldComment:
             # Fix to delete comments?
-            self.xml2ddl.reset()
-    
-            self.xml2ddl.addColumnComment(new, strTableName, new.getAttribute('name'), strNewComment)
-            self.diffs.extend(self.xml2ddl.ddls)
+            self.ddli.addColumnComment(self.ddli.retColTypeEtc(new), strTableName, new.getAttribute('name'), strNewComment, self.diffs)
             
 
     def renameColumn(self, strTable, old, new):
@@ -224,7 +151,7 @@ class FindChanges:
             'old_col_name' : self.ddli.quoteName(strOldName),
             'new_col_name' : self.ddli.quoteName(strNewName),
             'rename'       : self.params['rename_keyword'],
-            'column_type'  : self.retColTypeEtc(new), 
+            'column_type'  : self.ddli.retColTypeEtc(new), 
         }
         
         if self.params['drop_constraints_on_col_rename']:
@@ -361,32 +288,8 @@ class FindChanges:
         
     def _dropRelatedSequence(self, strTableName, col):
         if col.getAttribute('autoincrement').lower() == 'yes':
-            self.dropAutoIncrement(strTableName, col)
+            self.ddli.dropAutoIncrement(strTableName, col, self.diffs)
 
-    def doChangeColType(self, strTableName, strColumnName, strNewColType):
-        info = {
-            'table_name' : strTableName,
-            'column_name' : strColumnName,
-            'column_type' : strNewColType,
-            'change_type_keyword' : self.params['change_type_keyword'],
-            'TYPE' : self.params['TYPE'],
-        }
-        
-        if self.params['no_alter_column_type']:
-            # For PostgreSQL 7.x you need to do...
-            self.diffs.append( ('Add for change type',
-                'ALTER TABLE %(table_name)s ADD tmp_%(column_name)s %(column_type)s' % info) )
-            self.diffs.append( ('Copy the data over for change type',
-                'UPDATE %(table_name)s SET tmp_%(column_name)s = %(column_name)s' % info) )
-            self.diffs.append( ('Drop the old column for change type',
-                'ALTER TABLE %(table_name)s DROP %(column_name)s' % info) )
-            self.diffs.append( ('Rename column for change type',
-                'ALTER TABLE %(table_name)s RENAME tmp_%(column_name)s TO %(column_name)s' % info) )
-        else:
-            self.diffs.append(
-                ('Modify column', 
-                'ALTER TABLE %(table_name)s %(change_type_keyword)s %(column_name)s %(TYPE)s%(column_type)s' % info))
-            
 
     def addColumn(self, strTableName, new, nAfter):
         """ nAfter not used yet """
@@ -394,7 +297,7 @@ class FindChanges:
         info = { 
             'table_name' : self.ddli.quoteName(strTableName),
             'column_name' : self.ddli.quoteName(new.getAttribute('name')),
-            'column_type' : self.retColTypeEtc(new) 
+            'column_type' : self.ddli.retColTypeEtc(new) 
         }
         
         strAlter = 'ALTER TABLE %(table_name)s ADD %(column_name)s %(column_type)s' % info
@@ -429,9 +332,7 @@ class FindChanges:
             return
             
         if strOldComment != strNewComment and strNewComment:
-            self.xml2ddl.reset()
-            self.xml2ddl.addTableComment(self.strTableName, strNewComment)
-            self.diffs.extend(self.xml2ddl.ddls)
+            self.ddli.addTableComment(self.strTableName, strNewComment, self.diffs)
 
     def diffColumns(self, old, new):
         self.diffSomething(old, new, 'column', self.renameColumn,  self.changeCol, self.addColumn, self.dropCol, self.findColumn, self.getColName)
