@@ -1,5 +1,16 @@
+Changes since 0.3 (2004-10-18)
+------------------------------
+- Added support for Views
+
+- Added support for stored functions.
+
+- Huge amount of refactoring of the code was done to split out the DBMS specific code into ddlInterface.py
+
+- Some ordering of the DDL statements is performed to decrease the chance of a statement failing because of a dependancy. 
+  But a real dependancy list is probably still required.
+  
 Changes since 0.2 (2004-10-04)
------------------
+------------------------------
 - Can now download the schema from PostgreSQL, MySQL and Firefox
 
 - Unit tests now download the schema from the database to verify the changes expected were made.

@@ -296,12 +296,18 @@ class PgDownloader:
         strQuery = "SELECT PARAMETER_MODE, DATA_TYPE, PARAMETER_NAME from INFORMATION_SCHEMA.PARAMETERS WHERE SPECIFIC_NAME = %s ORDER BY ORDINAL_POSITION"
         self.cursor.execute(strQuery, [strSpecifiName])
         params = []
-        for row in self.cursor.fetchall():
+        repList = []
+        for nIndex, row in enumerate(self.cursor.fetchall()):
             paramMode, dataType, paramName = row
             strParam = dataType
             if paramName:
                 strParam += ' ' + paramName
             params.append(strParam)
+            repList.append(r'\s+(\w+) ALIAS FOR \$%d;' % (nIndex + 1))
+
+        # Cleanup definition by removing the stuff we added.
+        strDefinition = re.compile('|'.join(repList), re.DOTALL | re.MULTILINE).sub('', strDefinition)
+        strDefinition = re.compile(r'\s*DECLARE\s+BEGIN', re.DOTALL | re.MULTILINE).sub('BEGIN', strDefinition)
         
         return (strRoutineName, params, retType, strLanguage, strDefinition)
 
@@ -589,22 +595,6 @@ class FbDownloader:
         fixNames = {
             'character varying' : 'varchar',
         }
-        types = {
-            261: 'blob',
-            14 : 'char',    
-            40 : 'cstring',
-            11 : 'd_float',
-            27 : 'double',
-            10 : 'float',
-            16 : 'int64',
-            8  : 'integer',
-            9  : 'quad',
-            7  : 'smallint',
-            12 : 'date',
-            13 : 'time',
-            35 : 'timestamp',
-            37 : 'varchar',
-        }
         
         # TODO auto_increment
         bAutoIncrement = False
@@ -617,12 +607,7 @@ class FbDownloader:
             if not size and numprecradix == 10:
                 size = numsize
             
-            if nType in types:
-                strType = types[nType]
-                if nType not in [14, 40, 37]:
-                    size = None
-            else:
-                print "Uknown type %d" % (nType)
+            strType = self.convertTypeId(nType)
                 
             if sub_type == 1:
                 strType = 'numeric'
@@ -645,7 +630,35 @@ class FbDownloader:
             ret.append((name.strip(), strType, size, scale, attnull, default, bAutoIncrement))
             
         return ret
-    
+
+    def convertTypeId(self, nType):
+        types = {
+            261: 'blob',
+            14 : 'char',    
+            40 : 'cstring',
+            11 : 'd_float',
+            27 : 'double',
+            10 : 'float',
+            16 : 'int64',
+            8  : 'integer',
+            9  : 'quad',
+            7  : 'smallint',
+            12 : 'date',
+            13 : 'time',
+            35 : 'timestamp',
+            37 : 'varchar',
+        }
+        
+        strType = ''
+        if nType in types:
+            strType = types[nType]
+            if nType not in [14, 40, 37]:
+                size = None
+        else:
+            print "Uknown type %d" % (nType)
+        
+        return strType
+
     def hasAutoincrement(self, strTableName, strColName):
         strSql = "SELECT RDB$GENERATOR_NAME FROM RDB$GENERATORS WHERE UPPER(RDB$GENERATOR_NAME)=UPPER(?);"
         self.cursor.execute(strSql, [getSeqName(strTableName, strColName)[0:31]])
@@ -786,6 +799,48 @@ class FbDownloader:
         
         return ''
 
+    def getFunctions(self):
+        #strQuery = "SELECT RDB$FUNCTION_NAME FROM RDB$FUNCTIONS WHERE RDB$SYSTEM_FLAG = 0"
+        strQuery = "SELECT RDB$PROCEDURE_NAME FROM RDB$PROCEDURES WHERE RDB$SYSTEM_FLAG = 0"
+        self.cursor.execute(strQuery)
+        rows = self.cursor.fetchall()
+        return [x[0].strip() for x in rows]
+
+    def getFunctionDefinition(self, strSpecifiName):
+        """ Returns (routineName, parameters, return, language, definition) """
+        strQuery = "SELECT RDB$PROCEDURE_NAME, RDB$PROCEDURE_SOURCE FROM RDB$PROCEDURES WHERE RDB$SYSTEM_FLAG = 0 AND RDB$PROCEDURE_NAME = upper(?)"
+        self.cursor.execute(strQuery, [strSpecifiName])
+        rows = self.cursor.fetchall()
+        strProcName, strDefinition = rows[0]
+        strDefinition = strDefinition.strip()
+        strProcName = strProcName.strip()
+        
+        strQuery = """SELECT PP.RDB$PARAMETER_NAME, PP.RDB$FIELD_SOURCE, PP.RDB$PARAMETER_TYPE, F.RDB$FIELD_TYPE, F.RDB$FIELD_LENGTH, F.RDB$FIELD_PRECISION, RDB$FIELD_SCALE
+            FROM RDB$PROCEDURE_PARAMETERS PP, RDB$FIELDS F
+            WHERE PP.RDB$PROCEDURE_NAME = upper(?) 
+            AND   PP.RDB$FIELD_SOURCE = F.RDB$FIELD_NAME
+            ORDER BY PP.RDB$PARAMETER_NUMBER"""
+        self.cursor.execute(strQuery, [strSpecifiName])
+        rows = self.cursor.fetchall()
+        args = []
+        rets = []
+        
+        for row in rows:
+            strParamName, strSrc, nParamType, nType, nLen, nPrecision, nScale = row
+            strParamName = strParamName.strip().lower()
+            strSrc = strSrc.strip()
+            strType = self.convertTypeId(nType)
+            
+            if nParamType == 0:
+                args.append(strParamName + ' ' + strType)
+            else:
+                if strParamName.lower() == 'ret':
+                    rets.append(strType)
+                else:
+                    rets.append(strParamName + ' ' + strType)
+        
+        return (strProcName.lower(), args, ','.join(rets), '', strDefinition)
+        
 class DownloadXml:
     def __init__(self, downloader):
         self.db = downloader
@@ -972,16 +1027,16 @@ if __name__ == "__main__":
     import optparse
     parser = optparse.OptionParser()
     parser.add_option("-b", "--dbms",
-                  dest="strDbms", metavar="DBMS", default="postgres",
+                  dest="strDbms", metavar="DBMS", default="firebird", #"postgres",
                   help="Dowload for which Database Managment System (postgres, mysql, or firebird)")
     parser.add_option("-d", "--dbname",
-                  dest="strDbName", metavar="DATABASE", default="simplifia",
+                  dest="strDbName", metavar="DATABASE", default="/scott/xml2ddl/tests/test.db",#"simplifia",
                   help="Dowload for which named Database")
     parser.add_option("-u", "--user",
-                  dest="strUserName", metavar="USER", default="postgres",
+                  dest="strUserName", metavar="USER", default="SYSDBA", #"postgres",
                   help="User to login with")
     parser.add_option("-p", "--pass",
-                  dest="strPassword", metavar="PASS", default="postgres",
+                  dest="strPassword", metavar="PASS", default="masterkey", #"postgres",
                   help="Password for the user")
 
     (options, args) = parser.parse_args()

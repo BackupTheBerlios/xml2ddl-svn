@@ -498,11 +498,15 @@ class FindChanges:
         attribs = attribsToDict(new)
         strDefinition = new.firstChild.nodeValue.strip()
         
-        self.ddli.renameFunction(old.getAttribute('name'), new.getAttribute('name'), strDefinition, attribs, self.diffs)
+        if self.inDbms(new):
+            self.ddli.renameFunction(old.getAttribute('name'), new.getAttribute('name'), strDefinition, attribs, self.diffs)
         
     def diffFunction(self, ignore, oldFunction, newFunction):
         strOldContents = oldFunction.firstChild.nodeValue.strip()
         strNewContents = newFunction.firstChild.nodeValue.strip()
+        
+        if not self.inDbms(newFunction):
+            return
         
         if strOldContents != strNewContents:
             attribs = attribsToDict(newFunction)
@@ -518,17 +522,19 @@ class FindChanges:
         # strNewFunctionName, argumentList, strReturn, strContents, attribs, diffs
         argumentList = [arg.strip() for arg in new.getAttribute('arguments').split(',')]
         
-        self.ddli.addFunction(new.getAttribute('name'), argumentList, new.getAttribute('returns'), strDefinition.strip(), attribs, self.diffs)
+        if self.inDbms(new):
+            self.ddli.addFunction(new.getAttribute('name'), argumentList, new.getAttribute('returns'), strDefinition.strip(), attribs, self.diffs)
         
-    def dropFunction(self, ignore, view):
-        self.ddli.dropFunction(view.getAttribute('name'), view.getAttribute('arguments').split(','), self.diffs)
+    def dropFunction(self, ignore, func):
+        if self.inDbms(func):
+            self.ddli.dropFunction(func.getAttribute('name'), func.getAttribute('arguments').split(','), self.diffs)
         
-    def findFunction(self, views, strFunctionName):
+    def findFunction(self, funcs, strFunctionName):
         strFunctionName = strFunctionName.lower()
-        for view in views:
-            strCurFunctionName = view.getAttribute('name').lower()
-            if strCurFunctionName == strFunctionName:
-                return view
+        for func in funcs:
+            strCurFunctionName = func.getAttribute('name').lower()
+            if strCurFunctionName == strFunctionName and self.inDbms(func):
+                return func
             
         return None
         
@@ -576,34 +582,35 @@ class FindChanges:
     
     def ddlSorter(self, a, b):
         orderDict = {
-            'Create Table'                  : 0,
-            'Drop Table'                    : 0,
-            'Rename Table'                  : 0,
-            'Add Table Comment'             : 0,
-            'Add Column'                    : 0,
-            'Drop Column'                   : 0,
-            'Rename column'                 : 0,
-            'Add view'                      : 0,
-            'Drop view'                     : -99,
-            'Add Column comment'            : 0,
-            'Add key constraint'            : 0,
-            'Drop key constraint'           : 0,
-            'Add Index'                     : 0,
-            'Drop Index'                    : -99,
-            'Add Relation'                  : 0,
-            'Drop Relation'                 : -99,
-            'Add Autoincrement Generator'   : 0,
-            'Add Autoincrement Trigger'     : 0,
-            'Add Autoincrement'             : 0,
-            'Drop Autoincrement Trigger'    : 0,
-            'Drop Autoincrement'            : -99,
-            'Change Col Type'               : -9, # Change col type needs to be before change default
-            'Change Default'                : -5,
-            'Add for change type'           : -4,
+            'Create Table'                        : 0,
+            'Drop Table'                          : 0,
+            'Rename Table'                        : 0,
+            'Add Table Comment'                   : 0,
+            'Add Column'                          : 0,
+            'Drop Column'                         : 0,
+            'Rename column'                       : 0,
+            'Add view'                            : 0,
+            'Drop view'                           : -99,
+            'Add Column comment'                  : 0,
+            'Add key constraint'                  : 0,
+            'Drop key constraint'                 : 0,
+            'Add Index'                           : 0,
+            'Drop Index'                          : -99,
+            'Add Relation'                        : 0,
+            'Drop Relation'                       : -99,
+            'Add Autoincrement Generator'         : 0,
+            'Add Autoincrement Trigger'           : 0,
+            'Add Autoincrement'                   : 0,
+            'Drop Autoincrement Trigger'          : 0,
+            'Drop Autoincrement'                  : -99,
+            'Change Col Type'                     : -9, # Change col type needs to be before change default
+            'Change Default'                      : -5,
+            'Add for change type'                 : -4,
             'Copy the data over for change type'  : -3,
             'Drop the old column for change type' : -2,
-            'Rename column for change type' : -1,
-            'Drop function'                 : 0,
+            'Rename column for change type'       : -1,
+            'Add function'                        : 0,
+            'Drop function'                       : 0,
         }
         
         if a and b:
@@ -611,6 +618,17 @@ class FindChanges:
         
         return 0
     
+    def inDbms(self, node):
+        if not node.hasAttribute('dbms'):
+            return True
+        
+        dbmsList = node.getAttribute('dbms').lower().split(',')
+        
+        if len(dbmsList) == 0 or self.dbmsType in dbmsList:
+            return True
+        
+        return False
+
 def safeGet(dom, strKey, default = None):
     if dom.hasAttribute(strKey):
         return dom.getAttribute(strKey)
@@ -618,7 +636,8 @@ def safeGet(dom, strKey, default = None):
     
 if __name__ == "__main__":
     import optparse
-    parser = optparse.OptionParser()
+    usage = "usage: %prog [options] <filename>"
+    parser = optparse.OptionParser(usage)
     parser.add_option("-b", "--dbms",
                   dest="strDbms", metavar="DBMS", default="postgres",
                   help="Output for which Database System")
@@ -626,8 +645,12 @@ if __name__ == "__main__":
 
     fc = FindChanges()
     fc.setDbms(options.strDbms)
-    strNewFile = args[0]
-    if len(args) > 1:
+    if len(args) == 0:
+        parser.error("Need a filename to compare against")
+    else:
+        strNewFile = args[0]
+    
+    if len(args) == 2:
         strOldFile = args[1]
     else:
         strOldFile = './.svn/text-base/%s.svn-base' % strNewFile

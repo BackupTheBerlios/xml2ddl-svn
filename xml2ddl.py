@@ -37,7 +37,7 @@ http://weblogs.asp.net/jamauss/articles/DatabaseNamingConventions.aspx
 
 class Xml2Ddl:
     def __init__(self):
-        self.ddlinterface = None
+        self.ddlInterface = None
         self._setDefaults()
         self.reset()
         
@@ -166,7 +166,7 @@ class Xml2Ddl:
                 cols.append(strColName)
                 
                 strType = col2Type[strColName].lower()
-                if strType == 'varchar' or strType == 'char':
+                if strType in ('varchar', 'char', 'date', 'point'):
                     # TODO: do more types
                     vals.append(self.ddlInterface.quoteString(strColValue))
                 else:
@@ -179,7 +179,7 @@ class Xml2Ddl:
         strTableName = self.ddlInterface.quoteName(doc.getAttribute('name'))
         
         if self.params['drop-tables']:
-            self.ddlInterface.dropTable(strTableName, '')
+            self.ddlInterface.dropTable(strTableName, '', self.ddls)
         
         strPreDdl = []
         strPostDdl = []
@@ -219,7 +219,7 @@ class Xml2Ddl:
         
         for column in doc.getElementsByTagName('column'):
             if column.hasAttribute('desc'):
-                self.addColumnComment(column, strTableName, column.getAttribute('name'), column.getAttribute('desc'))
+                self.ddlInterface.addColumnComment(strTableName, column.getAttribute('name'), column.getAttribute('desc'), 'TODO', self.ddls)
 
 
     def createTables(self, xml):
@@ -327,6 +327,8 @@ def handleDictionary(ret):
     
 if __name__ == "__main__":
     import optparse
+    
+    usage = "usage: %prog [options]"
     parser = optparse.OptionParser()
     parser.add_option("-d", "--drop",
                   action="store_true", dest="bDrop", default=True,

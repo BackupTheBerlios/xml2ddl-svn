@@ -1,6 +1,6 @@
 import re, sys
 sys.path += ['../']
-import xml2ddl, diffxml2ddl
+import xml2ddl, diffxml2ddl, ddlInterface
 import glob
 from xml.dom.minidom import parse, parseString
 
@@ -190,8 +190,7 @@ class OutputSamples:
         re_first_spaces = re.compile(r'\n')
         strText = re_first_spaces.sub('<br/>', strText)
         
-        cd = xml2ddl.Xml2Ddl()
-        cd.setDbms('firebird') # Firebird has the most keywords
+        cd = ddlInterface.createDdlInterface('firebird') # Firebird has the most keywords
 
         re_keywords = re.compile(r'\b(%s)\b' % ('|'.join(cd.params['keywords'])), re.IGNORECASE)
         strText = re_keywords.sub(r'<span class="keyword">\1</span>', strText)

@@ -296,6 +296,37 @@ class Xml2Html:
         self.lines += ['<td>%s</td>' % (strColumns) ]
         self.lines += ['</tr>']
         
+    def outputViews(self):
+        views = self.xml.getElementsByTagName('view')
+        if len(views) == 0:
+            return
+        
+        self.lines += ['<h3>Views</h3>']
+        
+        self.lines += ['<table class="blue">']
+        for nIndex, view in enumerate(views):
+            outputView(view, nIndex)
+        
+        self.lines += ['</table>']
+            
+    def outputView(self, view):
+        """ I think I'll just output the metadata instead of the actual view for now """
+        
+        strName = view.getAttribute('name')
+        strFull = view.getAttribute('fullname')
+        strDesc = view.getAttribute('desc')
+        
+        if (nIndex % 2) == 0:
+            strEvenOdd = 'even'
+        else:
+            strEvenOdd = 'odd'            
+        self.lines += ['<tr class="%s">' % (strEvenOdd) ]
+        self.lines += ['<td>%s</td>' % (strName) ]
+        self.lines += ['<td>%s</td>' % (strFull) ]
+        self.lines += ['<td>%s</td>' % (strDesc) ]
+        self.lines += ['</tr>']
+        
+        
     def outputHtml(self, xml):
         self.xml = xml
         self.lines = []
@@ -303,13 +334,17 @@ class Xml2Html:
         self.addHeader()
         self.tableToc()
         self.outTables()
+        self.outViews()
+        self.outFunctions()
         self.addTrailer()
         
         return self.lines
         
 if __name__ == "__main__":
     import optparse
-    parser = optparse.OptionParser()
+    
+    usage = "usage: %prog [options] <filename>"
+    parser = optparse.OptionParser(usage)
     parser.add_option("-f", "--file", dest="filename",
                   help="write report to FILE", metavar="FILE")
 
@@ -317,6 +352,9 @@ if __name__ == "__main__":
 
     x2h = Xml2Html()
     
+    if len(args) != 1:
+        parser.error("incorrect number of arguments")
+
     strFilename = args[0]
     xml = xml2ddl.readMergeDict(strFilename)
     lines = x2h.outputHtml(xml)

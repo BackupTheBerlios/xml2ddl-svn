@@ -79,7 +79,8 @@ def doTests():
             if docDdl.hasAttribute('dbms'):
                 curList = docDdl.getAttribute('dbms').split(',')
                 for aDbms in curList:
-                    theList.remove(aDbms)
+                    if aDbms in theList:
+                        theList.remove(aDbms)
             else:
                 continue
             

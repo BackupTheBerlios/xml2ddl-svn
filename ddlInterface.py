@@ -1,4 +1,3 @@
-
 #! /usr/bin/env python
 # -*- coding: iso-8859-1 -*-
 
@@ -8,7 +7,11 @@ from xml.dom.minidom import parse, parseString
 __author__ = "Scott Kirkwood (scott_kirkwood at berlios.com)"
 __keywords__ = ['XML', 'DML', 'SQL', 'Databases', 'Agile DB', 'ALTER', 'CREATE TABLE', 'GPL']
 __licence__ = "GNU Public License (GPL)"
-__longdescr__ = ""
+__longdescr__ = """
+    This class DdlCommonInterface is a parent to other classes, one for each DBMS (for example, DdlPostgres is one).
+    Any parameters required is either passed as a normal parameter or is passed through a dictionary.
+    
+    """
 __url__ = 'http://xml2dml.berlios.de'
 __version__ = "$Revision: 0.2 $"
 
@@ -467,7 +470,7 @@ class DdlPostgres(DdlCommonInterface):
         for nIndex, arg in enumerate(argumentList):
             oneArg = arg.strip().split()
             newArgs.append(oneArg[-1])
-            declares.append('  %s ALIAS FOR $%d;' % (oneArg[0], nIndex + 1))
+            declares.append('    %s ALIAS FOR $%d;' % (oneArg[0], nIndex + 1))
         
         if len(declares) > 0:
             match = re.compile('(\s*declare)(.*)', re.IGNORECASE | re.MULTILINE | re.DOTALL).match(strContents)
@@ -547,7 +550,7 @@ class DdlMySql(DdlCommonInterface):
         if 'language' in attribs:
             info['language'] = ' LANGUAGE %s' % (attribs['language'])
 
-        diffs.append(('Add view',  # OR REPLACE 
+        diffs.append(('Add function',  # OR REPLACE 
             "CREATE FUNCTION %(functionname)s(%(arguments)s) RETURNS %(returns)s %(language)s\n%(contents)s" % info )
         )
 
@@ -556,7 +559,7 @@ class DdlMySql(DdlCommonInterface):
             'functionname' : self.quoteName(strOldFunctionName),
         }
         diffs.append(('Drop function',
-            'DROP FUNCTION %(functionname)s' % info )
+            'DROP FUNCTION %(functionname)s' % info)
         )
 
 class DdlFirebird(DdlCommonInterface):
@@ -596,6 +599,30 @@ class DdlFirebird(DdlCommonInterface):
         # alter table table1 drop constraint pk_table1;
         # before dropping the table (what a pain)
 
+    def addFunction(self, strNewFunctionName, argumentList, strReturn, strContents, attribs, diffs):
+        argumentList = [ '%s' % arg for arg in argumentList ]
+        info = {
+            'functionname' : self.quoteName(strNewFunctionName),
+            'arguments'  : ', '.join(argumentList),
+            'returns'  : strReturn,
+            'contents' : strContents.replace("'", "''"),
+            'language' : '',
+        }
+        if 'language' in attribs:
+            info['language'] = ' LANGUAGE %s' % (attribs['language'])
+
+        diffs.append(('Add function',  # OR REPLACE
+            "CREATE PROCEDURE %(functionname)s(%(arguments)s) RETURNS (ret %(returns)s) AS \n%(contents)s;" % info )
+        )
+
+    def dropFunction(self, strOldFunctionName, argumentList, diffs):
+        info = {
+            'functionname' : self.quoteName(strOldFunctionName),
+        }
+        diffs.append(('Drop function',
+            'DROP PROCEDURE %(functionname)s' % info )
+        )
+    
 def attribsToDict(node):
     dict = {}
     attribs = node.attributes

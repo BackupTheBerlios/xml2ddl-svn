@@ -5,25 +5,36 @@
 </before>
 <after>
     <schema>
-        <function name="sales_tax" arguments="subtotal real" returns="real">
+        <function name="sales_tax" arguments="subtotal float" returns="float" dbms="firebird">
+BEGIN
+    ret = subtotal * 0.06;
+END
+  </function>
+        <function name="sales_tax" arguments="subtotal float" returns="float" dbms="postgres,mysql">
 BEGIN
     RETURN subtotal * 0.06;
-END;
-        </function>
+END
+  </function>
     </schema>
 </after>
 <ddls dbms="postgres">
-    <ddl>CREATE FUNCTION sales_tax(real) RETURNS real AS '
+    <ddl>CREATE FUNCTION sales_tax(float) RETURNS float AS '
 DECLARE
     subtotal ALIAS FOR $1;
 BEGIN
     RETURN subtotal * 0.06;
-END;' LANGUAGE plpgsql</ddl>
+END' LANGUAGE plpgsql</ddl>
 </ddls>
 <ddls dbms="mysql">
-    <ddl>CREATE FUNCTION sales_tax(subtotal real) RETURNS real 
+    <ddl>CREATE FUNCTION sales_tax(subtotal float) RETURNS float 
 BEGIN
     RETURN subtotal * 0.06;
+END</ddl>
+</ddls>
+<ddls dbms="firebird">
+    <ddl>CREATE PROCEDURE sales_tax(subtotal float) RETURNS (ret float) AS 
+BEGIN
+    ret = subtotal * 0.06;
 END;</ddl>
 </ddls>
 </test>

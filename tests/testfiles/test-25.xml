@@ -1,34 +1,41 @@
 <test title="Change a function">
 <before>
     <schema>
-        <function name="sales_tax" arguments="subtotal real" returns="real">
+        <function name="sales_tax" arguments="subtotal float" returns="float">
 BEGIN
     RETURN subtotal * 0.06;
-END;
+END
         </function>
     </schema>
 </before>
 <after>
     <schema>
-        <function name="sales_tax" arguments="subtotal real" returns="real">
+        <function name="sales_tax" arguments="subtotal float" returns="float">
 BEGIN
     RETURN subtotal * 0.07;
-END;
+END
         </function>
     </schema>
 </after>
 <ddls dbms="postgres">
-    <ddl>DROP FUNCTION sales_tax(real)</ddl>
-    <ddl>CREATE FUNCTION sales_tax(real) RETURNS real AS '
+    <ddl>DROP FUNCTION sales_tax(float)</ddl>
+    <ddl>CREATE FUNCTION sales_tax(float) RETURNS float AS '
 DECLARE
     subtotal ALIAS FOR $1;
 BEGIN
     RETURN subtotal * 0.07;
-END;' LANGUAGE plpgsql</ddl>
+END' LANGUAGE plpgsql</ddl>
 </ddls>
 <ddls dbms="mysql">
     <ddl>DROP FUNCTION sales_tax</ddl>
-    <ddl>CREATE FUNCTION sales_tax(subtotal real) RETURNS real 
+    <ddl>CREATE FUNCTION sales_tax(subtotal float) RETURNS float 
+BEGIN
+    RETURN subtotal * 0.07;
+END</ddl>
+</ddls>
+<ddls dbms="firebird">
+    <ddl>DROP PROCEDURE sales_tax</ddl>
+    <ddl>CREATE PROCEDURE sales_tax(subtotal float) RETURNS (ret float) AS 
 BEGIN
     RETURN subtotal * 0.07;
 END;</ddl>

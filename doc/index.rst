@@ -25,9 +25,17 @@ Finallly, |xml2ddl| can generate HTML documentation of your schema.
 
 You can find more information and download files at the `Berlios page <http://developer.berlios.de/projects/xml2ddl/>`_
 
-And you can find documentation through the many `test cases <http://xml2ddl.berlios.de/testdetails.html>`_.
+And you can find documentation through the many `test cases <testdetails.html>`_.
 
 You can add comments or help in the `wiki pages <http://openfacts.berlios.de/index-en.phtml?title=XML%20to%20DDL>`_. 
+
+I you like you can read this document in `PDF form <index.pdf>`_.
+
+This code was written with Agile Data Modeling techniques in mind
+see also
+`Ten Steps to a Robust DB <http://www.sdmagazine.com/documents/s=826/sdm0302h/>`_, 
+`Agile Data Modeling <http://www.sdmagazine.com/documents/s=826/sdm0407g/>`_.
+
 
 .. [#] For PostgreSQL you need ``psycopg``, For MySQL you need ``MySQLdb`` and for Firebird you need ``kinterbasdb``.
 
@@ -599,7 +607,7 @@ Create a view to the table.  (new)
 
 (4) A full description of the view.
 
-(5) You can optionally specify the column names, but most DBMS can infer them from the select statement.|Not supported|
+(5) You can optionally specify the column names, but most DBMS can infer them from the select statement. |Not supported|
 
 (6) The contents of the view.
 
@@ -617,7 +625,6 @@ Create a view to the table.  (new)
         (10)
     </function>
 
-|Not supported|
 You can specify the body of a stored procedure or function.
 
 (1) Name of the function or procedure to be stored in the database.
@@ -638,7 +645,7 @@ You can specify the body of a stored procedure or function.
     the same function multiple times, one for each type of DBMS.
     If not ther all dbms systems are assumed.
 
-(9) Can be "yes", "no", or "stable". This is an execution hint for PostgreSQL.
+(9) Can be "yes", "no", or "stable". This is an execution hint for PostgreSQL. |Not supported|
 
 (10) The contents of the function or procedure.
 
@@ -712,7 +719,6 @@ It also generates code for PHP and produces nicer documentation.
 
 Written in the Perl programming language is `SQL Fairy <http://sqlfairy.sourceforge.net/>`_.
 It seems to do a lot of what I'm doing but is even larger in scope.
-
 
 .. _PostgreSQL: http://www.postgresql.com/
 .. _Firebird: http://firebird.sourceforge.net/
