@@ -2,7 +2,7 @@ import re, os
 import xml2ddl
 import copy
 from xml.dom.minidom import parse, parseString
-from ddlInterface import createDdlInterface
+from ddlInterface import createDdlInterface, attribsToDict
 
 __author__ = "Scott Kirkwood (scott_kirkwood at berlios.com)"
 __keywords__ = ['XML', 'DML', 'SQL', 'Databases', 'Agile DB', 'ALTER', 'CREATE TABLE', 'GPL']
@@ -32,14 +32,9 @@ class FindChanges:
         self.dbmsType = 'postgres'
         self.params = {
             'drop_constraints_on_col_rename' : False,
-            'rename_keyword' : 'RENAME', # or ALTER
             'no_alter_column_type' : False,
             'drop_table_has_cascade' : True,
-            'no_alter_default' : False,
-            'change_type_keyword' : 'ALTER',
-            'TYPE' : 'TYPE ',
             'can_change_table_comment' : True,
-            'drop_index'    : 'DROP INDEX %(index_name)s'
         }
     
     def setDbms(self, dbmsType):
@@ -53,16 +48,10 @@ class FindChanges:
         if self.dbmsType not in ['postgres', 'postgres7', 'mysql', 'oracle', 'firebird']:
             print "Unknown dbms %s" % (dbmsType)
         if self.dbmsType == 'firebird':
-            self.params['rename_keyword'] = 'ALTER'
             self.params['drop_constraints_on_col_rename'] = True
             self.params['drop_table_has_cascade'] = False
-            self.params['no_alter_default'] = True
         elif self.dbmsType == 'mysql':
-            self.params['rename_keyword'] = 'ALTER'
-            self.params['change_type_keyword'] = 'MODIFY'
-            self.params['TYPE'] = ''
             self.params['can_change_table_comment'] = False
-            self.params['drop_index'] = 'DROP INDEX %(index_name)s ON %(table_name)s'
             
 
     def changeAutoIncrement(self, strTableName, old, new):
@@ -75,10 +64,10 @@ class FindChanges:
                 pass
                 #print "Add Autoincrement TODO"
             else:
-                self.ddli.dropAutoIncrement(strTableName, old, self.diffs)
+                self.ddli.dropAutoIncrement(strTableName, attribsToDict(old), self.diffs)
 
     def changeCol(self, strTableName, old, new):
-        self.changeColType(strTableName, old, new)
+        self.changeColType(strTableName, attribsToDict(old), attribsToDict(new))
         
         self.changeAutoIncrement(strTableName, old, new)
         
@@ -91,7 +80,7 @@ class FindChanges:
         strNewColType = self.ddli.retColTypeEtc(new)
         
         if self.normalizedColType(strNewColType) != self.normalizedColType(strOldColType):
-            self.ddli.doChangeColType(strTableName, old.getAttribute('name'), strNewColType, self.diffs)
+            self.ddli.doChangeColType(strTableName, old.get('name'), strNewColType, self.diffs)
 
     def normalizedColType(self, strColTypeEtc):
         if not self.bGenerated:
@@ -111,7 +100,7 @@ class FindChanges:
         strOldDefault = old.getAttribute('default')
         strNewDefault = new.getAttribute('default')
         if strNewDefault != strOldDefault:
-            self.ddli.changeColDefault(strTableName, new.getAttribute('name'), strNewDefault, self.ddli.retColTypeEtc(new), self.diffs)
+            self.ddli.changeColDefault(strTableName, new.getAttribute('name'), strNewDefault, self.ddli.retColTypeEtc(attribsToDict(new)), self.diffs)
 
     def changeColComments(self, strTableName, old, new):
         # Check for difference in comments.
@@ -119,7 +108,7 @@ class FindChanges:
         strOldComment = safeGet(old, 'desc')
         if strNewComment and strNewComment != strOldComment:
             # Fix to delete comments?
-            self.ddli.changeColumnComment(strTableName, new.getAttribute('name'), strNewComment, self.ddli.retColTypeEtc(new), self.diffs)
+            self.ddli.changeColumnComment(strTableName, new.getAttribute('name'), strNewComment, self.ddli.retColTypeEtc(attribsToDict(new)), self.diffs)
             
 
     def renameColumn(self, strTableName, old, new):
@@ -129,7 +118,7 @@ class FindChanges:
         if self.params['drop_constraints_on_col_rename']:
             self.dropRelatedConstraints(strTableName, strOldName)
             
-        columnType = self.ddli.retColTypeEtc(new)
+        columnType = self.ddli.retColTypeEtc(attribsToDict(new))
         self.ddli.renameColumn(strTableName, strOldName, strNewName, columnType, self.diffs)
         
         if self.params['drop_constraints_on_col_rename']:
@@ -231,13 +220,13 @@ class FindChanges:
         
     def _dropRelatedSequence(self, strTableName, col):
         if col.getAttribute('autoincrement').lower() == 'yes':
-            self.ddli.dropAutoIncrement(strTableName, col, self.diffs)
+            self.ddli.dropAutoIncrement(strTableName, attribsToDict(col), self.diffs)
 
 
     def addColumn(self, strTableName, new, nAfter):
         """ nAfter not used yet """
         
-        self.ddli.addColumn(strTableName, new.getAttribute('name'), self.ddli.retColTypeEtc(new), nAfter, self.diffs)
+        self.ddli.addColumn(strTableName, new.getAttribute('name'), self.ddli.retColTypeEtc(attribsToDict(new)), nAfter, self.diffs)
 
     def dropCol(self, strTableName, oldCol):
         self.ddli.dropCol(strTableName, oldCol.getAttribute('name'), self.diffs)
@@ -375,6 +364,7 @@ class FindChanges:
         self.diffSomething(old_xml, new_xml, 'relation', self.renameRelation, self.changeRelation, self.insertRelation, self.myDropRelation, self.findRelation, self.getRelationName)
 
     def renameRelation(self, strTableName, old, new):
+        # TODO put in ddlinterface
         self.myDropRelation(strTableName, old)
         self.insertRelation(strTableName, new, -1)
     
@@ -453,12 +443,49 @@ class FindChanges:
         
         self.ddli.renameTable(strTableOld, strTableNew, self.diffs)
 
+    def renameView(self, ignore, old, new):
+        attribs = attribsToDict(new)
+        strDefinition = new.firstChild.nodeValue.strip()
+        
+        self.ddli.renameView(old.getAttribute('name'), new.getAttribute('name'), strDefinition, attribs, self.diffs)
+        
+    def diffView(self, ignore, oldView, newView):
+        strOldContents = oldView.firstChild.nodeValue.strip()
+        strNewContents = newView.firstChild.nodeValue.strip()
+        
+        if strOldContents != strNewContents:
+            attribs = attribsToDict(newView)
+            strDefinition = newView.firstChild.nodeValue.strip()
+            
+            self.ddli.updateView(newView.getAttribute('name'), strDefinition, attribs, self.diffs)
+        
+    def createView(self, ignore, new, nIndex):
+        attribs = attribsToDict(new)
+        strDefinition = new.firstChild.nodeValue.strip()
+        
+        self.ddli.addView(new.getAttribute('name'), strDefinition, attribs, self.diffs)
+        
+    def dropView(self, ignore, view):
+        self.ddli.dropView(view.getAttribute('name'), self.diffs)
+        
+    def findView(self, views, strViewName):
+        strViewName = strViewName.lower()
+        for view in views:
+            strCurViewName = view.getAttribute('name').lower()
+            if strCurViewName == strViewName:
+                return view
+            
+        return None
+        
+    def getViewName(self, node):
+        return node.getAttribute('name')
+
     def diffFiles(self, strOldFilename, strNewFilename):
         self.old_xml = xml2ddl.readMergeDict(strOldFilename) # parse an XML file by name
         self.new_xml = xml2ddl.readMergeDict(strNewFilename)
         
         self.diffTables(self.old_xml, self.new_xml)
-
+        
         self.old_xml.unlink()
         self.new_xml.unlink()
         
@@ -467,7 +494,6 @@ class FindChanges:
     def diffTables(self, old_xml, new_xml):
         self.old_xml = old_xml
         self.new_xml = new_xml
-        
         
         self.bGenerated = False
         try:
@@ -482,9 +508,11 @@ class FindChanges:
             
         
         self.diffSomething(old_xml, new_xml, 'table', self.renameTable,  self.diffTable, self.createTable, self.dropTable, self.findTable, self.getTableName)
-        
+
+        self.diffSomething(old_xml, new_xml, 'view', self.renameView,  self.diffView, self.createView, self.dropView, self.findView, self.getViewName)
+
         return self.diffs
-        
+
 def safeGet(dom, strKey, default = None):
     if dom.hasAttribute(strKey):
         return dom.getAttribute(strKey)

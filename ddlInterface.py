@@ -237,7 +237,7 @@ class DdlCommonInterface:
     def dropAutoIncrement(self, strTableName, col, diffs):
         # Todo get rid of the col
         
-        strColName = col.getAttribute('name')
+        strColName = col.get('name')
         info = {
             'table_name' : strTableName,
             'col_name'   : strColName,
@@ -267,7 +267,7 @@ class DdlCommonInterface:
     def dropDefault(self, strTableName, col, diffs):
         info = {
             'table_name' : self.quoteName(strTableName),
-            'column_name' : self.quoteName(col.getAttribute('name')),
+            'column_name' : self.quoteName(col.get('name')),
             'change_type_keyword' : 'ALTER',
             'new_default' : 'null', # FIX TODO Null, 0 or ''
             'default_keyword' : 'SET DEFAULT',
@@ -330,17 +330,41 @@ class DdlCommonInterface:
             diffs.append(
                 ('Modify column', 
                 'ALTER TABLE %(table_name)s %(change_type_keyword)s %(column_name)s %(TYPE)s%(column_type)s' % info))
-            
+
+    def renameView(self, strOldViewName, strNewViewName, newDefinition, newAttribs, diffs):
+        self.dropView(strOldViewName, diffs)
+        self.addView(strNewViewName, newDefinition, newAttribs, diffs)
+    
+    def dropView(self, strOldViewName, diffs):
+        info = {
+            'viewname' : self.quoteName(strOldViewName),
+        }
+        diffs.append( (
+            'Drop view',
+            'DROP VIEW %(viewname)s' % info ))
+    
+    def addView(self, strNewViewName, strContents, attribs, diffs):
+        info = {
+            'viewname' : self.quoteName(strNewViewName),
+            'contents' : strContents,
+        }
+        diffs.append( (
+            'Drop view',
+            'CREATE OR REPLACE VIEW %(viewname)s AS %(contents)s' % info ))
+    
+    def updateView(self, strViewName, strContents, attribs, diffs):
+        self.addView(strViewName, strContents, attribs, diffs)
+        
     def retColTypeEtc(self, col):
         strNull = ''
-        if col.getAttribute('null'):
-            strVal = col.getAttribute('null')
+        if 'null' in col:
+            strVal = col.get('null')
             if re.compile('not|no', re.IGNORECASE).search(strVal):
                 strNull = ' NOT NULL'
         
-        strType = col.getAttribute('type')
-        strSize = col.getAttribute('size')
-        strPrec = col.getAttribute('precision')
+        strType = col.get('type', None)
+        strSize = col.get('size', None)
+        strPrec = col.get('precision', None)
         
         if strPrec:
             strRet = '%s(%s, %s)%s' % (strType, strSize, strPrec, strNull)
@@ -467,6 +491,14 @@ class DdlFirebird(DdlCommonInterface):
             TRIGGER TRIM TYPE UNCOMMITTED UNION UNIQUE UPDATE UPPER USER USING VALUE VALUES VARCHAR VARIABLE VARYING VERSION 
             VIEW WAIT WEEKDAY WHEN WHENEVER WHERE WHILE WITH WORK WRITE YEAR YEARDAY""".split()
         
+
+def attribsToDict(node):
+    dict = {}
+    attribs = node.attributes
+    for nIndex in range(attribs.length):
+        dict[attribs.item(nIndex).name] = attribs.item(nIndex).value
+    
+    return dict
 
 def createDdlInterface(strDbms):
     if strDbms.startswith('postgres'):

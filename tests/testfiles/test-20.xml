@@ -1,0 +1,31 @@
+<test title="Create a view">
+<before>
+    <schema>
+        <table name="table1">
+            <columns>
+                <column name="id" type="integer"/>
+                <column name="col2" type="integer"/>
+            </columns>
+        </table>
+    </schema>
+</before>
+<after>
+    <schema>
+        <table name="table1">
+            <columns>
+                <column name="id" type="integer"/>
+                <column name="col2" type="integer"/>
+            </columns>
+        </table>
+        <view name="myview">
+            SELECT table1.id, table1.col2 FROM table1;
+        </view>
+    </schema>
+</after>
+<ddls>
+    <ddl>CREATE OR REPLACE VIEW myview AS SELECT table1.id, table1.col2 FROM table1;</ddl>
+</ddls>
+<ddls dbms="mysql">
+    <ddl>CREATE OR REPLACE VIEW myview AS select `test`.`table1`.`id` AS `id`,`test`.`table1`.`col2` AS `col2` from `test`.`table1`</ddl>
+</ddls>
+</test>

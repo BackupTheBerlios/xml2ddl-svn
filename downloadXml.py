@@ -76,14 +76,14 @@ class PgDownloader:
     def getTables(self, tableList):
         """ Returns the list of tables as a array of strings """
         
-        strQuery =  "SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES where TABLE_SCHEMA not in ('pg_catalog', 'information_schema') and TABLE_NAME NOT LIKE 'pg_%'"
+        strQuery =  "SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES where TABLE_SCHEMA not in ('pg_catalog', 'information_schema') and TABLE_NAME NOT LIKE 'pg_%' AND TABLE_TYPE = 'BASE TABLE'"
         self.cursor.execute(strQuery)
         rows = self.cursor.fetchall()
         if rows:
             return [x[0] for x in rows]
         
         return []
-    
+
     def getTableColumns(self, strTable):
         """ Returns column in this format
             (nColIndex, strColumnName, strColType, CHARACTER_MAXIMUM_LENGTH, NUMERIC_PRECISION, bNotNull, strDefault, auto_increment)
@@ -247,6 +247,26 @@ class PgDownloader:
         
         return (None, None)
 
+    def getViews(self):
+        """ Returns the list of views as a array of strings """
+        
+        strQuery =  "SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES where TABLE_SCHEMA not in ('pg_catalog', 'information_schema') and TABLE_NAME NOT LIKE 'pg_%' AND TABLE_TYPE = 'VIEW'"
+        self.cursor.execute(strQuery)
+        rows = self.cursor.fetchall()
+        if rows:
+            return [x[0] for x in rows]
+        
+        return []
+
+    def getViewDefinition(self, strViewName):
+        strQuery = "SELECT VIEW_DEFINITION FROM INFORMATION_SCHEMA.VIEWS WHERE TABLE_NAME = %s"
+        self.cursor.execute(strQuery, [strViewName])
+        rows = self.cursor.fetchall()
+        if rows:
+            return rows[0][0]
+        
+        return []
+        
 class MySqlDownloader:
     def __init__(self):
         self.strDbms = 'mysql'
@@ -269,7 +289,13 @@ class MySqlDownloader:
         
         strQuery = "SHOW TABLES"
         self.cursor.execute(strQuery)
-        return [x[0] for x in self.cursor.fetchall() ]
+        rows = self.cursor.fetchall()
+        ret = []
+        for row in rows:
+            if row[1] == 'BASE TABLE':
+                ret.append(row[0])
+        
+        return ret
     
     def getTableColumns(self, strTable):
         """ Returns column in this format
@@ -409,7 +435,37 @@ class MySqlDownloader:
             return 'd'
         
         return 'a'
-
+        
+    def getViews(self):
+        strQuery = "SHOW TABLES"
+        self.cursor.execute(strQuery)
+        rows = self.cursor.fetchall()
+        ret = []
+        for row in rows:
+            if row[1] == 'VIEW':
+                ret.append(row[0])
+                
+        return ret
+        
+    def getViewDefinition(self, strViewName):
+        strQuery = "SHOW CREATE VIEW `%s`" % (strViewName)
+        self.cursor.execute(strQuery)
+        rows = self.cursor.fetchall()
+        if rows:
+            ret = rows[0][1]
+            # ext CREATE VIEW test.v AS select 1 AS `a`,2 AS `b`
+            reGetDef = re.compile('CREATE VIEW [a-zA-Z0-9_$`\.]+ AS (.*)')
+            match = reGetDef.match(ret)
+            if match:
+                return match.group(1)
+            else:
+                print "Didn't match %s" % (ret)
+            
+            return ret
+        
+        return []
+        
+    
 class FbDownloader:
     def __init__(self):
         self.strDbms = 'firebird'
@@ -700,8 +756,26 @@ class DownloadXml:
                 curTable['columns'].append(curCol)
             
             self.dumpTable(curTable, of)
+            
+        self.getViews(of)
+        
         of.write('</schema>\n')
 
+    def getViews(self, of):
+        views = self.db.getViews()
+        for viewName in views:
+            definition = self.db.getViewDefinition(viewName)
+            info = {
+                'name' : viewName,
+                'definition' : definition,
+            }
+            self.dumpView(info, of)
+    
+    def dumpView(self, info, of):
+        of.write('  <view %s>\n' % (self.doAttribs(info, ['name'])))
+        of.write('    %s\n' % (info['definition']))
+        of.write('  </view>\n')
+        
     def dumpTable(self, info, of):
         of.write('  <table %s>\n' % (self.doAttribs(info, ['name', 'desc'])))
         for col in info['columns']:

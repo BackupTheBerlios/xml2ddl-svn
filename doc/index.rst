@@ -589,8 +589,7 @@ Useful, when you need to store a small set of values in the table.
         (6)
     </view>
 
-|Not supported|
-Create a view to the table.
+Create a view to the table.  (new)
 
 (1) Name of the view to be stored in the database.
 
@@ -600,7 +599,7 @@ Create a view to the table.
 
 (4) A full description of the view.
 
-(5) You can optionally specify the column names, but most DBMS can infer them from the select statement.
+(5) You can optionally specify the column names, but most DBMS can infer them from the select statement.|Not supported|
 
 (6) The contents of the view.
 

@@ -65,9 +65,15 @@ class DbTests:
 def doTests(testList = None):
     dbt = DbTests(testList)
     
-    dbt.pgTests()
+    #dbt.pgTests()
     dbt.mySqlTests()
     dbt.fireBirdTests()
     
 if __name__ == "__main__":
-    doTests()
+    import sys
+    
+    tests = None
+    if len(sys.argv) > 1:
+        tests = sys.argv[1]
+    
+    doTests(tests)

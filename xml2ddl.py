@@ -4,7 +4,7 @@
 
 import re, os
 from xml.dom.minidom import parse, parseString
-from ddlInterface import createDdlInterface
+from ddlInterface import createDdlInterface, attribsToDict
 
 __author__ = "Scott Kirkwood (scott_kirkwood at berlios.com)"
 __keywords__ = ['XML', 'DML', 'SQL', 'Databases', 'Agile DB', 'ALTER', 'CREATE TABLE', 'GPL']
@@ -74,10 +74,7 @@ class Xml2Ddl:
     def retColumnDefinition(self, col, strPreDdl, strPostDdl):
         strColName = col.getAttribute('name')
         
-        strRet = self.ddlInterface.quoteName(strColName) + ' ' + self.getColType(col)
-        
-        if col.hasAttribute('null') and re.compile('not|no', re.IGNORECASE).match(col.getAttribute('null')):
-            strRet += ' NOT NULL'
+        strRet = self.ddlInterface.quoteName(strColName) + ' ' + self.ddlInterface.retColTypeEtc(attribsToDict(col))
         
         if col.hasAttribute('default'):
             strRet += ' DEFAULT ' + col.getAttribute('default')
@@ -91,21 +88,6 @@ class Xml2Ddl:
 
         return strRet
     
-    def getColType(self, col):
-        strColType = col.getAttribute('type')
-        nSize = None
-        if col.hasAttribute('precision'):
-            nSize = int(col.getAttribute('size'))
-            nPrec = int(col.getAttribute('precision'))
-            strRet = '%s(%d, %d)' % (strColType, nSize, nPrec)
-        elif col.hasAttribute('size'):
-            nSize = int(col.getAttribute('size'))
-            strRet = '%s(%d)' % (strColType, nSize)
-        else:
-            strRet = '%s' % (strColType)
-        
-        return strRet
-        
     def retKeys(self, doc):
         columns = doc.getElementsByTagName('column')
         keys = []
@@ -193,7 +175,7 @@ class Xml2Ddl:
                 strType = col2Type[strColName].lower()
                 if strType == 'varchar' or strType == 'char':
                     # TODO: do more types
-                    vals.append("%s" % (self.ddlInterface.quoteString(strColValue)))
+                    vals.append(self.ddlInterface.quoteString(strColValue))
                 else:
                     vals.append(strColValue)
             
@@ -204,8 +186,7 @@ class Xml2Ddl:
         strTableName = self.ddlInterface.quoteName(doc.getAttribute('name'))
         
         if self.params['drop-tables']:
-            self.ddls.append(
-                ('Drop table', 'DROP TABLE %s' % (strTableName)))
+            self.ddlInterface.dropTable(strTableName, '')
         
         strPreDdl = []
         strPostDdl = []

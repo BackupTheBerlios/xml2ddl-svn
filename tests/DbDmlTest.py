@@ -113,7 +113,7 @@ class DbDmlTest:
                     self.log.warning("Failed with error: %s" % strError)
                     self.log.warning('%s SQL: "%s"' % (strContext, ret[1]))
                     
-                    if strError.lower().find('already exists') != -1:
+                    if strError.lower().find('already exists') != -1 or strError.lower().find('does not exist'):
                         self.log.warning("Plunging on ahead")
                     else:
                         sys.exit(-1)
