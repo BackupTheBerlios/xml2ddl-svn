@@ -66,6 +66,53 @@ class DdlCommonInterface:
         ddls.append(('Add Index',
             'CREATE INDEX %s ON %s (%s)' % (self.quoteName(strIndexName), self.quoteName(strTableName), ', '.join(cols)) ))
 
+    def deleteIndex(self, strTableName, strIndexName, diffs):
+        info = { 
+            'index_name' : self.quoteName(strIndexName),
+            'table_name' : strTableName,
+        }
+        diffs += [(
+            'Drop Index', self.params['drop_index'] % info)]
+
+    def insertRelation(self, strTableName, strRelationName, strColumn, strFkTable, strFk, strOnDelete, strOnUpdate, diffs):
+        info = {
+            'tablename'  : self.quoteName(strTableName),
+            'thiscolumn' : self.quoteName(strColumn),
+            'othertable' : self.quoteName(strFkTable),
+            'constraint' : self.quoteName(strRelationName),
+            'ondelete' : '',
+            'onupdate' : '',
+        }
+        if len(strFk) > 0:
+            info['fk'] = strFk
+        else:
+            info['fk'] = info['thiscolumn']
+        
+        if len(strOnDelete) > 0:
+            action = strOnDelete.upper()
+            if action == 'SETNULL':
+                action = 'SET NULL'
+            info['ondelete'] = ' ON DELETE ' + action
+        
+        if len(strOnUpdate) > 0:
+            action = strOnUpdate.upper()
+            if action == 'SETNULL':
+                action = 'SET NULL'
+            info['onupdate'] = ' ON UPDATE ' + action
+            
+        diffs.append(('relation', 
+            'ALTER TABLE %(tablename)s ADD CONSTRAINT %(constraint)s FOREIGN KEY (%(thiscolumn)s) REFERENCES %(othertable)s(%(fk)s)%(ondelete)s%(onupdate)s' % info))
+
+    def dropRelation(self, strTableName, strRelationName, diffs):
+        info = {
+            'tablename': self.quoteName(strTableName),
+            'constraintname' : strRelationName,
+        }
+        
+        diffs += [
+            ('Drop Relation', 'ALTER TABLE %(tablename)s DROP CONSTRAINT %(constraintname)s' % info)]
+
+
     def addAutoIncrement(self, strTableName, strColName, strDefault, strPreDdl, strPostDdl):
         info = {
             'table_name' : strTableName,

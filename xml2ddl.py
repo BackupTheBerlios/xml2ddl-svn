@@ -134,35 +134,6 @@ class Xml2Ddl:
             self.addRelation(strTableName, relation)
         
 
-    def addRelation(self, strTableName, relation):
-        info = {
-            'tablename'  : self.ddlInterface.quoteName(strTableName),
-            'thiscolumn' : self.ddlInterface.quoteName(relation.getAttribute('column')),
-            'othertable' : self.ddlInterface.quoteName(relation.getAttribute('table')),
-            'constraint' : self.ddlInterface.quoteName(self.getRelationName(relation)),
-            'ondelete' : '',
-            'onupdate' : '',
-        }
-        if relation.hasAttribute('fk'):
-            info['fk'] = relation.getAttribute('fk')
-        else:
-            info['fk'] = info['thiscolumn']
-        
-        if relation.hasAttribute('ondelete'):
-            action = relation.getAttribute('ondelete').upper()
-            if action == 'SETNULL':
-                action = 'SET NULL'
-            info['ondelete'] = ' ON DELETE ' + action
-        
-        if relation.hasAttribute('onupdate'):
-            action = relation.getAttribute('onupdate').upper()
-            if action == 'SETNULL':
-                action = 'SET NULL'
-            info['onupdate'] = ' ON UPDATE ' + action
-            
-        self.ddls.append(('relation', 
-            'ALTER TABLE %(tablename)s ADD CONSTRAINT %(constraint)s FOREIGN KEY (%(thiscolumn)s) REFERENCES %(othertable)s(%(fk)s)%(ondelete)s%(onupdate)s' % info))
-
     def getRelationName(self, relation):
         strConstraintName = relation.getAttribute('name')
         if len(strConstraintName) == 0:

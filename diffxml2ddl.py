@@ -404,33 +404,27 @@ class FindChanges:
         return None
         
     def diffIndexes(self, old_xml, new_xml):
-        self.diffSomething(old_xml, new_xml, 'index', self.renameIndex, self.changeIndex, self.insertIndex, self.deleteIndex, self.findIndex, self.getIndexName)
+        self.diffSomething(old_xml, new_xml, 'index', self.renameIndex, self.changeIndex, self.insertIndex, self.myDeleteIndex, self.findIndex, self.getIndexName)
 
     def renameIndex(self, strTableName, old, new):
-        self.deleteIndex(strTableName, old)
+        self.myDeleteIndex(strTableName, old)
         self.insertIndex(strTableName, new, -1)
     
+    def myDeleteIndex(self, strTableName, old):
+        strIndexName = self.xml2ddl.getIndexName(strTableName, old)
+        self.ddli.deleteIndex(strTableName, strIndexName, self.diffs)
+
     def changeIndex(self, strTableName, old, new):
         strColumnsOld = old.getAttribute('columns').replace(' ', '').lower()
         strColumnsNew = new.getAttribute('columns').replace(' ', '').lower()
         if strColumnsOld != strColumnsNew:
-            self.deleteIndex(strTableName, old)
+            self.myDeleteIndex(strTableName, old)
             self.insertIndex(strTableName, new, 0)
     
     def insertIndex(self, strTableName, new, nIndex):
         strColumns = new.getAttribute("columns")
         self.ddli.addIndex(self.strTableName, self.xml2ddl.getIndexName(strTableName, new), strColumns.split(','), self.diffs)
 
-    def deleteIndex(self, strTableName, old):
-        self.xml2ddl.reset()
-        strIndexName = self.xml2ddl.getIndexName(strTableName, old)
-        info = { 
-            'index_name' : self.ddli.quoteName(strIndexName),
-            'table_name' : strTableName,
-        }
-        self.diffs += [(
-            'Drop Index', self.params['drop_index'] % info)]
-    
     def getIndexName(self, index):
         return self.xml2ddl.getIndexName(self.strTableName, index)
         
@@ -444,11 +438,11 @@ class FindChanges:
         return None
         
     def diffRelations(self, old_xml, new_xml):
-        self.diffSomething(old_xml, new_xml, 'relation', self.renameRelation, self.changeRelation, self.insertRelation, self.dropRelation, self.findRelation, self.getRelationName)
+        self.diffSomething(old_xml, new_xml, 'relation', self.renameRelation, self.changeRelation, self.myInsertRelation, self.myDropRelation, self.findRelation, self.getRelationName)
 
     def renameRelation(self, strTableName, old, new):
-        self.dropRelation(strTableName, old)
-        self.insertRelation(strTableName, new, -1)
+        self.myDropRelation(strTableName, old)
+        self.myInsertRelation(strTableName, new, -1)
     
     def changeRelation(self, strTableName, old, new):
         strColumnOld = old.getAttribute('column')
@@ -473,26 +467,21 @@ class FindChanges:
             strFkNew = strColumnNew
         
         if strColumnOld != strColumnNew or strTableOld != strTableNew or strFkOld != strFkNew or strDelActionOld != strDelActionNew or strUpdateActionOld != strUpdateActionNew:
-            self.dropRelation(strTableName, old)
-            self.insertRelation(strTableName, new, 0)
+            self.myDropRelation(strTableName, old)
+            self.myInsertRelation(strTableName, new, 0)
     
-    def insertRelation(self, strTableName, new, nRelation):
-        self.xml2ddl.reset()
-
-        self.xml2ddl.addRelation(self.strTableName, new)
-        self.diffs.extend(self.xml2ddl.ddls)
-
-    def dropRelation(self, strTableName, old):
-        self.xml2ddl.reset()
+    def myInsertRelation(self, strTableName, old, nIndex):
         strRelationName = self.xml2ddl.getRelationName(old)
+        strFk = old.getAttribute('fk')
+        strOnDelete = old.getAttribute('ondelete')
+        strOnUpdate = old.getAttribute('onupdate')
+        strFkTable = old.getAttribute('table')
+        strColumn = old.getAttribute('column')
+        self.ddli.insertRelation(strTableName, strRelationName, strColumn, strFkTable, strFk, strOnDelete, strOnUpdate, self.diffs)
 
-        info = {
-            'tablename': self.ddli.quoteName(strTableName),
-            'constraintname' : strRelationName,
-        }
-        
-        self.diffs += [
-            ('Drop Relation', 'ALTER TABLE %(tablename)s DROP CONSTRAINT %(constraintname)s' % info)]
+    def myDropRelation(self, strTableName, old):
+        strRelationName = self.xml2ddl.getRelationName(old)
+        self.ddli.dropRelation(strTableName, strRelationName, self.diffs)
 
     def getRelationName(self, relation):
         return self.xml2ddl.getRelationName(relation)
