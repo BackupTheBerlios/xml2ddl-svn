@@ -26,9 +26,13 @@ def doOne(strDbms, testFilename, docBefore, docAfter, docDdl):
         if nIndex < len(ret):
             strRet = cleanString(ret[nIndex][1])
             if strGood != strRet:
-                print "%s (%s): Expected '%s' instead got '%s'" % (testFilename, strDbms, strGood, strRet)
+                print "%s (%s): Expected '%s' need to add\n\t<ddl>%s</ddl>" % (testFilename, strDbms, strGood, strRet)
         else:
-            print "%s (%s): Excepted '%s' got nothing instead"  % (testFilename, strDbms, strGood)
+            print "%s (%s): Expected '%s' got nothing instead"  % (testFilename, strDbms, strGood)
+    if len(ret) > len(docDdlList):
+        for retItem in ret[len(docDdlList):]:
+            print "%s (%s): Need to add\n\t<ddl>%s</ddl>" % (testFilename, strDbms, retItem[1])
+        
 
 def doTests():
     for testFilename in glob.glob('testfiles/test*.xml'):
@@ -39,7 +43,7 @@ def doTests():
         docAfter = doc.getElementsByTagName('after')[0].firstChild.nextSibling
         handleDictionary(docAfter)
         
-        theList = ['postgres', 'mysql', 'firebird']
+        theList = ['postgres', 'postgres7', 'mysql', 'firebird']
         docDdls = doc.getElementsByTagName('ddls')
         for docDdl in docDdls:
             if docDdl.hasAttribute('dbms'):

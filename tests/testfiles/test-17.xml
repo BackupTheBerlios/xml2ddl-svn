@@ -1,0 +1,42 @@
+<test title="Create two relations">
+<before>
+	<schema>
+        <table name="table1">
+            <columns>
+                <column name="table1_id" type="integer"/>
+                <column name="col2" type="integer"/>
+            </columns>
+        </table>
+        <table name="table2">
+            <columns>
+                <column name="table2_id" type="integer"/>
+                <column name="table1_id" type="integer"/>
+            </columns>
+        </table>
+	</schema>
+</before>
+<after>
+	<schema>
+        <table name="table1">
+            <columns>
+                <column name="table1_id" type="integer"/>
+                <column name="col2" type="integer"/>
+            </columns>
+        </table>
+        <table name="table2">
+            <columns>
+                <column name="table2_id" type="integer"/>
+                <column name="table1_id" type="integer"/>
+            </columns>
+            <relations>
+                <relation column="table1_id" table="table1"/>
+                <relation column="table1_id" table="table1" fk="col2"/> <!-- doesn't make sense -->
+            </relations>
+        </table>
+	</schema>
+</after>
+<ddls dbms="postgres">
+	<ddl>ALTER TABLE table2 ADD CONSTRAINT fk_table1_id FOREIGN KEY (table1_id) REFERENCES table1(table1_id)</ddl>
+	<ddl>ALTER TABLE table2 ADD CONSTRAINT fk_table1_id FOREIGN KEY (table1_id) REFERENCES table1(col2)</ddl>
+</ddls>
+</test>

@@ -301,16 +301,6 @@ class FindChanges:
             
         return None
         
-    def findIndex(self, indexes, strIndexName):
-        for index in indexes:
-            aCreate = xml2ddl.Xml2Ddl()
-            aCreate.setDbms(self.dbmsType)
-            strCurIndexName = aCreate.getIndexName(self.strTableName, index)
-            if strCurIndexName == strIndexName:
-                return index
-            
-        return None
-        
     def findTable(self, xml, strTableName):
         for tbl in xml.getElementsByTagName('table'):
             strCurTableName = tbl.getAttribute('name')
@@ -347,10 +337,67 @@ class FindChanges:
 
         self.diffs += [('Drop Index', 'DROP INDEX %s' % (strIndexName))]
     
+    def findIndex(self, indexes, strIndexName):
+        for index in indexes:
+            aCreate = xml2ddl.Xml2Ddl()
+            aCreate.setDbms(self.dbmsType)
+            strCurIndexName = aCreate.getIndexName(self.strTableName, index)
+            if strCurIndexName == strIndexName:
+                return index
+            
+        return None
+        
     def diffRelations(self, old_xml, new_xml):
-        pass
-        #print "TODO: diffRelations"
+        self.diffSomething(old_xml, new_xml, 'relation', self.renameRelation, self.changeRelation, self.insertRelation, self.deleteRelation, self.findRelation)
+
+    def renameRelation(self, strTableName, old, new):
+        self.deleteRelation(strTableName, old)
+        self.insertRelation(strTableName, new, -1)
     
+    def changeRelation(self, strTableName, old, new):
+        strColumnOld = old.getAttribute('column')
+        strColumnNew = new.getAttribute('column')
+        
+        strTableOld = old.getAttribute('table')
+        strTableNew = new.getAttribute('table')
+        
+        strFkOld = old.getAttribute('fk')
+        strFkNew = old.getAttribute('fk')
+        
+        if len(strFkOld) == 0:
+            strFkOld = strColumnOld
+        
+        if len(strFkNew) == 0:
+            strFkNew = strColumnNew
+        
+        if strColumnOld != strColumnNew or strTableOld != strTableNew or strFkOld != strFkNew:
+            self.deleteRelation(strTableName, old)
+            self.insertRelation(strTableName, new, 0)
+    
+    def insertRelation(self, strTableName, new, nRelation):
+        aCreate = xml2ddl.Xml2Ddl()
+        aCreate.setDbms(self.dbmsType)
+
+        aCreate.addRelation(self.strTableName, new)
+        self.diffs.extend(aCreate.dmls)
+
+    def deleteRelation(self, strTableName, old):
+        aCreate = xml2ddl.Xml2Ddl()
+        aCreate.setDbms(self.dbmsType)
+        strRelationName = aCreate.getRelationName(strTableName, old)
+
+        self.diffs += [('Drop Relation', 'DROP RELATION %s' % (strRelationName))]
+
+    def findRelation(self, relations, strRelationName):
+        for relation in relations:
+            aCreate = xml2ddl.Xml2Ddl()
+            aCreate.setDbms(self.dbmsType)
+            strCurRelationName = aCreate.getRelationName(self.strTableName, relation)
+            if strCurRelationName == strRelationName:
+                return relation
+            
+        return None
+        
     def createTable(self, xml):
         aCreate = xml2ddl.Xml2Ddl()
         aCreate.setDbms(self.dbmsType)

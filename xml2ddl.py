@@ -111,26 +111,32 @@ class Xml2Ddl:
         relations = doc.getElementsByTagName('relation')
         strTableName = doc.getAttribute('name')
         
-        relList = []
         for relation in relations:
-            strThisColName = relation.getAttribute('column')
-            strOtherTable = relation.getAttribute('table')
-
-            if relation.hasAttribute('fk'):
-                strFk = relation.getAttribute('fk')
-            else:
-                strFk = strThisColName
-            
-            strConstraintName = relation.getAttribute('name')
-            if len(strConstraintName) == 0:
-                strConstraintName = "fk_%s" % (strThisColName)
-            
-            relList.append('ALTER TABLE %s ADD CONSTRAINT %s FOREIGN KEY (%s) REFERENCES %s(%s)' % 
-                (strTableName, strConstraintName, strThisColName, strOtherTable, strFk))
+            self.addRelation(strTableName, relation)
         
-        for relation in relList:
-            self.dmls.append(('relation', relation))
 
+    def addRelation(self, strTableName, relation):
+        strThisColName = relation.getAttribute('column')
+        strOtherTable = relation.getAttribute('table')
+
+        if relation.hasAttribute('fk'):
+            strFk = relation.getAttribute('fk')
+        else:
+            strFk = strThisColName
+        
+        strConstraintName = self.getRelationName(relation)
+        
+        self.dmls.append(('relation', 
+            'ALTER TABLE %s ADD CONSTRAINT %s FOREIGN KEY (%s) REFERENCES %s(%s)' % 
+                (strTableName, strConstraintName, strThisColName, strOtherTable, strFk)) )
+
+    def getRelationName(self, relation):
+        strConstraintName = relation.getAttribute('name')
+        if len(strConstraintName) == 0:
+            strConstraintName = "fk_%s" % (relation.getAttribute('column'))
+
+        return strConstraintName
+    
     def addIndexes(self, doc):
         if not self.params['output_indexes']:
             return
