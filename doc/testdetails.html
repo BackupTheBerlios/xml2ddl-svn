@@ -44,8 +44,7 @@
 </tr><tr><td align="right">25 -</td><td><a href="#_25" class="ddltitle">Create a relation with on delete</a></td>
 </tr><tr><td align="right">26 -</td><td><a href="#_26" class="ddltitle">Change relation</a></td>
 </tr><tr><td align="right">27 -</td><td><a href="#_27" class="ddltitle">Auto number</a></td>
-</tr><tr><td align="right">28 -</td><td><a href="#_28" class="ddltitle">Drop Auto Increment</a></td>
-</tr><tr><td align="right">29 -</td><td><a href="#_29" class="ddltitle">Drop Auto number</a></td>
+</tr><tr><td align="right">28 -</td><td><a href="#_28" class="ddltitle">Drop Auto number</a></td>
 </tr></table><div id="_1" class="ddltitle">1 Create table with various types</div>
 <small>..\tests\testfiles\test-01.xml</small>
 <table width="100%" class="beforeafter">
@@ -842,35 +841,7 @@
 <tr>
 <td><span class="keyword">CREATE</span> <span class="keyword">TRIGGER</span> AI_table1_id <span class="keyword">FOR</span> table1<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">BEFORE</span> <span class="keyword">INSERT</span> <span class="keyword">AS</span><br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">BEGIN</span><br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;NEW.table1_id = <span class="keyword">GEN_ID</span>(table1_table1_id_seq, 1);<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">END</span>;</td></tr>
 </table>
-<div id="_28" class="ddltitle">28 Drop Auto Increment</div>
-<small>..\tests\testfiles\test-18a.xml</small>
-<table width="100%" class="beforeafter">
-<tr>
-<th>Before</th><th class="after">After</th></tr>
-<tr>
-<td"><div class="xml">
-<span class="tags">&lt;schema></span><br/>&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;table </span><span class="attrib">name</span>="table3"><br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;columns></span><br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;column </span><span class="attrib">autoincrement</span>="yes" <span class="attrib">key</span>="1" <span class="attrib">name</span>="id" <span class="attrib">null</span>="no" <span class="attrib">type</span>="integer"/><br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;/columns></span><br/>&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;/table></span><br/><span class="tags">&lt;/schema></span></div></td>
-<td class="after"><div class="xml">
-<span class="tags">&lt;schema></span><br/>&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;table </span><span class="attrib">name</span>="table3"><br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;columns></span><br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;column </span><span class="attrib">key</span>="1" <span class="attrib">name</span>="id" <span class="attrib">null</span>="no" <span class="attrib">type</span>="integer"/><br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;/columns></span><br/>&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;/table></span><br/><span class="tags">&lt;/schema></span></div></td>
-</tr>
-</table>
-<table class="ddls" width="100%">
-<tr>
-<th align="left">DBMS: Default</th></tr>
-<tr>
-<td><span class="keyword">DROP</span> SEQUENCE table3_id_seq;</td></tr>
-<tr>
-<td><span class="keyword">ALTER</span> <span class="keyword">TABLE</span> table3 <span class="keyword">ALTER</span> id <span class="keyword">SET</span> <span class="keyword">DEFAULT</span> <span class="keyword">null</span>;</td></tr>
-</table>
-<table class="ddls" width="100%">
-<tr>
-<th align="left">DBMS: mysql <span class="warning">Warning: Fails</span></th></tr>
-</table>
-<table class="ddls" width="100%">
-<tr>
-<th align="left">DBMS: firebird <span class="warning">Warning: Fails</span></th></tr>
-</table>
-<div id="_29" class="ddltitle">29 Drop Auto number</div>
+<div id="_28" class="ddltitle">28 Drop Auto number</div>
 <small>..\tests\testfiles\test-19.xml</small>
 <table width="100%" class="beforeafter">
 <tr>
