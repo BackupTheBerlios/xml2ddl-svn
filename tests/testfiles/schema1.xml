@@ -1,0 +1,11 @@
+<schema>
+<dictionary>
+    <dict class="mytype" type="integer"/>
+</dictionary>
+<table name="table1">
+    <columns>
+        <column name="col1" class="mytype"/>
+        <column name="col2" type="integer"/>
+    </columns>
+</table>
+</schema>

@@ -1,0 +1,38 @@
+
+table.blue {
+    border-collapse: collapse;
+    border-style : solid;
+    border-width : 1pt;
+    border-color : black;
+    margin-top : 10pt;
+    padding:0pt;
+}
+table.blue th {
+    font-family:Arial, "MS Sans Serif", sans-serif;
+    background-color:#9999FF;
+    font-size : 1em;
+    color : black
+    border-style : solid;
+    border-width : 0pt;
+    border-color : black;
+    padding : 2pt;
+    vertical-align : bottom;
+}
+table.blue td {
+    font-family:Arial, "MS Sans Serif", sans-serif;
+    font-size : 1em;
+    border-style : solid;
+    border-width : 1pt;
+    border-color : black;
+    vertical-align : top;
+}
+
+td.def {
+    font-weight : bold;
+}
+
+td.extradef {
+    font-weight: normal;
+    font-style: oblique;
+}
+

@@ -1,0 +1,17 @@
+<schema>
+<table name="table1">
+    <columns>
+        <column name="table1_id" oldname="id" type="integer" key="1"/>
+        <column name="name" type="varchar" size="255"/>
+    </columns>
+</table>
+<table name="table2">
+    <columns>
+        <column name="id" type="integer" key="1"/>
+        <column name="fk_table1" type="integer" size="4"/>
+    </columns>
+    <relations>
+        <relation name="fk_table1" table="table1" fk="table1_id"/>
+    </relations>
+</table>
+</schema>

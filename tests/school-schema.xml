@@ -1,0 +1,85 @@
+<schema name="public">
+
+<dictionary name="column">
+    <dict class="index" type="integer" null="no"/>
+    <dict class="key"   inherits="index" fullname="Primary Key" desc="Primary key for the table" name="id" key="1"/>
+    <dict class="name"  type="varchar" size="80" null="no"/>
+    <dict class="marks" type="float"   null="yes"/>
+</dictionary>
+
+<table name="students" desc="List of students">
+    <columns>
+        <column class="key"/>
+        <column name="student_name" fullname="Student Name" class="name" 
+            desc="The full name of the student Can this span multiple lines?"/>
+    </columns>
+</table>
+<table name="teachers" desc="List of teachers">
+    <columns>
+        <column class="key"/>
+        <column name="teacher_name" class="name" fullname="Teacher's Name"
+            desc="The first + last name of the teacher"/>
+    </columns>
+</table>
+<table name="levels" desc="Different levels or courses">
+    <columns>
+        <column class="key"/>
+        <column name="level_name" class="name"/>
+    </columns>
+    <dataset>
+        <val id="1" level_name="Reading 1"/>
+        <val id="2" level_name="Reading 2"/>
+        <val id="3" level_name="Writing 1"/>
+        <val id="4" level_name="Writing 2"/>
+        <val id="5" level_name="Comprehension 1"/>
+        <val id="6" level_name="Comprehension 2"/>
+    </dataset>
+</table>
+<table name="categories">
+    <columns>
+        <column class="key"/>
+        <column name="category_name" fullname="Category Name" class="name"
+            desc="The name of the category one of 'Listening', 'Reading', 'Writing', 'Composition', 'Test'"/>
+    </columns>
+    <dataset>
+        <val id="1" category_name="Listening"/>
+        <val id="2" category_name="Reading"/>
+        <val id="3" category_name="Writing"/>
+        <val id="4" category_name="Composition"/>
+        <val id="5" category_name="Test"/>
+    </dataset>
+</table>
+<table name="courses">
+    <columns>
+        <column class="key"/>
+        <column name="level_id"    type="integer" null="no"/>
+        <column name="teacher_id"  type="integer" null="yes"/>
+        <column name="n_year"      type="integer" null="yes"/>
+        <column name="n_semester"  type="integer" null="yes"/>
+    </columns>
+    <relations>
+        <relation column="level_id"   table="levels"   fk="id"/>
+        <relation column="teacher_id" table="teachers" fk="id"/>
+    </relations>
+    <indexes>
+        <index name="marks_idx" columns="level_id,teacher_id"/>
+    </indexes>
+</table>
+<table name="marks">
+    <columns>
+        <column class="key"/>
+        <column name="course_id"    class="index"/>
+        <column name="student_id"   class="index"/>
+        <column name="category_id"  class="index"/>
+        <column name="mark"         class="marks"/>
+    </columns>
+    <relations>
+        <relation column="course_id"   table="courses"    fk="id"/>
+        <relation column="student_id"  table="students"   fk="id"/>
+        <relation column="category_id" table="categories" fk="id"/>
+    </relations>
+    <indexes>
+        <index name="marks_idx" columns="course_id,student_id,category_id"/>
+    </indexes>
+</table>
+</schema>
