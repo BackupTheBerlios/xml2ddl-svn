@@ -13,6 +13,9 @@ __url__ = 'http://xml2dml.berlios.de'
 __version__ = "$Revision: 0.2 $"
 
 """
+This is the core routines to perform a difference on two XML files and output the DML that is
+required to bring one Schema up-to-date with the other schema.
+
 TODO:
     - Unique constraint
     - check constraint

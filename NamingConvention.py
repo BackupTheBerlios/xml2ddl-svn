@@ -1,5 +1,11 @@
 #! /usr/bin/env python
 # -*- coding: iso-8859-1 -*-
+""" The purpose of this file is to allow default naming schemes for tables, columns etc. 
+
+For example, you may define an abbreviation for the table name and the column names will use
+that abbreviation + "_" + the column name given in the XML file.
+
+"""
 
 
 def getTableName(table):
