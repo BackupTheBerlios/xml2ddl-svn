@@ -121,7 +121,7 @@ def doTests():
     
     dbt.pgTests()
     #dbt.mySqlTests()
-    #dbt.fireBirdTests()
+    dbt.fireBirdTests()
     
 if __name__ == "__main__":
     doTests()

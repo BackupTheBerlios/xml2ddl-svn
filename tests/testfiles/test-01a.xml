@@ -1,0 +1,20 @@
+<test title="create small table special names">
+<before>
+    <schema>
+    </schema>
+</before>
+<after>
+    <schema>
+        <table name="Table with spaces">
+            <columns>
+                <column name="column with spaces" type="int"/>
+            </columns>
+        </table>
+    </schema>
+</after>
+<ddls>
+<ddl>CREATE TABLE "Table with spaces" (
+	"column with spaces" int
+)</ddl>
+</ddls>
+</test>

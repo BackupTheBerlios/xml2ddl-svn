@@ -73,7 +73,7 @@ class Xml2Ddl:
     def retColumnDefinition(self, col):
         strColName = col.getAttribute('name')
         
-        strRet = strColName + ' ' + self.getColType(col)
+        strRet = self.quoteName(strColName) + ' ' + self.getColType(col)
         
         if col.hasAttribute('null') and col.getAttribute('null') == 'no':
             strRet += ' NOT NULL'
@@ -131,7 +131,7 @@ class Xml2Ddl:
         
         self.dmls.append(('relation', 
             'ALTER TABLE %s ADD CONSTRAINT %s FOREIGN KEY (%s) REFERENCES %s(%s)' % 
-                (strTableName, strConstraintName, strThisColName, strOtherTable, strFk)) )
+                (self.quoteName(strTableName), self.quoteName(strConstraintName), self.quoteName(strThisColName), self.quoteName(strOtherTable), self.quoteName(strFk))) )
 
     def getRelationName(self, relation):
         strConstraintName = relation.getAttribute('name')
@@ -154,9 +154,10 @@ class Xml2Ddl:
         strIndexName = self.getIndexName(strTableName, index)
         cols = strColumns.split(',')
         cols = index.getAttribute("columns").split(',')
+        cols = [self.quoteName(col) for col in cols]
         
         self.dmls.append(('Add Index',
-            'CREATE INDEX %s ON %s (%s)' % (strIndexName, strTableName, ', '.join(cols)) ))
+            'CREATE INDEX %s ON %s (%s)' % (self.quoteName(strIndexName), self.quoteName(strTableName), ', '.join(cols)) ))
     
     def getIndexName(self, strTableName, index):
         strIndexName = index.getAttribute("name")
@@ -164,7 +165,7 @@ class Xml2Ddl:
             return strIndexName
         
         cols = index.getAttribute("columns").split(',')
-        cols = [ col.strip() for col in cols ] # Remove spaces
+        cols = [ self.quoteName(col.strip()) for col in cols ] # Remove spaces
         
         strIndexName = strTableName + '_'.join([col.title() for col in cols])
         
@@ -207,10 +208,10 @@ class Xml2Ddl:
                     vals.append(strColValue)
             
             self.dmls.append(('dataset',
-                'INSERT INTO %s (%s) VALUES (%s)' % (strTableName, ', '.join(cols), ', '.join(vals))))
+                'INSERT INTO %s (%s) VALUES (%s)' % (self.quoteName(strTableName), ', '.join(cols), ', '.join(vals))))
         
     def createTable(self, doc):
-        strTableName = doc.getAttribute('name')
+        strTableName = self.quoteName(doc.getAttribute('name'))
         
         if self.params['drop-tables']:
             self.dmls.append(
@@ -274,6 +275,27 @@ class Xml2Ddl:
             
         xml.unlink()
         return self.dmls
+
+    def quoteName(self, strName):
+        bQuoteName = False
+        
+        # TODO: More special characters
+        if ' ' in strName:
+            bQuoteName = True
+        
+        # TODO: add all keywords
+        if strName.upper() in ['AS', 'SELECT', 'FROM', 'COLUMN', 'INDEX', 'TABLE']:
+            bQuoteName = True
+        
+        if not bQuoteName:
+            if strName[0] == '"' and strName[-1] == '"':
+                # Already quoted.
+                bQuoteName = False
+        # TODO: other types of quoting.
+        if bQuoteName:
+            return '"' + strName + '"'
+        
+        return strName
 
 def readDict(dictionaryNode):
     dict = {}

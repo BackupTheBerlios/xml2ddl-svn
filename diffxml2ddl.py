@@ -332,7 +332,12 @@ class FindChanges:
             newCol = findSomething(newCols, strOldColName)
             
             if not newCol:
-                deleteFunc(old.getAttribute('name'), oldCol)
+                try:
+                    strTableName = old.getAttribute('name')
+                except:
+                    strTableName = None
+                
+                deleteFunc(strTableName, oldCol)
         
     def findColumn(self, columns, strColName):
         for column in columns:
