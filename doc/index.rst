@@ -19,6 +19,8 @@ set of SQL (or DDL_: Data Definition Language) statements.
 In addition |xml2ddl| can examine the difference between two XML files and output a sequence of ALTER statements that
 will update the database to conform to the new schema.
 
+If you install the required python package [#]_ you can download the XML schema from the database directly (new).
+
 Finallly, |xml2ddl| can generate HTML documentation of your schema.
 
 You can find more information and download files at the `Berlios page <http://developer.berlios.de/projects/xml2ddl/>`_
@@ -27,6 +29,7 @@ And you can find documentation through the many `test cases <http://xml2ddl.berl
 
 You can add comments or help in the `wiki pages <http://openfacts.berlios.de/index-en.phtml?title=XML%20to%20DDL>`_. 
 
+.. [#] For PostgreSQL you need ``psycopg``, For MySQL you need ``MySQLdb`` and for Firebird you need ``kinterbasdb``.
 
 Simple Example
 ==============
@@ -202,7 +205,10 @@ Annotated XML
 The following is a list of the tags and attributes that xml2ddl accepts or 
 is planned to be accepted in the future. 
 The attributes enclosed in [square brackets] are optional. Also there are lot of thing not supported yet, and are so indicated.
-Basically, all the tags below except <schema> is optional.
+Basically, all the tags below except for <schema> is optional. 
+Note, as all XML files the tag names and attribute name (eg. <table>) is case sensitive (i.e. <Table> will not work!).
+Attribute, values are case insensitive, (eg. dotschema="Yes" and dotschema="yes" should both work).
+
 
 ::
 
@@ -259,7 +265,8 @@ Here are the details of each of the XML tags.
 ::
 
     <schema [name="1"] 
-            [dotshema="2"]>
+            [dotshema="2"]
+            [generated="3"]>
 
 Not all databases have schemas, but you still need the tag.
 
@@ -267,6 +274,8 @@ Not all databases have schemas, but you still need the tag.
 
 (2) "yes" or "no". Indicates whether the table names will require the schema name before (i.e. "schema.table") 
     |Not supported|
+
+(3) If set to "yes" indicates that the XML was generatd from ``dowloadXml``.
 
 ::
     
@@ -650,12 +659,17 @@ To do
 Here are the major directions I see |xml2ddl| going:
 
 * Support for more databases (currently I've written code only for PostgreSQL, Firebird, and MySQL).
-* Build the XML schema from an existing database. Some work on this for PostgreSQL is in the subversion repository.
+  Note for Firebird users, there is a chance I'll temporarily drop support for Firebird and fill out the feature set for MySQL and PostgreSQL first.
+  For MySQL users I'll probably drop support for versions before 5.0.
+  I'm really hoping that others will step up and implement the support for their favorite DBMS once I have good support done for these two
+  DBMSs.
+* Build the XML schema from an existing database. 
+  Basic implementations for Postgres, MySQL, and Firebird is already done.
 * Support comparing differences from the database as well as another XML file.  This is a bit different since the 
   database may be more up-to-date, but the XML probably has more information (like fullname).
 * Support for some database specific features.
 * Hooks for developers to put in their own code on certain events.
-* Support for check contraints, triggers, views and stored procedures.
+* Filling out the missing funcionality listed above as listed as '|Not supported|'.
 
 Similar Work
 ============

@@ -9,25 +9,24 @@ import re, glob
 from xml.dom.minidom import parse, parseString
 from xml2ddl import handleDictionary
 import downloadXml
+from cStringIO import StringIO
 import logging
-
-
 
 class DbDmlTest:
     def __init__(self, strDbms, log):
         self.log = log
         self.aFindChanges = diffxml2ddl.FindChanges()
-        self.downLoader = downloadXml.createDownloader(strDbms)
 
         self.aFindChanges.setDbms(strDbms)
         self.strDbms = strDbms
         
     def doTests(self, con, bExec = True):
-        
         self.log.info("Logging using the test files")
         self.useTheTestXmls(con, bExec)
         
     def useTheTestXmls(self, con, bExec = True):
+        self.downLoader = downloadXml.createDownloader(self.strDbms, con)
+        
         for testFilename in glob.glob('testfiles/test*.xml'):
             doc = parse(testFilename)
             
@@ -50,7 +49,9 @@ class DbDmlTest:
         docAfter = doc.getElementsByTagName('after')[0].firstChild.nextSibling
         handleDictionary(docAfter)
         
-        empty = parseString('<schema name="public">\n</schema >\n')
+        print "Test file:", testFilename
+        
+        empty = parseString('<schema name="public">\n</schema>\n')
         
         ddls = self.aFindChanges.diffTables(empty, docBefore)
         self.execSome(con, ddls, bExec, "(%s) %s: empty->before" % (self.strDbms, testFilename))
@@ -60,16 +61,33 @@ class DbDmlTest:
         self.execSome(con, ddls, bExec, "(%s) %s: before->after" % (self.strDbms, testFilename))
         self.aFindChanges.reset()
         
-        outStr = cStringIO()
-        self.self.downloader.downloadSchema(conn = con, of = outStr)
-        print outStr
+        outStr = StringIO()
+        self.downLoader.downloadSchema(of = outStr)
+        try:
+            docFromDb = parseString(outStr.getvalue())
+        except:
+            print "Problem parsing: '" + outStr.getvalue() + "'";
+        
+        self.aFindChanges.reset()
+        ddls = self.aFindChanges.diffTables(docAfter, docFromDb)
+        
+        if len(ddls) > 0:
+            print "They are different"
+            for ddl in ddls:
+                print ddl
+                
+            print "Got:"
+            print outStr.getvalue()
+            print "Expected:"
+            print docAfter.toxml()
 
+        outStr.close()
+        self.aFindChanges.reset()
 
         ddls = self.aFindChanges.diffTables(docAfter, empty)
         self.execSome(con, ddls, bExec, "(%s) %s: after->empty" % (self.strDbms, testFilename))
         self.aFindChanges.reset()
             
-    
     def execSome(self, con, ddls, bExec, strContext):
         bPrintAll = False
         for nIndex, ret in enumerate(ddls):

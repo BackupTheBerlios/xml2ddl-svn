@@ -75,7 +75,11 @@ class PgDownloader:
         
         strQuery =  "SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES where TABLE_SCHEMA not in ('pg_catalog', 'information_schema') and TABLE_NAME NOT LIKE 'pg_%'"
         self.cursor.execute(strQuery)
-        return [x[0] for x in self.cursor.fetchall() ]
+        rows = self.cursor.fetchall()
+        if rows:
+            return [x[0] for x in rows]
+        
+        return []
     
     def getTableColumns(self, strTable):
         """ Returns column in this format
@@ -100,7 +104,7 @@ class PgDownloader:
             
             if not size and numprecradix == 10:
                 size = numsize
-            
+                
             ret.append((name, type, size, numprec, not attnotnull, default))
             
         return ret
@@ -636,7 +640,7 @@ class DownloadXml:
         
         return ' '.join(ret)
     
-def createDownloader(dbms, conn = None):
+def createDownloader(dbms, conn = None, info = None):
     if dbms == 'postgres' or dbms == 'postgres7':
         db = PgDownloader()
     elif dbms == 'mysql':
@@ -646,6 +650,8 @@ def createDownloader(dbms, conn = None):
     
     if conn:
         db.useConnection(conn)
+    elif info:
+        db.connect(info)
     else:
         info = conn_info[dbms]
         db.connect(info)
@@ -657,9 +663,23 @@ if __name__ == "__main__":
     parser = optparse.OptionParser()
     parser.add_option("-b", "--dbms",
                   dest="strDbms", metavar="DBMS", default="postgres",
-                  help="Dowload for which Database System")
+                  help="Dowload for which Database Managment System (postgres, mysql, or firebird)")
+    parser.add_option("-d", "--dbname",
+                  dest="strDbName", metavar="DATABASE", default="public",
+                  help="Dowload for which named Database")
+    parser.add_option("-u", "--user",
+                  dest="strUserName", metavar="USER", default="postgres",
+                  help="User to login with")
+    parser.add_option("-p", "--pass",
+                  dest="strPassword", metavar="PASS", default="postgres",
+                  help="Password for the user")
 
     (options, args) = parser.parse_args()
+    info = {
+        'dbname' : options.strDbName, 
+        'user'   : options.strUserName, 
+        'pass'   : options.strPassword, 
+    }
 
-    cd = createDownloader('postgres')
+    cd = createDownloader(options.strDbms, info = info)
     cd.downloadSchema()

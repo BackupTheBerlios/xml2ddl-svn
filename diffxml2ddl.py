@@ -100,11 +100,25 @@ class FindChanges:
         strNewColType = self.retColTypeEtc(new)
         
         # TODO: I think this is wrong if change name and type at the same time.
-        if strNewColType != strOldColType:
+        if self.normalizedColType(strNewColType) != self.normalizedColType(strOldColType):
             self.doChangeColType(strTableName, old.getAttribute('name'), strNewColType)
         elif new.getAttribute('name') != old.getAttribute('name'):
             self.renameColumn(strTableName, old, new)
 
+    def normalizedColType(self, strColTypeEtc):
+        if not self.bGenerated:
+            return strColTypeEtc
+        
+        # The purpose here is to compare two column types and see if the appear to be the same (essentially).
+        # I'm not trying to convert them to SQL9x which would make more sense, perhaps.
+        strColTypeEtc = strColTypeEtc.lower();
+        strColTypeEtc = strColTypeEtc.replace('integer', 'int')
+        strColTypeEtc = strColTypeEtc.replace('numeric', 'decimal')
+        strColTypeEtc = strColTypeEtc.replace('double precision', 'float' )
+        strColTypeEtc = strColTypeEtc.replace('timestamp without time zone', 'timestamp')
+        
+        return strColTypeEtc
+    
     def changeColDefaults(self, strTableName, old, new):
         strOldDefault = old.getAttribute('default')
         strNewDefault = new.getAttribute('default')
@@ -347,47 +361,50 @@ class FindChanges:
             self.diffs.extend(self.xml2ddl.ddls)
 
     def diffColumns(self, old, new):
-        self.diffSomething(old, new, 'column', self.renameColumn,  self.changeCol, self.addColumn, self.dropCol, self.findColumn)
+        self.diffSomething(old, new, 'column', self.renameColumn,  self.changeCol, self.addColumn, self.dropCol, self.findColumn, self.getColName)
 
-    def diffSomething(self, old, new, strTag, renameFunc, changeFunc, addFunc, deleteFunc, findSomething):
-        newCols = new.getElementsByTagName(strTag)
-        oldCols = old.getElementsByTagName(strTag)
+    def diffSomething(self, old, new, strTag, renameFunc, changeFunc, addFunc, deleteFunc, findSomething, getName):
+        newXs = new.getElementsByTagName(strTag)
+        oldXs = old.getElementsByTagName(strTag)
         
         nOldIndex = 0
-        skipCols = []
-        for nIndex, newCol in enumerate(newCols):
-            strNewColName = newCol.getAttribute('name')
-            oldCol = findSomething(oldCols, strNewColName)
+        skipXs = []
+        for nIndex, newX in enumerate(newXs):
+            strnewXName = getName(newX)
+            oldX = findSomething(oldXs, strnewXName)
             
-            if oldCol:
-                changeFunc(self.strTableName, oldCol, newCol)
+            if oldX:
+                changeFunc(self.strTableName, oldX, newX)
             else:
-                if newCol.hasAttribute('oldname'):
-                    strOldName = newCol.getAttribute('oldname')
-                    oldCol = findSomething(oldCols, strOldName)
+                if newX.hasAttribute('oldname'):
+                    strOldName = newX.getAttribute('oldname')
+                    oldX = findSomething(oldXs, strOldName)
                     
-                if oldCol:
-                    renameFunc(self.strTableName, oldCol, newCol)
-                    skipCols.append(strOldName)
+                if oldX:
+                    renameFunc(self.strTableName, oldX, newX)
+                    skipXs.append(strOldName)
                 else:                    
-                    addFunc(self.strTableName, newCol, nIndex)
+                    addFunc(self.strTableName, newX, nIndex)
             
-        newCols = new.getElementsByTagName(strTag)
-        oldCols = old.getElementsByTagName(strTag)
-        for nIndex, oldCol in enumerate(oldCols):
-            strOldColName = oldCol.getAttribute('name')
-            if strOldColName in skipCols:
+        newXs = new.getElementsByTagName(strTag)
+        oldXs = old.getElementsByTagName(strTag)
+        for nIndex, oldX in enumerate(oldXs):
+            stroldXName = oldX.getAttribute('name')
+            if stroldXName in skipXs:
                 continue
             
-            newCol = findSomething(newCols, strOldColName)
+            newX = findSomething(newXs, stroldXName)
             
-            if not newCol:
+            if not newX:
                 try:
                     strTableName = old.getAttribute('name')
                 except:
                     strTableName = None
                 
-                deleteFunc(strTableName, oldCol)
+                deleteFunc(strTableName, oldX)
+        
+    def getColName(self, col):
+        return col.getAttribute('name')
         
     def findColumn(self, columns, strColName):
         for column in columns:
@@ -397,6 +414,9 @@ class FindChanges:
             
         return None
         
+    def getTableName(self, table):
+        return table.getAttribute('name')
+
     def findTable(self, tables, strTableName):
         for tbl in tables:
             strCurTableName = tbl.getAttribute('name')
@@ -406,7 +426,7 @@ class FindChanges:
         return None
         
     def diffIndexes(self, old_xml, new_xml):
-        self.diffSomething(old_xml, new_xml, 'index', self.renameIndex, self.changeIndex, self.insertIndex, self.deleteIndex, self.findIndex)
+        self.diffSomething(old_xml, new_xml, 'index', self.renameIndex, self.changeIndex, self.insertIndex, self.deleteIndex, self.findIndex, self.getIndexName)
 
     def renameIndex(self, strTableName, old, new):
         self.deleteIndex(strTableName, old)
@@ -435,17 +455,19 @@ class FindChanges:
         self.diffs += [(
             'Drop Index', self.params['drop_index'] % info)]
     
+    def getIndexName(self, index):
+        return self.xml2ddl.getIndexName(self.strTableName, index)
+        
     def findIndex(self, indexes, strIndexName):
         for index in indexes:
-            self.xml2ddl.reset()
-            strCurIndexName = self.xml2ddl.getIndexName(self.strTableName, index)
+            strCurIndexName = self.getIndexName(index)
             if strCurIndexName == strIndexName:
                 return index
             
         return None
         
     def diffRelations(self, old_xml, new_xml):
-        self.diffSomething(old_xml, new_xml, 'relation', self.renameRelation, self.changeRelation, self.insertRelation, self.dropRelation, self.findRelation)
+        self.diffSomething(old_xml, new_xml, 'relation', self.renameRelation, self.changeRelation, self.insertRelation, self.dropRelation, self.findRelation, self.getRelationName)
 
     def renameRelation(self, strTableName, old, new):
         self.dropRelation(strTableName, old)
@@ -495,10 +517,12 @@ class FindChanges:
         self.diffs += [
             ('Drop Relation', 'ALTER TABLE %(tablename)s DROP CONSTRAINT %(constraintname)s' % info)]
 
+    def getRelationName(self, relation):
+        return self.xml2ddl.getRelationName(relation)
+        
     def findRelation(self, relations, strRelationName):
         for relation in relations:
-            self.xml2ddl.reset()
-            strCurRelationName = self.xml2ddl.getRelationName(relation)
+            strCurRelationName = self.getRelationName(relation)
             if strCurRelationName == strRelationName:
                 return relation
             
@@ -555,7 +579,20 @@ class FindChanges:
         self.old_xml = old_xml
         self.new_xml = new_xml
         
-        self.diffSomething(old_xml, new_xml, 'table', self.renameTable,  self.diffTable, self.createTable, self.dropTable, self.findTable)
+        
+        self.bGenerated = False
+        try:
+            schema = new_xml.getElementsByTagName('schema')[0]
+        except:
+            schema = new_xml
+            
+        if schema.hasAttribute('generated'):
+            self.bGenerated = True
+            if schema.getAttribute('generated').lower() == 'no':
+                self.bGenerated = False
+            
+        
+        self.diffSomething(old_xml, new_xml, 'table', self.renameTable,  self.diffTable, self.createTable, self.dropTable, self.findTable, self.getTableName)
         
         return self.diffs
         

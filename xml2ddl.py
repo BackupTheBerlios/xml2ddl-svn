@@ -293,7 +293,7 @@ class Xml2Ddl:
         cols = index.getAttribute("columns").split(',')
         cols = [ self.quoteName(col.strip()) for col in cols ] # Remove spaces
         
-        strIndexName = "idx_" + strTableName + '_'.join([col.title() for col in cols])
+        strIndexName = "idx_" + strTableName + '_'.join([col.strip() for col in cols])
         
         return strIndexName
         

@@ -16,30 +16,37 @@
 <div class="contents topic" id="table-of-contents">
 <p class="topic-title"><a name="table-of-contents">Table of Contents</a></p>
 <ul class="simple">
-<li><a class="reference" href="#introduction" id="id1" name="id1">Introduction</a></li>
-<li><a class="reference" href="#simple-example" id="id2" name="id2">Simple Example</a></li>
-<li><a class="reference" href="#differencing-example" id="id3" name="id3">Differencing Example</a></li>
-<li><a class="reference" href="#using-a-dictionary" id="id4" name="id4">Using a dictionary</a></li>
-<li><a class="reference" href="#outputting-html-documentation" id="id5" name="id5">Outputting HTML Documentation</a></li>
-<li><a class="reference" href="#annotated-xml" id="id6" name="id6">Annotated XML</a></li>
-<li><a class="reference" href="#advantages" id="id7" name="id7">Advantages</a></li>
-<li><a class="reference" href="#to-do" id="id8" name="id8">To do</a></li>
-<li><a class="reference" href="#similar-work" id="id9" name="id9">Similar Work</a></li>
+<li><a class="reference" href="#introduction" id="id3" name="id3">Introduction</a></li>
+<li><a class="reference" href="#simple-example" id="id4" name="id4">Simple Example</a></li>
+<li><a class="reference" href="#differencing-example" id="id5" name="id5">Differencing Example</a></li>
+<li><a class="reference" href="#using-a-dictionary" id="id6" name="id6">Using a dictionary</a></li>
+<li><a class="reference" href="#outputting-html-documentation" id="id7" name="id7">Outputting HTML Documentation</a></li>
+<li><a class="reference" href="#annotated-xml" id="id8" name="id8">Annotated XML</a></li>
+<li><a class="reference" href="#advantages" id="id9" name="id9">Advantages</a></li>
+<li><a class="reference" href="#to-do" id="id10" name="id10">To do</a></li>
+<li><a class="reference" href="#similar-work" id="id11" name="id11">Similar Work</a></li>
 </ul>
 </div>
 <div class="section" id="introduction">
-<h1><a class="toc-backref" href="#id1" name="introduction">Introduction</a></h1>
+<h1><a class="toc-backref" href="#id3" name="introduction">Introduction</a></h1>
 <p><tt class="literal"><span class="pre">XML</span> <span class="pre">to</span> <span class="pre">DDL</span></tt> is a set of python programs to convert an XML representation of a database into a 
 set of SQL (or <a class="reference" href="http://http://en.wikipedia.org/wiki/Data_Definition_Language">DDL</a>: Data Definition Language) statements.</p>
 <p>In addition <tt class="literal"><span class="pre">XML</span> <span class="pre">to</span> <span class="pre">DDL</span></tt> can examine the difference between two XML files and output a sequence of ALTER statements that
 will update the database to conform to the new schema.</p>
+<p>If you install the required python package <a class="footnote-reference" href="#id2" id="id1" name="id1"><sup>1</sup></a> you can download the XML schema from the database directly (new).</p>
 <p>Finallly, <tt class="literal"><span class="pre">XML</span> <span class="pre">to</span> <span class="pre">DDL</span></tt> can generate HTML documentation of your schema.</p>
 <p>You can find more information and download files at the <a class="reference" href="http://developer.berlios.de/projects/xml2ddl/">Berlios page</a></p>
 <p>And you can find documentation through the many <a class="reference" href="http://xml2ddl.berlios.de/testdetails.html">test cases</a>.</p>
 <p>You can add comments or help in the <a class="reference" href="http://openfacts.berlios.de/index-en.phtml?title=XML%20to%20DDL">wiki pages</a>.</p>
+<table class="footnote" frame="void" id="id2" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id1" name="id2">[1]</a></td><td>For PostgreSQL you need <tt class="literal"><span class="pre">psycopg</span></tt>, For MySQL you need <tt class="literal"><span class="pre">MySQLdb</span></tt> and for Firebird you need <tt class="literal"><span class="pre">kinterbasdb</span></tt>.</td></tr>
+</tbody>
+</table>
 </div>
 <div class="section" id="simple-example">
-<h1><a class="toc-backref" href="#id2" name="simple-example">Simple Example</a></h1>
+<h1><a class="toc-backref" href="#id4" name="simple-example">Simple Example</a></h1>
 <p>The following is a simple schema XML definition of a database:</p>
 <pre class="literal-block">
 &lt;schema&gt;
@@ -91,7 +98,7 @@ UPDATE RDB$RELATION_FIELDS SET RDB$DESCRIPTION = 'The full name of the student'
 Currently the program supports the <a class="reference" href="http://firebird.sourceforge.net/">Firebird</a>, <a class="reference" href="http://www.postgresql.com/">PostgreSQL</a>, and <a class="reference" href="http://www.mysql.com/">MySQL</a> databases, but more will probably become available.</p>
 </div>
 <div class="section" id="differencing-example">
-<h1><a class="toc-backref" href="#id3" name="differencing-example">Differencing Example</a></h1>
+<h1><a class="toc-backref" href="#id5" name="differencing-example">Differencing Example</a></h1>
 <p>Another key feature is the ability to examine the changes done to the XML and generate the DDL statements necessary 
 to perform the changes to the database. If this is a new XML schema (schema2.xml):</p>
 <pre class="literal-block">
@@ -136,7 +143,7 @@ COMMENT ON TABLE students IS 'List of students with their full names';
 <a class="reference" href="http://xml2ddl.berlios.de/testdetails.html">http://xml2ddl.berlios.de/testdetails.html</a></p>
 </div>
 <div class="section" id="using-a-dictionary">
-<h1><a class="toc-backref" href="#id4" name="using-a-dictionary">Using a dictionary</a></h1>
+<h1><a class="toc-backref" href="#id6" name="using-a-dictionary">Using a dictionary</a></h1>
 <p>If you find yourself repeating the same attributes in your XML schema over and over you can put these
 in a dictionary:</p>
 <pre class="literal-block">
@@ -193,7 +200,7 @@ Here's a rather contrived example:</p>
 </pre>
 </div>
 <div class="section" id="outputting-html-documentation">
-<h1><a class="toc-backref" href="#id5" name="outputting-html-documentation">Outputting HTML Documentation</a></h1>
+<h1><a class="toc-backref" href="#id7" name="outputting-html-documentation">Outputting HTML Documentation</a></h1>
 <p>Some of the attributes in the XML are used solely for documentation purposes.
 For example, <tt class="literal"><span class="pre">fullname</span></tt> has no equivalent in most DBMSs. 
 Another, it <tt class="literal"><span class="pre">deprecated</span></tt> which indicates that a column or table should no longer be used, but hasn't been deleted yet.</p>
@@ -203,11 +210,13 @@ python xml2html.py --file schema.html schema.xml
 </pre>
 </div>
 <div class="section" id="annotated-xml">
-<h1><a class="toc-backref" href="#id6" name="annotated-xml">Annotated XML</a></h1>
+<h1><a class="toc-backref" href="#id8" name="annotated-xml">Annotated XML</a></h1>
 <p>The following is a list of the tags and attributes that xml2ddl accepts or 
 is planned to be accepted in the future. 
 The attributes enclosed in [square brackets] are optional. Also there are lot of thing not supported yet, and are so indicated.
-Basically, all the tags below except &lt;schema&gt; is optional.</p>
+Basically, all the tags below except for &lt;schema&gt; is optional. 
+Note, as all XML files the tag names and attribute name (eg. &lt;table&gt;) is case sensitive (i.e. &lt;Table&gt; will not work!).
+Attribute, values are case insensitive, (eg. dotschema=&quot;Yes&quot; and dotschema=&quot;yes&quot; should both work).</p>
 <pre class="literal-block">
 &lt;schema&gt;
     &lt;include/&gt;
@@ -260,13 +269,15 @@ Basically, all the tags below except &lt;schema&gt; is optional.</p>
 <p>Here are the details of each of the XML tags.</p>
 <pre class="literal-block">
 &lt;schema [name=&quot;1&quot;] 
-        [dotshema=&quot;2&quot;]&gt;
+        [dotshema=&quot;2&quot;]
+        [generated=&quot;3&quot;]&gt;
 </pre>
 <p>Not all databases have schemas, but you still need the tag.</p>
 <ol class="arabic simple">
 <li>The name of the schema to use.</li>
 <li>&quot;yes&quot; or &quot;no&quot;. Indicates whether the table names will require the schema name before (i.e. &quot;schema.table&quot;) 
 <strong>- Not supported</strong></li>
+<li>If set to &quot;yes&quot; indicates that the XML was generatd from <tt class="literal"><span class="pre">dowloadXml</span></tt>.</li>
 </ol>
 <pre class="literal-block">
 &lt;include href=&quot;1&quot;/&gt;
@@ -524,7 +535,7 @@ If not ther all dbms systems are assumed.</li>
 </ol>
 </div>
 <div class="section" id="advantages">
-<h1><a class="toc-backref" href="#id7" name="advantages">Advantages</a></h1>
+<h1><a class="toc-backref" href="#id9" name="advantages">Advantages</a></h1>
 <p>Storing the schema in this form has some advantages:</p>
 <ol class="arabic simple">
 <li>All the information about a table is stored together in one place. 
@@ -555,20 +566,25 @@ Another example is to change a status code (ex. 1, 2, or 3) into an enumeration 
 </ol>
 </div>
 <div class="section" id="to-do">
-<h1><a class="toc-backref" href="#id8" name="to-do">To do</a></h1>
+<h1><a class="toc-backref" href="#id10" name="to-do">To do</a></h1>
 <p>Here are the major directions I see <tt class="literal"><span class="pre">XML</span> <span class="pre">to</span> <span class="pre">DDL</span></tt> going:</p>
 <ul class="simple">
-<li>Support for more databases (currently I've written code only for PostgreSQL, Firebird, and MySQL).</li>
-<li>Build the XML schema from an existing database. Some work on this for PostgreSQL is in the subversion repository.</li>
+<li>Support for more databases (currently I've written code only for PostgreSQL, Firebird, and MySQL).
+Note for Firebird users, there is a chance I'll temporarily drop support for Firebird and fill out the feature set for MySQL and PostgreSQL first.
+For MySQL users I'll probably drop support for versions before 5.0.
+I'm really hoping that others will step up and implement the support for their favorite DBMS once I have good support done for these two
+DBMSs.</li>
+<li>Build the XML schema from an existing database. 
+Basic implementations for Postgres, MySQL, and Firebird is already done.</li>
 <li>Support comparing differences from the database as well as another XML file.  This is a bit different since the 
 database may be more up-to-date, but the XML probably has more information (like fullname).</li>
 <li>Support for some database specific features.</li>
 <li>Hooks for developers to put in their own code on certain events.</li>
-<li>Support for check contraints, triggers, views and stored procedures.</li>
+<li>Filling out the missing funcionality listed above as listed as '<strong>- Not supported</strong>'.</li>
 </ul>
 </div>
 <div class="section" id="similar-work">
-<h1><a class="toc-backref" href="#id9" name="similar-work">Similar Work</a></h1>
+<h1><a class="toc-backref" href="#id11" name="similar-work">Similar Work</a></h1>
 <p>I've been pointed to another project which looks similar calle <a class="reference" href="http://erw.dsi.unimi.it/">ERW</a> 
 A quick look shows that it tries to work at a higher level than my XML does (i.e. more abstract).
 It also generates code for PHP and produces nicer documentation.</p>

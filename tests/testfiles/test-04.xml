@@ -14,9 +14,7 @@
     <table name="table1">
         <columns>
             <column name="col1" type="integer"/>
-            <column name="col1_5" type="integer">
-                <desc>Added column for Bob</desc>
-            </column>
+            <column name="col1_5" type="integer" desc="Added column for Bob"/>
             <column name="col2" type="integer"/>
         </columns>
     </table>
