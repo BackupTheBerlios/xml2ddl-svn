@@ -3,6 +3,7 @@ import xml2ddl
 import copy
 from xml.dom.minidom import parse, parseString
 from ddlInterface import createDdlInterface, attribsToDict
+from NamingConvention import *
 
 __author__ = "Scott Kirkwood (scott_kirkwood at berlios.com)"
 __keywords__ = ['XML', 'DML', 'SQL', 'Databases', 'Agile DB', 'ALTER', 'CREATE TABLE', 'GPL']

@@ -1,35 +1,38 @@
-table.blue {
+table.schema {
     clear: both;
     border-bottom: 1px solid #d7d7d7;
     border-collapse: collapse;
     border-spacing: 0;
     margin-top: 1em;
 }
-table.blue th {
+table.schema th {
     text-align: left;
     padding: 0 1em .1em 0;
     font-size: 12px;
 }
-table.blue td {
+table.schema td {
     font-family:Arial, "MS Sans Serif", sans-serif;
     font-size : 1em;
     border-style : solid;
-    border-width : 1pt;
+    border-width : 2pt;
     border-color : black;
     vertical-align : top;
 }
-table.blue tbody td, table.blue tbody th {
- border: 1px dotted #ddd;
- padding: .33em .5em;
- vertical-align: top;
+
+table.schema tbody td, table.schema tbody th {
+    border: 2px solid #ddd;
+    padding: .33em .5em;
+    vertical-align: top;
 }
-table.blue tbody td a:hover, table.blue tbody th a:hover {
- background-color: transparent;
+
+table.schema tbody td a:hover, table.schema tbody th a:hover {
+    background-color: transparent;
 }
-table.blue tbody tr { border-top: 1px solid #ddd }
-table.blue tbody tr.even { background-color: #fcfcfc }
-table.blue tbody tr.odd { background-color: #f7f7f7 }
-table.blue tbody tr:hover { background: #eed }
+
+table.schema tbody tr { border-top: 2px solid #ddd }
+table.schema tbody tr.even  { background-color: #ececec }
+table.schema tbody tr.odd   { background-color: #e7e7e7 }
+table.schema tbody tr:hover { background: #eed }
 
 td.def {
     text-align : right;
