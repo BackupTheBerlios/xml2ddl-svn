@@ -1,7 +1,0 @@
-<schema>
-<table name="table1">
-    <columns>
-        <column name="col1" type="integer"/>
-    </columns>
-</table>
-</schema>

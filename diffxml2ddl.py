@@ -13,6 +13,9 @@ TODO:
 class FindChanges:
     def __init__(self):
         self.dbmsType = 'postgres'
+        self.reset()
+        
+    def reset(self):
         self.params = {
             'drop_constraints_on_col_rename' : False,
             'rename_keyword' : 'RENAME', # or ALTER
@@ -24,6 +27,7 @@ class FindChanges:
         }
     
     def setDbms(self, dbmsType):
+        self.reset()
         self.dbmsType = dbmsType.lower()
         if self.dbmsType not in ['postgres', 'postgres7', 'mysql', 'oracle', 'firebird']:
             print "Unknown dbms %s" % (dbmsType)
@@ -369,7 +373,10 @@ class FindChanges:
         
         return self.diffs
 
-    def diffDocuments(self, strOldFilename, strNewFilename):
+    def diffDocuments(self, old_xml, new_xml):
+        self.old_xml = old_xml
+        self.new_xml = new_xml
+        
         self.diffs = []
         
         tbl_news = self.new_xml.getElementsByTagName('table')

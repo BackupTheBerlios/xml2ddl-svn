@@ -1,0 +1,24 @@
+<test title="Drop column">
+<before>
+	<schema>
+	<table name="table1">
+		<columns>
+			<column name="col1" type="integer"/>
+			<column name="col2" type="integer"/>
+		</columns>
+	</table>
+	</schema>
+</before>
+<after>
+	<schema>
+	<table name="table1">
+		<columns>
+			<column name="col2" type="integer"/>
+		</columns>
+	</table>
+	</schema>
+</after>
+<ddls>
+	<ddl>ALTER TABLE table1 DROP col1</ddl>
+</ddls>
+</test>

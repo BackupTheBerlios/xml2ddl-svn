@@ -1,8 +1,0 @@
-<schema>
-<table name="new_table_name" oldname="table1">
-    <columns>
-        <column name="col1" type="integer"/>
-        <column name="col2" type="integer"/>
-    </columns>
-</table>
-</schema>

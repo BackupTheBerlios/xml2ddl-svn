@@ -1,0 +1,25 @@
+<test title="create small table">
+<before>
+    <schema>
+    </schema>
+</before>
+<after>
+    <schema>
+        <dictionary name="column">
+            <dict class="mytype" type="integer"/>
+        </dictionary>
+        <table name="table1">
+            <columns>
+                <column name="col1" class="mytype"/>
+                <column name="col2" type="integer"/>
+            </columns>
+        </table>
+    </schema>
+</after>
+<ddls>
+<ddl>CREATE TABLE table1 (
+	col1 integer,
+	col2 integer
+)</ddl>
+</ddls>
+</test>

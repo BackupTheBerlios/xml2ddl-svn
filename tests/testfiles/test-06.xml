@@ -1,0 +1,28 @@
+<test title="Add a column smaller size">
+<before>
+	<schema>
+	<table name="table1">
+		<columns>
+			<column name="col1" type="decimal" size="20"/>
+			<column name="col2" type="integer"/>
+		</columns>
+	</table>
+	</schema>
+</before>
+<after>
+	<schema>
+	<table name="table1">
+		<columns>
+			<column name="col1" type="decimal" size="10"/>
+			<column name="col2" type="integer"/>
+		</columns>
+	</table>
+	</schema>
+</after>
+<ddls>
+	<ddl>ALTER TABLE table1 ALTER col1 TYPE decimal(10)</ddl>
+</ddls>
+<ddls dbms="mysql">
+	<ddl>ALTER TABLE table1 MODIFY col1 decimal(10)</ddl>
+</ddls>
+</test>

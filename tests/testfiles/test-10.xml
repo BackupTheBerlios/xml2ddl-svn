@@ -1,0 +1,24 @@
+<test title="Rename Table">
+<before>
+	<schema>
+	<table name="table1">
+		<columns>
+			<column name="col1" type="integer"/>
+			<column name="col2" type="integer"/>
+		</columns>
+	</table>
+	</schema>
+</before>
+<after>
+	<schema>
+	<table name="new_table_name" oldname="table1">
+		<columns>
+			<column name="col1" type="integer"/>
+		</columns>
+	</table>
+	</schema>
+</after>
+<ddls>
+	<ddl>ALTER TABLE table1 RENAME TO new_table_name</ddl>
+</ddls>
+</test>
