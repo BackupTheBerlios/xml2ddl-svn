@@ -17,7 +17,10 @@ sys.path += ['./tests']
 if os.path.exists('tests/my_conn.py'):
     from my_conn import conn_info
 else:
-    from connect_info import conn_info
+    try:
+        from connect_info import conn_info
+    except:
+        print "Can't find conn_info"
 
 
 """
@@ -70,7 +73,7 @@ class PgDownloader:
     def getTables(self, tableList):
         """ Returns the list of tables as a array of strings """
         
-        strQuery =  "SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES where TABLE_SCHEMA not in ('pg_catalog', 'information_schema')"
+        strQuery =  "SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES where TABLE_SCHEMA not in ('pg_catalog', 'information_schema') and TABLE_NAME NOT LIKE 'pg_%'"
         self.cursor.execute(strQuery)
         return [x[0] for x in self.cursor.fetchall() ]
     
@@ -217,201 +220,6 @@ class PgDownloader:
             return (atttypmod, None)
         
         return (None, None)
-
-class PgDownloader2:
-    def __init__(self):
-        self.strDbms = 'postgres'
-    def connect(self, info):
-        try:
-            import psycopg
-        except:
-            print "Missing PostgreSQL support through psycopg"
-            return
-        
-        self.conn = psycopg.connect('dbname=%(dbname)s user=%(user)s password=%(pass)s' % info)
-        self.cursor = self.conn.cursor()
-        #self.doSomeTests()
-    def useConnection(self, conn):
-        self.conn = conn
-        self.cursor = self.conn.cursor()
-        
-    def doSomeTests(self):
-        sql = "select tablename from pg_tables where tablename in %s"
-        inList = (('sample', 'companies', 'table1'), )
-        self.cursor.execute(sql, inList)
-        print self.cursor.fetchall()
-        
-        sql = "select tablename from pg_tables where tablename = %(tbl)s"
-        inDict = {  'tbl' : 'sample' }
-        self.cursor.execute(sql, inDict)
-        print self.cursor.fetchall()
-
-        sys.exit(-1)
-
-    def getTables(self, tableList):
-        """ Returns the list of tables as a array of strings """
-        
-        strQuery = "select tablename from pg_tables where schemaname not in ('pg_catalog', 'information_schema')"
-        self.cursor.execute(strQuery)
-        return [x[0] for x in self.cursor.fetchall() ]
-    
-    def getTableColumns(self, strTable):
-        """ Returns column in this format
-            (strColumnName, strColType, nColSize, nColPrecision, bNotNull, strDefault)
-        """
-        strSql = """
-            SELECT pa.attnum, pa.attname, pt.typname, pa.atttypmod, pa.attnotnull, pa.atthasdef, pc.oid
-            FROM pg_attribute pa, pg_type pt, pg_class pc
-            WHERE pa.atttypid = pt.oid 
-            AND pa.attrelid = pc.oid
-            AND pa.attisdropped = 'f'
-            AND pc.relname = %s
-            AND pc.relkind = 'r'
-            ORDER BY attnum"""
-        self.cursor.execute(strSql, [strTable])
-        rows = self.cursor.fetchall()
-        
-        specialCols = ['cmax', 'cmin', 'xmax', 'xmin', 'oid', 'ctid', 'tableoid']
-        fixNames = {
-            'int4' : 'integer',
-            'int'  : 'integer',
-            'bool' : 'boolean',
-            'float8' : 'double precision',
-            'int8' : 'bigint',
-            'serial8' : 'bigserial',
-            'serial4' : 'serial',
-            'float4' : 'real',
-            'int2' : 'smallint',
-        }
-        ret = []
-        for row in rows:
-            attnum, name, type, attlen, attnotnull, atthasdef, clasoid = row
-            if name not in specialCols:
-                if type in fixNames:
-                    type = fixNames[type]
-                
-                attlen, precision = self._decodeLength(type, attlen)
-                    
-                default = None
-                if atthasdef:
-                    default = self._getColumnDefault(clasoid, attnum)
-                ret.append((name, type, attlen, precision, attnotnull, default))
-            
-        return ret
-    
-    def getTableComment(self, strTableName):
-        """ Returns the comment as a string """
-        
-        strSql = """SELECT description FROM pg_description pd, pg_class pc 
-            WHERE pc.relname = %s AND pc.relkind = 'r' AND pd.objoid = pc.oid AND pd.objsubid = 0"""
-        self.cursor.execute(strSql, [strTableName])
-        rows = self.cursor.fetchall()
-        if rows:
-            return rows[0][0]
-        
-        return None
-
-    def getColumnComment(self, strTableName, strColumnName):
-        """ Returns the comment as a string """
-        
-        strSql = """SELECT description FROM pg_description pd, pg_class pc, pg_attribute pa
-            WHERE pc.relname = %s AND pc.relkind = 'r' 
-            AND pd.objoid = pc.oid AND pd.objsubid = pa.attnum AND pa.attname = %s AND pa.attrelid = pc.oid"""
-        
-        self.cursor.execute(strSql, [strTableName, strColumnName])
-        rows = self.cursor.fetchall()
-        if rows:
-            return rows[0][0]
-        
-        return None
-
-    def getTableIndexes(self, strTableName):
-        """ Returns 
-            (strIndexName, [strColumns,], bIsUnique, bIsPrimary, bIsClustered)
-            or []
-        """
-        strSql = """SELECT pc.relname, pi.indkey, indisunique, indisprimary, indisclustered
-            FROM pg_index pi, pg_class pc, pg_class pc2
-            WHERE pc2.relname = %s
-            AND pc2.relkind = 'r'
-            AND pc2.oid = pi.indrelid
-            AND pc.oid = pi.indexrelid
-            """
-        self.cursor.execute(strSql, [strTableName])
-        rows = self.cursor.fetchall()
-        
-        ret = []
-        
-        if not rows:
-            return ret
-        
-        for row in rows:
-            (strIndexName, strColumns, bIsUnique, bIsPrimary, bIsClustered) = row
-            colList = self._fetchTableColumnsNamesByNums(strTableName, strColumns.split())
-            ret.append((strIndexName, colList, bIsUnique, bIsPrimary, bIsClustered))
-        
-        return ret
-
-    def getTableRelations(self, strTableName):
-        """ Returns 
-            (strConstraintName, colName, fk_table, fk_columns)
-            or []
-        """
-        strSql = """SELECT pcon.conname, pcon.conkey, pcla2.relname, pcon.confkey, pcon.confupdtype, pcon.confdeltype
-            FROM pg_constraint pcon, pg_class pcla, pg_class pcla2
-            WHERE pcla.relname = %s
-            AND pcla.relkind = 'r'
-            AND pcon.conrelid = pcla.oid
-            AND pcon.confrelid = pcla2.oid
-            AND pcon.contype = 'f'
-            """
-        self.cursor.execute(strSql, [strTableName])
-        rows = self.cursor.fetchall()
-        
-        ret = []
-        
-        if not rows:
-            return ret
-        
-        for row in rows:
-            (strConstraintName, cols, fk_table, fkeys, chUpdateType, chDelType) = row
-            cols = cols[1:-1]
-            colList = self._fetchTableColumnsNamesByNums(strTableName, cols.split(','))
-            fkeys = fkeys[1:-1]
-            fkColList = self._fetchTableColumnsNamesByNums(fk_table, fkeys.split(','))
-            ret.append((strConstraintName, colList, fk_table, fkColList, chUpdateType, chDelType))
-        
-        return ret
-
-    def _getColumnDefault(self, clasoid, attnum):
-        """ Returns the default value for a comment or None """
-        strSql = "SELECT adsrc FROM pg_attrdef WHERE adrelid = %s AND adnum = %s"
-        self.cursor.execute(strSql, [clasoid, attnum])
-        rows = self.cursor.fetchall()
-        if not rows:
-            return None
-        
-        strDefault = rows[0][0]
-        
-        strDefault = strDefault.replace('::text', '')
-        return strDefault
-    
-    def _fetchTableColumnsNamesByNums(self, strTableName, nums):
-        strSql = """
-            SELECT pa.attname
-            FROM pg_attribute pa, pg_class pc
-            WHERE pa.attrelid = pc.oid
-            AND pa.attisdropped = 'f'
-            AND pc.relname = %s
-            AND pc.relkind = 'r'
-            AND pa.attnum in (%s)
-            ORDER BY pa.attnum
-            """ % ( '%s', ','.join(['%s' for num in nums]) )
-            
-        self.cursor.execute(strSql, [strTableName] + nums)
-        rows = self.cursor.fetchall()
-        return [row[0] for row in rows]
-        
 
 class MySqlDownloader:
     def __init__(self):
@@ -735,10 +543,9 @@ class DownloadXml:
     def __init__(self, downloader):
         self.db = downloader
         
-    def downloadSchema(self, tableList = None):
+    def downloadSchema(self, tableList = None, of = sys.stdout):
         tables = self.db.getTables(tableList = None)
 
-        of = sys.stdout
         of.write('<schema generated="yes">\n')
         
         for strTableName in tables:
@@ -830,7 +637,6 @@ class DownloadXml:
         return ' '.join(ret)
     
 def createDownloader(dbms, conn = None):
-    info = conn_info[dbms]
     if dbms == 'postgres' or dbms == 'postgres7':
         db = PgDownloader()
     elif dbms == 'mysql':
@@ -841,6 +647,7 @@ def createDownloader(dbms, conn = None):
     if conn:
         db.useConnection(conn)
     else:
+        info = conn_info[dbms]
         db.connect(info)
         
     return DownloadXml(db)
@@ -850,9 +657,9 @@ if __name__ == "__main__":
     parser = optparse.OptionParser()
     parser.add_option("-b", "--dbms",
                   dest="strDbms", metavar="DBMS", default="postgres",
-                  help="Output for which Database System")
+                  help="Dowload for which Database System")
 
     (options, args) = parser.parse_args()
 
-    cd = createDownloader('firebird')
+    cd = createDownloader('postgres')
     cd.downloadSchema()

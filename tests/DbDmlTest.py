@@ -8,6 +8,7 @@ import diffxml2ddl
 import re, glob
 from xml.dom.minidom import parse, parseString
 from xml2ddl import handleDictionary
+import downloadXml
 import logging
 
 
@@ -16,6 +17,8 @@ class DbDmlTest:
     def __init__(self, strDbms, log):
         self.log = log
         self.aFindChanges = diffxml2ddl.FindChanges()
+        self.downLoader = downloadXml.createDownloader(strDbms)
+
         self.aFindChanges.setDbms(strDbms)
         self.strDbms = strDbms
         
@@ -57,6 +60,11 @@ class DbDmlTest:
         self.execSome(con, ddls, bExec, "(%s) %s: before->after" % (self.strDbms, testFilename))
         self.aFindChanges.reset()
         
+        outStr = cStringIO()
+        self.self.downloader.downloadSchema(conn = con, of = outStr)
+        print outStr
+
+
         ddls = self.aFindChanges.diffTables(docAfter, empty)
         self.execSome(con, ddls, bExec, "(%s) %s: after->empty" % (self.strDbms, testFilename))
         self.aFindChanges.reset()

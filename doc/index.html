@@ -3,18 +3,18 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-<meta name="generator" content="Docutils 0.3.3: http://docutils.sourceforge.net/" />
+<meta name="generator" content="Docutils 0.3.1: http://docutils.sourceforge.net/" />
 <title>XML To DDL</title>
 <meta content="XML, DDL, databases, generation" name="keywords" />
 <meta content="Creating DDL statements from XML" lang="en" name="description" />
 <link rel="stylesheet" href="default.css" type="text/css" />
 </head>
 <body>
-<h1 class="title">XML To DDL</h1>
 <div class="document" id="xml-to-ddl">
+<h1 class="title">XML To DDL</h1>
 <p>''Bringing some sanity to database maintenance.''</p>
 <div class="contents topic" id="table-of-contents">
-<p class="topic-title first"><a name="table-of-contents">Table of Contents</a></p>
+<p class="topic-title"><a name="table-of-contents">Table of Contents</a></p>
 <ul class="simple">
 <li><a class="reference" href="#introduction" id="id1" name="id1">Introduction</a></li>
 <li><a class="reference" href="#simple-example" id="id2" name="id2">Simple Example</a></li>
@@ -204,8 +204,10 @@ python xml2html.py --file schema.html schema.xml
 </div>
 <div class="section" id="annotated-xml">
 <h1><a class="toc-backref" href="#id6" name="annotated-xml">Annotated XML</a></h1>
-<p>The following is a list of the tags and attributes that xml2ddl accepts. 
-The attributes enclosed in [square brackets] are optional.</p>
+<p>The following is a list of the tags and attributes that xml2ddl accepts or 
+is planned to be accepted in the future. 
+The attributes enclosed in [square brackets] are optional. Also there are lot of thing not supported yet, and are so indicated.
+Basically, all the tags below except &lt;schema&gt; is optional.</p>
 <pre class="literal-block">
 &lt;schema&gt;
     &lt;include/&gt;
@@ -288,14 +290,16 @@ Typically, it should be applied to &quot;column&quot; but it could be &quot;tabl
 </ol>
 <pre class="literal-block">
 &lt;table name=&quot;1&quot; 
-      [fullname=&quot;2&quot;] 
-      [desc=&quot;3&quot;]
-      [inherits=&quot;4&quot;&gt;
+      [oldname=&quot;2&quot;
+      [fullname=&quot;3&quot;] 
+      [desc=&quot;4&quot;]
+      [inherits=&quot;5&quot;&gt;
 </pre>
 <p>Create a table definition. 
 The order may be important since xml2ddl isn't too careful about creating contraints before the table exists.</p>
 <ol class="arabic simple">
 <li>The name of the database table</li>
+<li>You must enter oldname if you want to rename a table.</li>
 <li>The full name of the table, usually just the table name with spaces instead of underscores, for example. 
 This is purely for documentation purposes.</li>
 <li>A long description of the table. The description is stored in the database if possible.</li>
@@ -307,17 +311,19 @@ For databases that don't support the features it will repeat the values.
 <pre class="literal-block">
 &lt;columns&gt;
     &lt;column name=&quot;1&quot; 
-           [fullname=&quot;2&quot;] 
-           [desc=&quot;3&quot;] 
-            type=&quot;4&quot; 
-           [size=&quot;5&quot;] 
-           [precision=&quot;6&quot;] 
-           [null=&quot;7&quot;] 
-           [unique=&quot;8&quot;]
-           [key=&quot;9&quot;] 
-           [default=&quot;10&quot;]
-           [autoincrement=&quot;11&quot;]
-           [deprecated=&quot;12&quot;]/&gt;
+           [oldname=&quot;2&quot;]
+           [fullname=&quot;3&quot;] 
+           [desc=&quot;4&quot;] 
+            type=&quot;5&quot; 
+           [size=&quot;6&quot;] 
+           [precision=&quot;7&quot;] 
+           [null=&quot;8&quot;] 
+           [unique=&quot;9&quot;]
+           [key=&quot;10&quot;] 
+           [default=&quot;11&quot;]
+           [autoincrement=&quot;12&quot;]
+           [deprecated=&quot;13&quot;]/&gt;
+    &lt;/column&gt;
 &lt;/columns&gt;
 </pre>
 <p>The &lt;columns&gt; tag gives an order list of attributes. 
@@ -325,6 +331,7 @@ Currently, xml2ddl doesn't reorder the columns if you move things around.</p>
 <ol class="arabic simple">
 <li>Name of the column (aka attribute, aka field). 
 Note I chose the name <cite>column</cite> instead of <cite>attribute</cite> because I felt it would be easier for beginners to grasp.</li>
+<li>You need to enter the oldname if you want to rename a column.</li>
 <li>Fullname used only for documentation. Typically, it the same as <cite>name</cite> but with spaces and any hungarian notation removed.</li>
 <li>Long description of the attribute.</li>
 <li>The type of the column, should probably stick with the SQL99 types, if possible.</li>
@@ -336,29 +343,51 @@ Note I chose the name <cite>column</cite> instead of <cite>attribute</cite> beca
 The name of the constraint will be <tt class="literal"><span class="pre">unique_&lt;colname&gt;</span></tt>. <strong>- Not supported</strong></li>
 <li>A number from 1 to <em>N</em>. Indicates that this column will participate in being a primary key.
 Every table <em>should</em> have a primary key, but it isn't enforced.</li>
+<li>Default value, if any. If none used, it typically defaults to NULL.</li>
+<li>If set to &quot;yes&quot; will try and make this column autoincrement if NULL is passed to in in an insert.
+On some systems I'll create a sequence and a trigger or default value.
+Typically, you will need to put in <tt class="literal"><span class="pre">null=&quot;no&quot;</span></tt> and <tt class="literal"><span class="pre">key=&quot;1&quot;</span></tt> as well.</li>
+<li>Value &quot;yes&quot; if used. Means that the column is deprecated and shouldn't be used (but it still exists in the database).
+This is used purely for documentation purposes.</li>
 </ol>
-<p>[10] Default value, if any. If none used, it typically defaults to NULL.</p>
-<dl>
-<dt>[11] If set to &quot;yes&quot; will try and make this column autoincrement if NULL is passed to in in an insert.</dt>
-<dd>On some systems I'll create a sequence and a trigger or default value.
-Typically, you will need to put in <tt class="literal"><span class="pre">null=&quot;no&quot;</span></tt> and <tt class="literal"><span class="pre">key=&quot;1&quot;</span></tt> as well.</dd>
-<dt>[12] Value &quot;yes&quot; if used. Means that the column is deprecated and shouldn't be used (but it still exists in the database).</dt>
-<dd>This is used purely for documentation purposes.</dd>
-</dl>
+<pre class="literal-block">
+&lt;colums&gt;
+    &lt;column ....&gt;
+        &lt;enumeration [name=&quot;1&quot;] [fullname=&quot;2&quot;] [desc=&quot;3&quot;] [constraint=&quot;4&quot;]&gt;
+            &lt;enum val=&quot;5&quot; [display=&quot;6&quot;] [desc=&quot;7&quot;]/&gt;
+            ...
+        &lt;/enumeration&gt;
+    &lt;/column&gt;
+&lt;/columns&gt;
+</pre>
+<p><strong>- Not supported</strong> Enumerations is a limited list of values that a column can contain.
+One purpose of enumerations is to aid in coding, to automaticaly create an enum in code, <em>forcing</em> the developer to
+use one of the enumerated types.</p>
+<ol class="arabic simple">
+<li>Name to use for the enumeration constraint, and/or the enumeration in code.</li>
+<li>Full name of the constraint, for documentation purposes.</li>
+<li>Description of the enumeration.</li>
+<li>&quot;yes&quot; if a constraint should be created if possible for the DBMS.</li>
+<li>The actual value stored in the database. Must be provided.</li>
+<li>What to typically display to the user, if omitted, assumed to be <tt class="literal"><span class="pre">val</span></tt>.</li>
+<li>A long description of the value, to put in help, perhaps.</li>
+</ol>
 <pre class="literal-block">
 &lt;relations&gt;
-    &lt;relation [name=&quot;1&quot;] 
-               column=&quot;2&quot; 
-               table=&quot;3&quot; 
-              [fk=&quot;4&quot;] 
-              [ondelete=&quot;5&quot;] 
-              [onupdate=&quot;6&quot;]/&gt;
+    &lt;relation [name=&quot;1&quot;]
+              [oldname=&quot;2&quot;]
+               column=&quot;3&quot; 
+               table=&quot;4&quot; 
+              [fk=&quot;5&quot;] 
+              [ondelete=&quot;6&quot;] 
+              [onupdate=&quot;7&quot;]/&gt;
 &lt;/relations&gt;
 </pre>
 <p>Relations is an unordered list of foreign key contraints to other tables and columns.
 For DBMS that don't support this, the relations would be used only for documentation purposes.</p>
 <ol class="arabic simple">
 <li>The name of the constraint, defaults to <tt class="literal"><span class="pre">fk_&lt;column&gt;</span></tt> if not provided.</li>
+<li>If you rename the relation need to put the original name here. <strong>- Not supported</strong>.</li>
 <li>The list of columns of this table that forms part of the relation separated by commas.
 Note I may either change the name to <tt class="literal"><span class="pre">columns</span></tt> or just support both <tt class="literal"><span class="pre">column</span></tt> and <tt class="literal"><span class="pre">columns</span></tt>.</li>
 <li>The name of the other table that forms part of the relation.</li>
@@ -370,15 +399,17 @@ If no name is given it defaults to the same name(s) as given in column.</li>
 <pre class="literal-block">
 &lt;indexes&gt;
     &lt;index [name=&quot;1&quot;] 
-            columns=&quot;2&quot; 
-           [unique=&quot;3&quot;]
-           [using=&quot;4&quot;]
-           [where=&quot;5&quot;]/&gt;
+           [oldname=&quot;2&quot;]
+            columns=&quot;3&quot; 
+           [unique=&quot;4&quot;]
+           [using=&quot;5&quot;]
+           [where=&quot;6&quot;]/&gt;
 &lt;/indexes&gt;
 </pre>
 <p>Index are an unorder list of indexes on a table (i.e. the order of the &lt;index/&gt; tags does not matter).</p>
 <ol class="arabic simple">
 <li>The name of the index. Defaults to <tt class="literal"><span class="pre">idx_&lt;table&gt;&lt;columns&gt;</span></tt> where the columns are separeted by underscores.</li>
+<li>Must provide the old name if you want to rename the index <strong>- Not supported</strong></li>
 <li>List of columns that form part of the index separated by commas.</li>
 <li>If set to &quot;yes&quot; then it creates a unique index. <strong>- Not supported</strong></li>
 <li>Type of index to create. <strong>- Not supported</strong></li>
@@ -387,11 +418,12 @@ If no name is given it defaults to the same name(s) as given in column.</li>
 <pre class="literal-block">
 &lt;constraints&gt;
     &lt;constraint [name=&quot;1&quot;] 
-                [longname=&quot;2&quot;]
-                [desc=&quot;3&quot;]
-                 columns=&quot;4&quot; 
-                [unique=&quot;5&quot;] 
-                [check=&quot;6&quot;]/&gt;
+                [oldname=&quot;2&quot;]
+                [longname=&quot;3&quot;]
+                [desc=&quot;4&quot;]
+                 columns=&quot;5&quot; 
+                [unique=&quot;6&quot;] 
+                [check=&quot;7&quot;]/&gt;
 &lt;/constraints&gt;
 </pre>
 <p>The &lt;constraints&gt; tag lists an unorder list of contraint rules, if the database supports it. <strong>- Not supported</strong></p>
@@ -399,6 +431,7 @@ If no name is given it defaults to the same name(s) as given in column.</li>
 <li>The name of the constraint. 
 Defaults to <tt class="literal"><span class="pre">con_&lt;table&gt;&lt;columns&gt;</span></tt> where the columns are separeted by underscores.
 <strong>- Not supported</strong></li>
+<li>If you rename the constraint you must put the old name here. <strong>- Not supported</strong></li>
 <li>The long name of the constraint if any (for documentation only)</li>
 <li>The description of the constraint, for documentation.</li>
 <li>List of columns that form part of the constaint separated by commas <strong>- Not supported</strong></li>
@@ -408,6 +441,7 @@ Defaults to <tt class="literal"><span class="pre">con_&lt;table&gt;&lt;columns&g
 <pre class="literal-block">
 &lt;triggers&gt;
     &lt;trigger  name=&quot;1&quot;
+             [oldname=&quot;2&quot;]
              [longname=&quot;2&quot;]
              [desc=&quot;3&quot;]
               timing=&quot;4&quot; 
@@ -422,6 +456,7 @@ Defaults to <tt class="literal"><span class="pre">con_&lt;table&gt;&lt;columns&g
 The &lt;triggers&gt; tag lists an unorder list of triggers for the table, if the database supports it.</p>
 <ol class="arabic simple">
 <li>The name of the trigger, required.</li>
+<li>If you rename the trigger must put the old name here.</li>
 <li>The long name of the trigger, if any (for documentation only)</li>
 <li>The description of the trigger for documentation purposes.</li>
 <li>The timing of the trigger, one of 'before' | 'after'</li>
@@ -460,20 +495,22 @@ Create a view to the table.</p>
 </ol>
 <pre class="literal-block">
 &lt;function name=&quot;1&quot; 
-         [fullname=&quot;2&quot;] 
-         [desc=&quot;3&quot;] 
-         [arguments=&quot;4&quot;] 
-         [returns=&quot;5&quot;] 
-         [language=&quot;6&quot;] 
-         [dbms=&quot;7&quot;] 
-         [volatile=&quot;8&quot;]&gt;
-    (9)
+         [oldname=&quot;2&quot;]
+         [fullname=&quot;3&quot;] 
+         [desc=&quot;4&quot;] 
+         [arguments=&quot;5&quot;] 
+         [returns=&quot;6&quot;] 
+         [language=&quot;7&quot;] 
+         [dbms=&quot;8&quot;] 
+         [volatile=&quot;9&quot;]&gt;
+    (10)
 &lt;/function&gt;
 </pre>
 <p><strong>- Not supported</strong>
 You can specify the body of a stored procedure or function.</p>
 <ol class="arabic simple">
 <li>Name of the function or procedure to be stored in the database.</li>
+<li>If you rename the function you must place the old name here. <strong>- Not supported</strong></li>
 <li>Typically, this is the name with spaces added.</li>
 <li>A full description of the function.</li>
 <li>Comma separeted list of arguments. If no arguments, void is assumed.</li>
@@ -539,7 +576,7 @@ It also generates code for PHP and produces nicer documentation.</p>
 </div>
 <hr class="footer" />
 <div class="footer">
-Generated on: 2004-09-23.
+Generated on: 2004-09-26.
 Generated by <a class="reference" href="http://docutils.sourceforge.net/">Docutils</a> from <a class="reference" href="http://docutils.sourceforge.net/rst.html">reStructuredText</a> source.
 </div>
 </body>

@@ -65,7 +65,7 @@ def doTests():
     dbt = DbTests()
     
     dbt.pgTests()
-    dbt.mySqlTests()
+    #dbt.mySqlTests()
     dbt.fireBirdTests()
     
 if __name__ == "__main__":

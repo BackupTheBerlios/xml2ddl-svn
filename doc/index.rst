@@ -199,8 +199,10 @@ Here's how to output the HTML document::
 Annotated XML
 =============
 
-The following is a list of the tags and attributes that xml2ddl accepts. 
-The attributes enclosed in [square brackets] are optional.
+The following is a list of the tags and attributes that xml2ddl accepts or 
+is planned to be accepted in the future. 
+The attributes enclosed in [square brackets] are optional. Also there are lot of thing not supported yet, and are so indicated.
+Basically, all the tags below except <schema> is optional.
 
 ::
 
@@ -294,21 +296,24 @@ The dictionary is a general system for adding attributes.
 ::
 
     <table name="1" 
-          [fullname="2"] 
-          [desc="3"]
-          [inherits="4">
+          [oldname="2"
+          [fullname="3"] 
+          [desc="4"]
+          [inherits="5">
 
 Create a table definition. 
 The order may be important since xml2ddl isn't too careful about creating contraints before the table exists.
 
 (1) The name of the database table
 
-(2) The full name of the table, usually just the table name with spaces instead of underscores, for example. 
+(2) You must enter oldname if you want to rename a table.
+
+(3) The full name of the table, usually just the table name with spaces instead of underscores, for example. 
     This is purely for documentation purposes.
 
-(3) A long description of the table. The description is stored in the database if possible.
+(4) A long description of the table. The description is stored in the database if possible.
 
-(4) The idea is to specify another table which this table will inherit columns from.
+(5) The idea is to specify another table which this table will inherit columns from.
     It would possibly inherit the indexes, triggers, and constraints too.
     For databases that don't support the features it will repeat the values.
     |Not supported|
@@ -317,17 +322,19 @@ The order may be important since xml2ddl isn't too careful about creating contra
 
     <columns>
         <column name="1" 
-               [fullname="2"] 
-               [desc="3"] 
-                type="4" 
-               [size="5"] 
-               [precision="6"] 
-               [null="7"] 
-               [unique="8"]
-               [key="9"] 
-               [default="10"]
-               [autoincrement="11"]
-               [deprecated="12"]/>
+               [oldname="2"]
+               [fullname="3"] 
+               [desc="4"] 
+                type="5" 
+               [size="6"] 
+               [precision="7"] 
+               [null="8"] 
+               [unique="9"]
+               [key="10"] 
+               [default="11"]
+               [autoincrement="12"]
+               [deprecated="13"]/>
+        </column>
     </columns>
 
 The <columns> tag gives an order list of attributes. 
@@ -335,44 +342,76 @@ Currently, xml2ddl doesn't reorder the columns if you move things around.
 
 (1) Name of the column (aka attribute, aka field). 
     Note I chose the name `column` instead of `attribute` because I felt it would be easier for beginners to grasp.
-    
-(2) Fullname used only for documentation. Typically, it the same as `name` but with spaces and any hungarian notation removed.
 
-(3) Long description of the attribute.
+(2) You need to enter the oldname if you want to rename a column.
 
-(4) The type of the column, should probably stick with the SQL99 types, if possible.
+(3) Fullname used only for documentation. Typically, it the same as `name` but with spaces and any hungarian notation removed.
 
-(5) The size of the column, used for varchar() and the like. 
+(4) Long description of the attribute.
 
-(6) The precision of the numeric value, must be used in conjuction with `size`. 
+(5) The type of the column, should probably stick with the SQL99 types, if possible.
+
+(6) The size of the column, used for varchar() and the like. 
+
+(7) The precision of the numeric value, must be used in conjuction with `size`. 
     ``type="numeric" size="10" precision="2"`` would produce ``decimal(10, 2)``.
      
-(7) "yes" or "no" or "not". ``no`` or ``not`` expands to ``NOT NULL``. The default is ``NULL`` if nothing is specified.
+(8) "yes" or "no" or "not". ``no`` or ``not`` expands to ``NOT NULL``. The default is ``NULL`` if nothing is specified.
 
-(8) If "yes" then the column will have a unique constraint added to it.
+(9) If "yes" then the column will have a unique constraint added to it.
     The name of the constraint will be ``unique_<colname>``. |Not supported|
 
-(9) A number from 1 to *N*. Indicates that this column will participate in being a primary key.
-    Every table *should* have a primary key, but it isn't enforced.
+(10) A number from 1 to *N*. Indicates that this column will participate in being a primary key.
+     Every table *should* have a primary key, but it isn't enforced.
     
-[10] Default value, if any. If none used, it typically defaults to NULL.
+(11) Default value, if any. If none used, it typically defaults to NULL.
 
-[11] If set to "yes" will try and make this column autoincrement if NULL is passed to in in an insert.
+(12) If set to "yes" will try and make this column autoincrement if NULL is passed to in in an insert.
      On some systems I'll create a sequence and a trigger or default value.
      Typically, you will need to put in ``null="no"`` and ``key="1"`` as well.
 
-[12] Value "yes" if used. Means that the column is deprecated and shouldn't be used (but it still exists in the database).
+(13) Value "yes" if used. Means that the column is deprecated and shouldn't be used (but it still exists in the database).
      This is used purely for documentation purposes.
 
 ::
 
+    <colums>
+        <column ....>
+            <enumeration [name="1"] [fullname="2"] [desc="3"] [constraint="4"]>
+                <enum val="5" [display="6"] [desc="7"]/>
+                ...
+            </enumeration>
+        </column>
+    </columns>
+
+|Not supported| Enumerations is a limited list of values that a column can contain.
+One purpose of enumerations is to aid in coding, to automaticaly create an enum in code, *forcing* the developer to
+use one of the enumerated types.
+
+(1) Name to use for the enumeration constraint, and/or the enumeration in code.  
+    
+(2) Full name of the constraint, for documentation purposes.
+
+(3) Description of the enumeration.
+
+(4) "yes" if a constraint should be created if possible for the DBMS.
+
+(5) The actual value stored in the database. Must be provided.
+
+(6) What to typically display to the user, if omitted, assumed to be ``val``.
+
+(7) A long description of the value, to put in help, perhaps.
+
+::
+
     <relations>
-        <relation [name="1"] 
-                   column="2" 
-                   table="3" 
-                  [fk="4"] 
-                  [ondelete="5"] 
-                  [onupdate="6"]/>
+        <relation [name="1"]
+                  [oldname="2"]
+                   column="3" 
+                   table="4" 
+                  [fk="5"] 
+                  [ondelete="6"] 
+                  [onupdate="7"]/>
     </relations>
 
 Relations is an unordered list of foreign key contraints to other tables and columns.
@@ -380,49 +419,55 @@ For DBMS that don't support this, the relations would be used only for documenta
 
 (1) The name of the constraint, defaults to ``fk_<column>`` if not provided.
 
-(2) The list of columns of this table that forms part of the relation separated by commas.
+(2) If you rename the relation need to put the original name here. |Not supported|.
+
+(3) The list of columns of this table that forms part of the relation separated by commas.
     Note I may either change the name to ``columns`` or just support both ``column`` and ``columns``.
 
-(3) The name of the other table that forms part of the relation.
+(4) The name of the other table that forms part of the relation.
 
-(4) The name of the other columns that form part of the relation, separated by commas.
+(5) The name of the other columns that form part of the relation, separated by commas.
     If no name is given it defaults to the same name(s) as given in column.
 
-(5) If used should pass ``cascade`` or ``setnull``.
-
 (6) If used should pass ``cascade`` or ``setnull``.
+
+(7) If used should pass ``cascade`` or ``setnull``.
 
 ::
 
     <indexes>
         <index [name="1"] 
-                columns="2" 
-               [unique="3"]
-               [using="4"]
-               [where="5"]/>
+               [oldname="2"]
+                columns="3" 
+               [unique="4"]
+               [using="5"]
+               [where="6"]/>
     </indexes>
 
 Index are an unorder list of indexes on a table (i.e. the order of the <index/> tags does not matter).
 
 (1) The name of the index. Defaults to ``idx_<table><columns>`` where the columns are separeted by underscores.
 
-(2) List of columns that form part of the index separated by commas.
+(2) Must provide the old name if you want to rename the index |Not supported|
 
-(3) If set to "yes" then it creates a unique index. |Not supported|
+(3) List of columns that form part of the index separated by commas.
 
-(4) Type of index to create. |Not supported|
+(4) If set to "yes" then it creates a unique index. |Not supported|
 
-(5) Where clause. |Not supported|
+(5) Type of index to create. |Not supported|
+
+(6) Where clause. |Not supported|
 
 ::
 
     <constraints>
         <constraint [name="1"] 
-                    [longname="2"]
-                    [desc="3"]
-                     columns="4" 
-                    [unique="5"] 
-                    [check="6"]/>
+                    [oldname="2"]
+                    [longname="3"]
+                    [desc="4"]
+                     columns="5" 
+                    [unique="6"] 
+                    [check="7"]/>
     </constraints>
 
 The <constraints> tag lists an unorder list of contraint rules, if the database supports it. |Not supported|
@@ -431,20 +476,23 @@ The <constraints> tag lists an unorder list of contraint rules, if the database 
     Defaults to ``con_<table><columns>`` where the columns are separeted by underscores.
     |Not supported|
 
-(2) The long name of the constraint if any (for documentation only)
+(2) If you rename the constraint you must put the old name here. |Not supported|
 
-(3) The description of the constraint, for documentation.
+(3) The long name of the constraint if any (for documentation only)
 
-(4) List of columns that form part of the constaint separated by commas |Not supported|
+(4) The description of the constraint, for documentation.
 
-(5) If ``yes`` means it's a unique constraint |Not supported|
+(5) List of columns that form part of the constaint separated by commas |Not supported|
 
-(6) If set, it's a check constraint |Not supported|
+(6) If ``yes`` means it's a unique constraint |Not supported|
+
+(7) If set, it's a check constraint |Not supported|
 
 ::
 
     <triggers>
         <trigger  name="1"
+                 [oldname="2"]
                  [longname="2"]
                  [desc="3"]
                   timing="4" 
@@ -460,20 +508,22 @@ The <triggers> tag lists an unorder list of triggers for the table, if the datab
 
 (1) The name of the trigger, required.
 
-(2) The long name of the trigger, if any (for documentation only)
+(2) If you rename the trigger must put the old name here.
 
-(3) The description of the trigger for documentation purposes.
+(3) The long name of the trigger, if any (for documentation only)
 
-(4) The timing of the trigger, one of 'before' | 'after'
+(4) The description of the trigger for documentation purposes.
 
-(5) The events that causes the trigger. One of 'insert', 'update', or 'delete'. 
+(5) The timing of the trigger, one of 'before' | 'after'
+
+(6) The events that causes the trigger. One of 'insert', 'update', or 'delete'. 
     Multiple events can be specified by separating with commas.
 
-(6) Specifies whether the trigger fires 'once' or 'per-row'.
+(7) Specifies whether the trigger fires 'once' or 'per-row'.
 
-(7) The name of an existing function to call on the trigger event, if the database supports this.
+(8) The name of an existing function to call on the trigger event, if the database supports this.
 
-(8) The body of the trigger. Can't have used ``function`` as well, it's one or the other.
+(9) The body of the trigger. Can't have used ``function`` as well, it's one or the other.
 
 ::
 
@@ -515,14 +565,15 @@ Create a view to the table.
 ::
 
     <function name="1" 
-             [fullname="2"] 
-             [desc="3"] 
-             [arguments="4"] 
-             [returns="5"] 
-             [language="6"] 
-             [dbms="7"] 
-             [volatile="8"]>
-        (9)
+             [oldname="2"]
+             [fullname="3"] 
+             [desc="4"] 
+             [arguments="5"] 
+             [returns="6"] 
+             [language="7"] 
+             [dbms="8"] 
+             [volatile="9"]>
+        (10)
     </function>
 
 |Not supported|
@@ -530,23 +581,25 @@ You can specify the body of a stored procedure or function.
 
 (1) Name of the function or procedure to be stored in the database.
 
-(2) Typically, this is the name with spaces added.
+(2) If you rename the function you must place the old name here. |Not supported|
 
-(3) A full description of the function.
+(3) Typically, this is the name with spaces added.
 
-(4) Comma separeted list of arguments. If no arguments, void is assumed.
+(4) A full description of the function.
 
-(5) If ``returns`` is not there or empty it's considered a procedure.
+(5) Comma separeted list of arguments. If no arguments, void is assumed.
 
-(6) Language is assumed "SQL" or "PL/SQL" if not specified.
+(6) If ``returns`` is not there or empty it's considered a procedure.
 
-(7) Because the code is likely to change depending on the database system used you could specify
+(7) Language is assumed "SQL" or "PL/SQL" if not specified.
+
+(8) Because the code is likely to change depending on the database system used you could specify
     the same function multiple times, one for each type of DBMS.
     If not ther all dbms systems are assumed.
 
-(8) Can be "yes", "no", or "stable". This is an execution hint for PostgreSQL.
+(9) Can be "yes", "no", or "stable". This is an execution hint for PostgreSQL.
 
-(9) The contents of the function or procedure.
+(10) The contents of the function or procedure.
 
 
 Advantages
