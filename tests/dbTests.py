@@ -30,6 +30,7 @@ class DbTests:
         self.conn = psycopg.connect('dbname=%(dbname)s user=%(user)s password=%(pass)s' % info)
         ddt = DbDmlTest.DbDmlTest(self.strDbms, self.testList, log)
         ddt.doTests(self.conn, bExec)
+    
     def mySqlTests(self):
         try:
             import MySQLdb

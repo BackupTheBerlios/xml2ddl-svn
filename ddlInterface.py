@@ -36,6 +36,7 @@ class DdlCommonInterface:
             'drop_index'    : 'DROP INDEX %(index_name)s'
         }
 
+    # Tables
     def dropTable(self, strTableName, strCascade, diffs):
         info = {
             'table_name' : self.quoteName(strTableName),
@@ -45,6 +46,24 @@ class DdlCommonInterface:
         diffs.append(
             ('Drop Table', 'DROP TABLE %(table_name)s%(cascade)s' % info))
 
+    def renameTable(self, strTableOld, strTableNew, diffs):
+        info = {
+            'table_name' : self.quoteName(strTableOld), 
+            'new_table_name' : self.quoteName(strTableNew),
+        }
+        diffs.append(('Rename Table',
+            'ALTER TABLE %(table_name)s RENAME TO %(new_table_name)s' % info) )
+
+    def addTableComment(self, tableName, desc, ddls):
+        """ TODO: Fix the desc for special characters """
+        info = {
+            'table' : tableName,
+            'desc' : self.quoteString(desc),
+        }
+        ddls.append(('Table Comment',
+            self.params['table_desc'] % info ))
+    
+    # Columns
     def addColumn(self, strTableName, strColName, strColType, nAfter, diffs):
         """ nAfter not used yet """
         
@@ -87,16 +106,8 @@ class DdlCommonInterface:
                 ('Rename column',
                 'ALTER TABLE %(table_name)s %(rename)s %(old_col_name)s TO %(new_col_name)s' % info))
 
-    def addTableComment(self, tableName, desc, ddls):
-        """ TODO: Fix the desc for special characters """
-        info = {
-            'table' : tableName,
-            'desc' : self.quoteString(desc),
-        }
-        ddls.append(('Table Comment',
-            self.params['table_desc'] % info ))
-    
-    def addColumnComment(self, strColType, strTableName, strColumnName, strDesc, ddls):
+
+    def addColumnComment(self, strTableName, strColumnName, strDesc, strColType, ddls):
         info = {
             'table' : strTableName,
             'column' : strColumnName,
@@ -106,6 +117,10 @@ class DdlCommonInterface:
         ddls.append(('Column comment',
             self.params['column_desc'] % info ))
 
+    def changeColumnComment(self, strTableName, strColumnName, strDesc, strColType, ddls):
+        self.addColumnComment(strTableName, strColumnName, strDesc, strColType, ddls)
+
+    # Primary Keys
     def addKeyConstraint(self, strTableName, keylist, diffs):
         info = {
             'table_name'    : self.quoteName(strTableName), 
@@ -124,6 +139,7 @@ class DdlCommonInterface:
         diffs.append(('Drop key constraint', 
             'ALTER TABLE %(table_name)s DROP CONSTRAINT %(constraint_name)s' % info))
     
+    # Indexes
     def addIndex(self, strTableName, strIndexName, cols, ddls):
         cols = [self.quoteName(col) for col in cols]
         
@@ -138,6 +154,15 @@ class DdlCommonInterface:
         diffs += [(
             'Drop Index', self.params['drop_index'] % info)]
 
+    def renameIndex(self, strTableName, strOldIndexName, strNewIndexName, cols, diffs):
+        self.deleteIndex(strTableName, strOldIndexName, diffs)
+        self.addIndex(strTableName, strNewIndexName, cols, diffs)
+
+    def changeIndex(self, strTableName, strOldIndexName, strNewIndexName, cols, diffs):
+        self.deleteIndex(strTableName, strOldIndexName, diffs)
+        self.addIndex(strTableName, strNewIndexName, cols, diffs)
+
+    # Relations
     def addRelation(self, strTableName, strRelationName, strColumn, strFkTable, strFk, strOnDelete, strOnUpdate, diffs):
         info = {
             'tablename'  : self.quoteName(strTableName),
@@ -177,6 +202,7 @@ class DdlCommonInterface:
             ('Drop Relation', 'ALTER TABLE %(tablename)s DROP CONSTRAINT %(constraintname)s' % info)]
 
 
+    # Autoincrement
     def addAutoIncrement(self, strTableName, strColName, strDefault, strPreDdl, strPostDdl):
         info = {
             'table_name' : strTableName,
@@ -237,6 +263,7 @@ class DdlCommonInterface:
         
         self.dropDefault(strTableName, col, diffs)
     
+    # Column default
     def dropDefault(self, strTableName, col, diffs):
         info = {
             'table_name' : self.quoteName(strTableName),
@@ -258,6 +285,28 @@ class DdlCommonInterface:
                 ('Drop Default', 
                 'ALTER TABLE %(table_name)s %(change_type_keyword)s %(column_name)s %(default_keyword)s %(new_default)s' % info))
 
+    def changeColDefault(self, strTableName, strColumnName, strNewDefault, strColType, diffs):
+        info = {
+            'table_name' : self.quoteName(strTableName),
+            'column_name' : self.quoteName(strColumnName),
+            'change_type_keyword' : 'ALTER',
+            'new_default' : strNewDefault,
+            'default_keyword' : 'SET DEFAULT',
+            'column_type' : strColType,
+            'TYPE' : self.params['TYPE'],
+        }
+        
+        if self.params['no_alter_default']:
+            # Firebird
+            diffs.append(
+                ('Change Default', 
+                'ALTER TABLE %(table_name)s %(change_type_keyword)s %(column_name)s %(TYPE)s%(column_type)s DEFAULT %(new_default)s' % info))
+        else:
+            diffs.append(
+                ('Change Default', 
+                'ALTER TABLE %(table_name)s %(change_type_keyword)s %(column_name)s %(default_keyword)s %(new_default)s' % info))
+
+    # Column type
     def doChangeColType(self, strTableName, strColumnName, strNewColType, diffs):
         info = {
             'table_name' : strTableName,

@@ -111,25 +111,7 @@ class FindChanges:
         strOldDefault = old.getAttribute('default')
         strNewDefault = new.getAttribute('default')
         if strNewDefault != strOldDefault:
-            info = {
-                'table_name' : self.ddli.quoteName(strTableName),
-                'column_name' : self.ddli.quoteName(new.getAttribute('name')),
-                'change_type_keyword' : 'ALTER',
-                'new_default' : strNewDefault,
-                'default_keyword' : 'SET DEFAULT',
-                'column_type' : self.ddli.retColTypeEtc(new),
-                'TYPE' : self.params['TYPE'],
-            }
-            
-            if self.params['no_alter_default']:
-                # Firebird
-                self.diffs.append(
-                    ('Change Default', 
-                    'ALTER TABLE %(table_name)s %(change_type_keyword)s %(column_name)s %(TYPE)s%(column_type)s DEFAULT %(new_default)s' % info))
-            else:
-                self.diffs.append(
-                    ('Change Default', 
-                    'ALTER TABLE %(table_name)s %(change_type_keyword)s %(column_name)s %(default_keyword)s %(new_default)s' % info))
+            self.ddli.changeColDefault(strTableName, new.getAttribute('name'), strNewDefault, self.ddli.retColTypeEtc(new), self.diffs)
 
     def changeColComments(self, strTableName, old, new):
         # Check for difference in comments.
@@ -137,7 +119,7 @@ class FindChanges:
         strOldComment = safeGet(old, 'desc')
         if strNewComment and strNewComment != strOldComment:
             # Fix to delete comments?
-            self.ddli.addColumnComment(self.ddli.retColTypeEtc(new), strTableName, new.getAttribute('name'), strNewComment, self.diffs)
+            self.ddli.changeColumnComment(strTableName, new.getAttribute('name'), strNewComment, self.ddli.retColTypeEtc(new), self.diffs)
             
 
     def renameColumn(self, strTableName, old, new):
@@ -352,8 +334,12 @@ class FindChanges:
         self.diffSomething(old_xml, new_xml, 'index', self.renameIndex, self.changeIndex, self.insertIndex, self.deleteIndex, self.findIndex, self.getIndexName)
 
     def renameIndex(self, strTableName, old, new):
-        self.deleteIndex(strTableName, old)
-        self.insertIndex(strTableName, new, -1)
+        strColumns = new.getAttribute("columns")
+        self.ddli.renameIndex(strTableName, 
+            self.xml2ddl.getIndexName(strTableName, old), 
+            self.xml2ddl.getIndexName(strTableName, new), 
+            strColumns.split(','), 
+            self.diffs)
     
     def deleteIndex(self, strTableName, old):
         strIndexName = self.xml2ddl.getIndexName(strTableName, old)
@@ -363,8 +349,11 @@ class FindChanges:
         strColumnsOld = old.getAttribute('columns').replace(' ', '').lower()
         strColumnsNew = new.getAttribute('columns').replace(' ', '').lower()
         if strColumnsOld != strColumnsNew:
-            self.deleteIndex(strTableName, old)
-            self.insertIndex(strTableName, new, 0)
+            self.ddli.changeIndex(strTableName,
+                self.xml2ddl.getIndexName(strTableName, old), 
+                self.xml2ddl.getIndexName(strTableName, new), 
+                strColumnsNew.split(','), 
+                self.diffs)
     
     def insertIndex(self, strTableName, new, nIndex):
         strColumns = new.getAttribute("columns")
@@ -462,12 +451,7 @@ class FindChanges:
         strTableOld = tblOldXml.getAttribute('name')
         strTableNew = tblNewXml.getAttribute('name')
         
-        info = {
-            'table_name' : self.ddli.quoteName(strTableOld), 
-            'new_table_name' : self.ddli.quoteName(strTableNew),
-        }
-        self.diffs.append(('Rename Table',
-            'ALTER TABLE %(table_name)s RENAME TO %(new_table_name)s' % info) )
+        self.ddli.renameTable(strTableOld, strTableNew, self.diffs)
 
     def diffFiles(self, strOldFilename, strNewFilename):
         self.old_xml = xml2ddl.readMergeDict(strOldFilename) # parse an XML file by name
