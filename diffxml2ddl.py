@@ -509,7 +509,7 @@ class FindChanges:
             strDefinition = newFunction.firstChild.nodeValue.strip()
             
             self.ddli.updateFunction(newFunction.getAttribute('name'), 
-                newFunction.getAttribute('arguments'), newFunction.getAttribute('returns'), strDefinition, attribs, self.diffs)
+                newFunction.getAttribute('arguments').split(','), newFunction.getAttribute('returns'), strDefinition, attribs, self.diffs)
         
     def createFunction(self, ignore, new, nIndex):
         attribs = attribsToDict(new)
@@ -521,7 +521,7 @@ class FindChanges:
         self.ddli.addFunction(new.getAttribute('name'), argumentList, new.getAttribute('returns'), strDefinition.strip(), attribs, self.diffs)
         
     def dropFunction(self, ignore, view):
-        self.ddli.dropFunction(view.getAttribute('name'), view.getAttribute('arguments'), self.diffs)
+        self.ddli.dropFunction(view.getAttribute('name'), view.getAttribute('arguments').split(','), self.diffs)
         
     def findFunction(self, views, strFunctionName):
         strFunctionName = strFunctionName.lower()
@@ -534,7 +534,6 @@ class FindChanges:
         
     def getFunctionName(self, node):
         return node.getAttribute('name')
-
 
     def diffFiles(self, strOldFilename, strNewFilename):
         self.old_xml = xml2ddl.readMergeDict(strOldFilename) # parse an XML file by name

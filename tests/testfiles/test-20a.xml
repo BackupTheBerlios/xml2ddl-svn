@@ -1,0 +1,23 @@
+<test title="Drop table with related view">
+<before>
+    <schema>
+        <table name="table1">
+            <columns>
+                <column name="id" type="integer"/>
+                <column name="col2" type="integer"/>
+            </columns>
+        </table>
+        <view name="myview">
+            SELECT table1.id, table1.col2 FROM table1;
+        </view>
+    </schema>
+</before>
+<after>
+    <schema>
+    </schema>
+</after>
+<ddls>
+    <ddl>DROP VIEW myview</ddl>
+    <ddl>DROP TABLE table1</ddl>
+</ddls>
+</test>

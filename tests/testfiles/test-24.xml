@@ -1,0 +1,21 @@
+<test title="Drop a function">
+<before>
+    <schema>
+        <function name="sales_tax" arguments="subtotal real" returns="real">
+BEGIN
+    RETURN subtotal * 0.06;
+END;
+        </function>
+    </schema>
+</before>
+<after>
+    <schema>
+    </schema>
+</after>
+<ddls dbms="postgres">
+    <ddl>DROP FUNCTION sales_tax(real)</ddl>
+</ddls>
+<ddls dbms="mysql">
+    <ddl>DROP FUNCTION sales_tax</ddl>
+</ddls>
+</test>

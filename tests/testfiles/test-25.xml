@@ -1,9 +1,5 @@
-<test title="Create a function">
+<test title="Change a function">
 <before>
-    <schema>
-    </schema>
-</before>
-<after>
     <schema>
         <function name="sales_tax" arguments="subtotal real" returns="real">
 BEGIN
@@ -11,19 +7,30 @@ BEGIN
 END;
         </function>
     </schema>
+</before>
+<after>
+    <schema>
+        <function name="sales_tax" arguments="subtotal real" returns="real">
+BEGIN
+    RETURN subtotal * 0.07;
+END;
+        </function>
+    </schema>
 </after>
 <ddls dbms="postgres">
+    <ddl>DROP FUNCTION sales_tax(real)</ddl>
     <ddl>CREATE FUNCTION sales_tax(real) RETURNS real AS '
 DECLARE
     subtotal ALIAS FOR $1;
 BEGIN
-    RETURN subtotal * 0.06;
+    RETURN subtotal * 0.07;
 END;' LANGUAGE plpgsql</ddl>
 </ddls>
 <ddls dbms="mysql">
+    <ddl>DROP FUNCTION sales_tax</ddl>
     <ddl>CREATE FUNCTION sales_tax(subtotal real) RETURNS real 
 BEGIN
-    RETURN subtotal * 0.06;
+    RETURN subtotal * 0.07;
 END;</ddl>
 </ddls>
 </test>

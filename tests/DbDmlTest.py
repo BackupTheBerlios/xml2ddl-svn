@@ -78,7 +78,10 @@ class DbDmlTest:
         self.aFindChanges.reset()
         ddls = self.aFindChanges.diffTables(docAfter, docFromDb)
         
-        if len(ddls) > 0 and ddls[0][0].lower() != 'add view':
+        if len(ddls) > 0:
+            ddlType = ddls[0][0].lower()
+        
+        if len(ddls) > 0 and ddlType != 'add view' and ddlType != 'add function':
             print "They are different (%s)" % (self.strDbms)
             self.log.warning("Downloaded:\n" + outStr.getvalue())
             self.log.warning("Expected:\n" + docAfter.toxml())

@@ -524,10 +524,22 @@ class MySqlDownloader:
         
         
         strCreate = rows[0][2]
-        strParams = ''
-        strReturns = ''
-        strLanguage = ''
-        return (strSpecifiName, strParams, strReturns, strLanguage, strCreate)
+        # ex.CREATE FUNCTION `test`.`sales_tax`(subtotal real) RETURNS real BEGIN    RETURN subtotal * 0.06;END
+        re_createFunc = re.compile(r'\s* CREATE \s+ FUNCTION \s+ ([\w`\.-]*) \s* \( ([^)]*) \) \s+ RETURNS \s+ (\w+) \s+ (.*)', re.DOTALL | re.MULTILINE | re.VERBOSE)
+        match = re_createFunc.match(strCreate)
+        if match:
+            strParams = match.group(2).split(',')
+            strReturns = match.group(3)
+            strLanguage = ''
+            strDefinition = match.group(4)
+        else:
+            print "'%s'" % (strCreate)
+            strParams = []
+            strReturns = ''
+            strLanguage = ''
+            strDefinition = strCreate
+            
+        return (strSpecifiName, strParams, strReturns, strLanguage, strDefinition)
     
 class FbDownloader:
     def __init__(self):
@@ -864,13 +876,15 @@ class DownloadXml:
                 'definition' : definition,
                 'arguments'  : ', '.join(params),
                 'returns'    : strReturn,
-                'language'   : strLanguage,
             }
+            if strLanguage and len(strLanguage) > 0:
+                info['language'] = strLanguage
+            
             self.dumpFunction(info, of)
     
     def dumpFunction(self, info, of):
         of.write('  <function %s>\n' % (self.doAttribs(info, ['name', 'arguments', 'returns', 'language'])))
-        of.write('%s\n' % (info['definition']))
+        of.write('%s\n' % (info['definition'].strip()))
         of.write('  </function>\n')
 
     def dumpTable(self, info, of):

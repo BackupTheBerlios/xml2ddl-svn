@@ -355,17 +355,17 @@ class DdlCommonInterface:
 
     # Function stuff
     def renameFunction(self, strOldFunctionName, strNewFunctionName, newDefinition, newAttribs, diffs):
-        self.dropFunction(strOldFunctionName, newAttribs['params'], diffs)
-        self.addFunction(strNewFunctionName, newDefinition, newAttribs, diffs)
+        self.dropFunction(strOldFunctionName, newAttribs['arguments'].split(','), diffs)
+        self.addFunction(strNewFunctionName, newAttribs['arguments'].split(','), newAttribs['returns'], newDefinition, newAttribs, diffs)
     
-    def dropFunction(self, strOldFunctionName, strParams, diffs):
-        paramList = strParams.split(',')
+    def dropFunction(self, strOldFunctionName, argumentList, diffs):
+        paramList = [arg.split()[-1] for arg in argumentList]
         info = {
             'functionname' : self.quoteName(strOldFunctionName),
             'params'       : ', '.join(paramList),
         }
         diffs.append(('Drop function',
-            'DROP FUNCTION %(functionname)s(%(params)s);' % info )
+            'DROP FUNCTION %(functionname)s(%(params)s)' % info )
         )
     
     def addFunction(self, strNewFunctionName, argumentList, strReturn, strContents, attribs, diffs):
@@ -385,6 +385,7 @@ class DdlCommonInterface:
         )
     
     def updateFunction(self, strNewFunctionName, argumentList, strReturn, strContents, attribs, diffs):
+        self.dropFunction(strNewFunctionName, argumentList, diffs)
         self.addFunction(strNewFunctionName, argumentList, strReturn, strContents, attribs, diffs)
 
     def retColTypeEtc(self, col):
@@ -550,13 +551,12 @@ class DdlMySql(DdlCommonInterface):
             "CREATE FUNCTION %(functionname)s(%(arguments)s) RETURNS %(returns)s %(language)s\n%(contents)s" % info )
         )
 
-    def dropFunction(self, strOldFunctionName, strParams, diffs):
-        paramList = strParams.split(',')
+    def dropFunction(self, strOldFunctionName, argumentList, diffs):
         info = {
             'functionname' : self.quoteName(strOldFunctionName),
         }
         diffs.append(('Drop function',
-            'DROP FUNCTION %(functionname)s;' % info )
+            'DROP FUNCTION %(functionname)s' % info )
         )
 
 class DdlFirebird(DdlCommonInterface):
