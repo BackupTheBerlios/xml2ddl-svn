@@ -20,8 +20,19 @@
     </schema>
 </after>
 <ddls>
-    <ddl>ALTER TABLE table1 ALTER col-newname TYPE varchar(80)</ddl>
-    <ddl>ALTER TABLE table1 RENAME col2 TO col-newname</ddl>
+	<ddl>ALTER TABLE table1 ALTER col2 TYPE varchar(80)</ddl>
+	<ddl>ALTER TABLE table1 RENAME col2 TO "col-newname"</ddl>
+</ddls>
+<ddls dbms="postgres7">
+	<ddl>ALTER TABLE table1 ADD tmp_col2 varchar(80)</ddl>
+	<ddl>UPDATE table1 SET tmp_col2 = col2</ddl>
+	<ddl>ALTER TABLE table1 DROP col2</ddl>
+	<ddl>ALTER TABLE table1 RENAME tmp_col2 TO col2</ddl>
+	<ddl>ALTER TABLE table1 RENAME col2 TO "col-newname"</ddl>
+</ddls>
+<ddls dbms="mysql">
+	<ddl>ALTER TABLE table1 MODIFY col2 varchar(80)</ddl>
+	<ddl>ALTER TABLE table1 CHANGE col2 `col-newname` varchar(80)</ddl>
 </ddls>
 <ddls dbms="firebird"  fails="true">
     <ddl>ALTER TABLE table1 ALTER col2 TO col-newname</ddl>

@@ -280,6 +280,7 @@ class MySqlDownloader:
         fullcols = self.cursor.fetchall()
         ret = []
         
+        
         # TODO: auto_increment
         bAutoIncrement = False 
         for col in fullcols:
@@ -299,7 +300,13 @@ class MySqlDownloader:
                     nColPrecision = None
                 else:
                     newType = type
-                    
+            
+            if newType == "int":
+                newType = 'integer'
+                nColSize = None
+                nColPrecision = None
+                
+            bNotNull = not (bNotNull == "YES")
             ret.append( (name, newType, nColSize, nColPrecision, bNotNull, strDefault, bAutoIncrement) )
         return ret
     

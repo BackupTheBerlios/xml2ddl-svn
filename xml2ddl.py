@@ -1,3 +1,4 @@
+
 #! /usr/bin/env python
 # -*- coding: iso-8859-1 -*-
 
@@ -157,6 +158,9 @@ class Xml2Ddl:
         
         if col.hasAttribute('default'):
             strRet += ' DEFAULT ' + col.getAttribute('default')
+        elif self.dbmsType == 'mysql' and col.getAttribute('type') == 'timestamp':
+            # MySQL silently sets the default to CURRENT_TIMESTAMP
+            strRet += ' DEFAULT null'
         
         if col.hasAttribute('autoincrement') and col.getAttribute('autoincrement').lower() == "yes":
             strRet += self.addAutoIncrement(col, strPreDdl, strPostDdl)

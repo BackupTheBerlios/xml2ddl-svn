@@ -1,41 +1,48 @@
 <test title="Create a relation">
 <before>
     <schema>
-        <table name="table1">
-            <columns>
-                <column name="table1_id" type="integer" key="1" null="no"/>
-                <column name="col2" type="integer"/>
-            </columns>
-        </table>
+        <!-- Until I get dropping of tables with constraints done in the 
+             Right order, table2 needs to be first -->
         <table name="table2">
             <columns>
                 <column name="table2_id" type="integer"/>
                 <column name="table1_id" type="integer"/>
+            </columns>
+        </table>
+        <table name="table1">
+            <columns>
+                <column name="table1_id" type="integer" key="1" null="no" default="0"/>
+                <column name="col2" type="integer"/>
             </columns>
         </table>
     </schema>
 </before>
 <after>
     <schema>
-        <table name="table1">
-            <columns>
-                <column name="table1_id" type="integer" key="1" null="no"/>
-                <column name="col2" type="integer"/>
-            </columns>
-        </table>
         <table name="table2">
             <columns>
                 <column name="table2_id" type="integer"/>
                 <column name="table1_id" type="integer"/>
             </columns>
+            <indexes>
+                <!-- MySQL addes this automatically -->
+                <index name="fk_table1_id" columns="table1_id"/>
+            </indexes>
             <relations>
                 <relation column="table1_id" table="table1"/>
             </relations>
+        </table>
+        <table name="table1">
+            <columns>
+                <column name="table1_id" type="integer" key="1" null="no"  default="0"/>
+                <column name="col2" type="integer"/>
+            </columns>
         </table>
     </schema>
 </after>
 <ddls>
     <ddl>ALTER TABLE table2 ADD CONSTRAINT fk_table1_id FOREIGN KEY (table1_id) REFERENCES table1(table1_id)</ddl>
+	<ddl>CREATE INDEX fk_table1_id ON table2 (table1_id)</ddl>
 </ddls>
 <ddls dbms="firebird" fails="true">
     <!-- TABLE1 is in use error? -->

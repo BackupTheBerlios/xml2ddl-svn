@@ -28,15 +28,15 @@
     </schema>
 </after>
 <ddls>
-    <ddl>DROP INDEX table1Col1</ddl>
-    <ddl>CREATE INDEX table1Col1 ON table1 (col2)</ddl>
-    <ddl>DROP INDEX col1col2</ddl>
-    <ddl>CREATE INDEX col1col2 ON table1 (col2, col1)</ddl>
+	<ddl>CREATE INDEX table1Col1 ON table1 (col2)</ddl>
+	<ddl>DROP INDEX col1col2</ddl>
+	<ddl>CREATE INDEX col1col2 ON table1 (col2, col1)</ddl>
+	<ddl>DROP INDEX table1cCol1</ddl>
 </ddls>
 <ddls dbms="mysql">
-    <ddl>DROP INDEX table1Col1 ON table1</ddl>
-    <ddl>CREATE INDEX table1Col1 ON table1 (col2)</ddl>
-    <ddl>DROP INDEX col1col2 ON table1</ddl>
-    <ddl>CREATE INDEX col1col2 ON table1 (col2, col1)</ddl>
+	<ddl>CREATE INDEX table1Col1 ON table1 (col2)</ddl>
+	<ddl>DROP INDEX col1col2 ON table1</ddl>
+	<ddl>CREATE INDEX col1col2 ON table1 (col2, col1)</ddl>
+	<ddl>DROP INDEX table1cCol1 ON table1</ddl>
 </ddls>
 </test>

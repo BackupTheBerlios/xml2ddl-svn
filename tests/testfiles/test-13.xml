@@ -24,7 +24,7 @@
     </schema>
 </after>
 <ddls>
-    <ddl>CREATE INDEX table1Col1 ON table1 (col1)</ddl>
+	<ddl>CREATE INDEX idx_table1col1 ON table1 (col1)</ddl>
     <ddl>CREATE INDEX col1col2 ON table1 (col1, col2)</ddl>
 </ddls>
 </test>

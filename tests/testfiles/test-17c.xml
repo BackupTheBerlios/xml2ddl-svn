@@ -1,12 +1,6 @@
 <test title="Change relation">
 <before>
     <schema>
-        <table name="table1">
-            <columns>
-                <column name="table1_id" type="integer" key="1" null="no"/>
-                <column name="col2" type="integer"/>
-            </columns>
-        </table>
         <table name="table2">
             <columns>
                 <column name="table2_id" type="integer"/>
@@ -16,16 +10,16 @@
                 <relation name="fk_table1_id" column="table1_id" table="table1" fk="table1_id" ondelete="cascade" onupdate="cascade"/>
             </relations>
         </table>
+        <table name="table1">
+            <columns>
+                <column name="table1_id" type="integer" key="1" null="no" default="0"/>
+                <column name="col2" type="integer"/>
+            </columns>
+        </table>
     </schema>
 </before>
 <after>
     <schema>
-        <table name="table1">
-            <columns>
-                <column name="table1_id" type="integer" null="no"/>
-                <column name="col2" type="integer"/>
-            </columns>
-        </table>
         <table name="table2">
             <columns>
                 <column name="table2_id" type="integer"/>
@@ -35,11 +29,17 @@
                 <relation name="fk_table1_id" column="table1_id" table="table1" fk="table1_id" ondelete="setnull" onupdate="setnull"/>
             </relations>
         </table>
+        <table name="table1">
+            <columns>
+                <column name="table1_id" type="integer" null="no" default="0"/>
+                <column name="col2" type="integer"/>
+            </columns>
+        </table>
     </schema>
 </after>
 <ddls>
     <ddl>ALTER TABLE table2 DROP CONSTRAINT fk_table1_id</ddl>
-	<ddl>ALTER TABLE table2 ADD CONSTRAINT fk_table1_id FOREIGN KEY (table1_id) REFERENCES table1(table1_id) ON DELETE SETNULL ON UPDATE SETNULL</ddl>
+	<ddl>ALTER TABLE table2 ADD CONSTRAINT fk_table1_id FOREIGN KEY (table1_id) REFERENCES table1(table1_id) ON DELETE SET NULL ON UPDATE SET NULL</ddl>
 </ddls>
 <ddls dbms="mysql" fails="true">
     <ddl>ALTER TABLE table2 DROP CONSTRAINT fk_table1_id</ddl>

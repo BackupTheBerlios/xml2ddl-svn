@@ -27,7 +27,7 @@
     <ddl>CREATE TABLE `Table with spaces` ( 
         `column with spaces` int,
         `select` int
-    )</ddl>
+    ) ENGINE=InnoDB</ddl>
     <ddl>CREATE INDEX `from` ON `Table with spaces` (`column with spaces`, `select`)</ddl>
 </ddls>
 </test>

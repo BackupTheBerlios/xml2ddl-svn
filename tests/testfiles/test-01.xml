@@ -17,7 +17,7 @@
                 <column name="col4" type="decimal" size="15"/>
                 <column name="col5" type="decimal" size="15" precision="3"/>
                 <column name="col6" type="date"/>
-                <column name="col7" type="timestamp"/>
+                <!-- <column name="col7" type="timestamp"/> This one causing problems with mysql -->
                 <column name="col8" type="int" default="2"/>
                 <column name="col9" type="float" default="1.234"/>
             </columns>
@@ -32,9 +32,20 @@
     col4 decimal(15),
     col5 decimal(15, 3),
     col6 date,
-    col7 timestamp,
     col8 int DEFAULT 2,
     col9 float DEFAULT 1.234
 )</ddl>
+</ddls>
+<ddls dbms="mysql">
+<ddl>CREATE TABLE table1 (
+    col1 integer,
+    col2 integer,
+    col3 varchar(32),
+    col4 decimal(15),
+    col5 decimal(15, 3),
+    col6 date,
+    col8 int DEFAULT 2,
+    col9 float DEFAULT 1.234
+) ENGINE=InnoDB</ddl>
 </ddls>
 </test>

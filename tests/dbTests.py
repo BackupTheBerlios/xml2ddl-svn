@@ -66,8 +66,8 @@ class DbTests:
 def doTests(testList = None):
     dbt = DbTests(testList)
     
-    dbt.pgTests()
-    #dbt.mySqlTests()
+    #dbt.pgTests()
+    dbt.mySqlTests()
     #dbt.fireBirdTests()
     
 if __name__ == "__main__":

@@ -24,10 +24,10 @@
     </schema>
 </after>
 <ddls>
-    <ddl>DROP INDEX table1Col1</ddl>
-    <ddl>DROP INDEX col1col2</ddl>
+    <ddl>DROP INDEX idx_table1col1</ddl>
+	<ddl>DROP INDEX col1col2</ddl>
 </ddls>
 <ddls dbms="mysql">
-    <ddl>DROP INDEX table1Col1 ON table1</ddl>
+    <ddl>DROP INDEX idx_table1col1 ON table1</ddl>
     <ddl>DROP INDEX col1col2 ON table1</ddl></ddls>
 </test>

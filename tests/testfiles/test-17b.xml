@@ -1,28 +1,22 @@
 <test title="Create a relation with on delete">
 <before>
     <schema>
-        <table name="table1">
-            <columns>
-                <column name="table1_id" type="integer" key="1" null="no"/>
-                <column name="col2" type="integer"/>
-            </columns>
-        </table>
         <table name="table2">
             <columns>
                 <column name="table2_id" type="integer"/>
                 <column name="table1_id" type="integer"/>
             </columns>
         </table>
+        <table name="table1">
+            <columns>
+                <column name="table1_id" type="integer" key="1" null="no" default="0"/>
+                <column name="col2" type="integer"/>
+            </columns>
+        </table>
     </schema>
 </before>
 <after>
     <schema>
-        <table name="table1">
-            <columns>
-                <column name="table1_id" type="integer" null="no"/>
-                <column name="col2" type="integer"/>
-            </columns>
-        </table>
         <table name="table2">
             <columns>
                 <column name="table2_id" type="integer"/>
@@ -31,6 +25,12 @@
             <relations>
                 <relation name="fk_table1_id" column="table1_id" table="table1" fk="table1_id" ondelete="cascade" onupdate="cascade"/>
             </relations>
+        </table>
+        <table name="table1">
+            <columns>
+                <column name="table1_id" type="integer" null="no" default="0"/>
+                <column name="col2" type="integer"/>
+            </columns>
         </table>
     </schema>
 </after>
