@@ -5,6 +5,7 @@
 import re, os
 from xml.dom.minidom import parse, parseString
 from ddlInterface import createDdlInterface, attribsToDict
+from NamingConvention import *
 
 __author__ = "Scott Kirkwood (scott_kirkwood at berlios.com)"
 __keywords__ = ['XML', 'DML', 'SQL', 'Databases', 'Agile DB', 'ALTER', 'CREATE TABLE', 'GPL']
@@ -63,7 +64,7 @@ class Xml2Ddl:
 
     def retColDefs(self, doc, strPreDdl, strPostDdl):
         colDefs = []
-        strTableName = doc.getAttribute('name')
+        strTableName = getTableName(doc)
         cols = doc.getElementsByTagName('column')
         for col in cols:
             colDefs.append(self.retColumnDefinition(col, strPreDdl, strPostDdl))
@@ -71,12 +72,12 @@ class Xml2Ddl:
         return colDefs
     
     def retColumnDefinition(self, col, strPreDdl, strPostDdl):
-        strColName = col.getAttribute('name')
+        strColName = getColName(col)
         
         strRet = self.ddlInterface.quoteName(strColName) + ' ' + self.ddlInterface.retColTypeEtc(attribsToDict(col))
         
         if col.hasAttribute('autoincrement') and col.getAttribute('autoincrement').lower() == "yes":
-            strTableName = col.parentNode.parentNode.getAttribute('name')
+            strTableName = getTableName(col.parentNode.parentNode)
             strRet += self.ddlInterface.addAutoIncrement(strTableName, strColName, col.getAttribute('default'), strPreDdl, strPostDdl)
 
         return strRet
@@ -86,7 +87,7 @@ class Xml2Ddl:
         keys = []
         for column in columns:
             if column.hasAttribute('key'):
-                keys.append(column.getAttribute('name'))
+                keys.append(getColName(column))
         
         return keys
 
@@ -95,7 +96,7 @@ class Xml2Ddl:
             return
             
         relations = doc.getElementsByTagName('relation')
-        strTableName = doc.getAttribute('name')
+        strTableName = getTableName(doc)
         
         for relation in relations:
             self.ddlInterface.addRelation(strTableName, 
@@ -107,39 +108,20 @@ class Xml2Ddl:
                 relation.getAttribute('onupdate'),
                 self.ddls)
         
-    def getRelationName(self, relation):
-        strConstraintName = relation.getAttribute('name')
-        if len(strConstraintName) == 0:
-            strConstraintName = "fk_%s" % (relation.getAttribute('column'))
-
-        return strConstraintName
-    
     def addIndexes(self, doc):
         if not self.params['output_indexes']:
             return
             
-        strTableName = doc.getAttribute('name')
+        strTableName = getTableName(doc)
         indexes = doc.getElementsByTagName('index')
         for index in indexes:
             strColumns = index.getAttribute("columns")
-            self.ddlInterface.addIndex(strTableName, self.getIndexName(strTableName, index), strColumns.split(','), self.ddls)
-
-    def getIndexName(self, strTableName, index):
-        strIndexName = index.getAttribute("name")
-        if strIndexName and len(strIndexName) > 0:
-            return strIndexName
-        
-        cols = index.getAttribute("columns").split(',')
-        cols = [ self.ddlInterface.quoteName(col.strip()) for col in cols ] # Remove spaces
-        
-        strIndexName = "idx_" + strTableName + '_'.join([col.strip() for col in cols])
-        
-        return strIndexName
+            self.ddlInterface.addIndex(strTableName, getIndexName(strTableName, index), strColumns.split(','), self.ddls)
 
     def col2Type(self, doc):
         ret = {}
         for col in doc.getElementsByTagName('column'):
-            strColName = col.getAttribute('name')
+            strColName = getColName(col)
             strType = col.getAttribute('type')
             ret[strColName] = strType
         
@@ -149,7 +131,7 @@ class Xml2Ddl:
         if not self.params['add_dataset']:
             return
         
-        strTableName = doc.getAttribute('name')
+        strTableName = getTableName(doc)
         
         datasets = doc.getElementsByTagName('val')
         
@@ -176,7 +158,7 @@ class Xml2Ddl:
                 'INSERT INTO %s (%s) VALUES (%s)' % (self.ddlInterface.quoteName(strTableName), ', '.join(cols), ', '.join(vals))))
         
     def createTable(self, doc):
-        strTableName = self.ddlInterface.quoteName(doc.getAttribute('name'))
+        strTableName = self.ddlInterface.quoteName(getTableName(doc))
         
         if self.params['drop-tables']:
             self.ddlInterface.dropTable(strTableName, ' CASCADE', self.ddls)
@@ -215,11 +197,11 @@ class Xml2Ddl:
 
     def addColumnComments(self, doc):
         """ TODO: Fix the desc for special characters """
-        strTableName = doc.getAttribute('name')
+        strTableName = getTableName(doc)
         
         for column in doc.getElementsByTagName('column'):
             if column.hasAttribute('desc'):
-                self.ddlInterface.addColumnComment(strTableName, column.getAttribute('name'), column.getAttribute('desc'), 'TODO', self.ddls)
+                self.ddlInterface.addColumnComment(strTableName, getColName(column), column.getAttribute('desc'), 'TODO', self.ddls)
 
 
     def createTables(self, xml):

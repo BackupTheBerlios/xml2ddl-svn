@@ -18,7 +18,7 @@ def evenOdd(nIndex):
     if (nIndex % 2) == 0:
         return 'even'
     else:
-        return 'odd'            
+        return 'odd'
 
 class Xml2Html:
     def __init__(self):

@@ -113,7 +113,7 @@ class FindChanges:
         strOldDefault = old.getAttribute('default')
         strNewDefault = new.getAttribute('default')
         if strNewDefault != strOldDefault:
-            self.ddli.changeColDefault(strTableName, new.getAttribute('name'), strNewDefault, self.ddli.retColTypeEtc(attribsToDict(new)), self.diffs)
+            self.ddli.changeColDefault(strTableName, getColName(new), strNewDefault, self.ddli.retColTypeEtc(attribsToDict(new)), self.diffs)
 
     def changeColComments(self, strTableName, old, new):
         # Check for difference in comments.
@@ -121,12 +121,12 @@ class FindChanges:
         strOldComment = safeGet(old, 'desc')
         if strNewComment and strNewComment != strOldComment:
             # Fix to delete comments?
-            self.ddli.changeColumnComment(strTableName, new.getAttribute('name'), strNewComment, self.ddli.retColTypeEtc(attribsToDict(new)), self.diffs)
+            self.ddli.changeColumnComment(strTableName, getColName(new), strNewComment, self.ddli.retColTypeEtc(attribsToDict(new)), self.diffs)
             
 
     def renameColumn(self, strTableName, old, new):
-        strOldName = old.getAttribute('name')
-        strNewName = new.getAttribute('name')
+        strOldName = getColName(old)
+        strNewName = getColName(new)
         
         if self.params['drop_constraints_on_col_rename']:
             self.dropRelatedConstraints(strTableName, strOldName)
@@ -144,7 +144,7 @@ class FindChanges:
             if strCurTableName == strTable:
                 # Find if the PK constraint is on this table
                 for col in table.getElementsByTagName('column'):
-                    strCurColName = col.getAttribute('name')
+                    strCurColName = getColName(col)
                     if strCurColName == strColumnName:
                         if col.hasAttribute('key'):
                             self.addKeyConstraint(table)
@@ -159,17 +159,17 @@ class FindChanges:
                         fk = safeGet(relation, 'fk', strCurColName)
                         
                         if fk == strColumnName:
-                            self.addRelation(table.getAttribute('name'), relation)
+                            self.addRelation(getTableName(table), relation)
 
     def addKeyConstraint(self, tableDoc):
         """ The Primary Key constraint is always called pk_<tablename> and can't be changed """
         
-        strTableName = tableDoc.getAttribute('name')
+        strTableName = getTableName(tableDoc)
         columns = tableDoc.getElementsByTagName('column')
         keys = []
         for column in columns:
             if column.hasAttribute('key'):
-                keys.append(column.getAttribute('name'))
+                keys.append(getColName(column))
                 
         self.ddli.addKeyConstraint(strTableName, keys, self.diffs)
         
@@ -186,7 +186,7 @@ class FindChanges:
             table = self.findTable(self.old_xml.getElementsByTagName('table'), strTable)
             columns = table.getElementsByTagName('column')
             for column in columns:
-                self._dropRelatedConstraints(strTable, column.getAttribute('name'))
+                self._dropRelatedConstraints(strTable, getColName(column))
         
     def _dropRelatedConstraints(self, strTable, strColumnName):
         tables = self.old_xml.getElementsByTagName('table')
@@ -195,11 +195,11 @@ class FindChanges:
         pkList = []
         # need to sometimes reverse the order
         for table in tables:
-            strCurTableName = table.getAttribute('name')
+            strCurTableName = getTableName(table)
             if strCurTableName == strTable:
                 # Find if the PK constraint is on this table
                 for col in table.getElementsByTagName('column'):
-                    strCurColName = col.getAttribute('name')
+                    strCurColName = getColName(col)
                     if strCurColName == strColumnName:
                         if col.hasAttribute('key'):
                             self.dropKeyConstraint(strTable, col, pkList)
@@ -214,7 +214,7 @@ class FindChanges:
                         fk = safeGet(relation, 'fk', strCurColName)
                         
                         if len(strCurColName) > 0 and fk == strColumnName:
-                            relationLst.append(self.dropRelation(table.getAttribute('name'), relation))
+                            relationLst.append(self.dropRelation(getTableName(table), relation))
         
         for relation in relationLst:
             self.diffs.append(relation)
@@ -239,14 +239,14 @@ class FindChanges:
     def addColumn(self, strTableName, new, nAfter):
         """ nAfter not used yet """
         
-        self.ddli.addColumn(strTableName, new.getAttribute('name'), self.ddli.retColTypeEtc(attribsToDict(new)), nAfter, self.diffs)
+        self.ddli.addColumn(strTableName, getColName(new), self.ddli.retColTypeEtc(attribsToDict(new)), nAfter, self.diffs)
 
     def dropCol(self, strTableName, oldCol):
-        self.ddli.dropCol(strTableName, oldCol.getAttribute('name'), self.diffs)
+        self.ddli.dropCol(strTableName, getColName(oldCol), self.diffs)
 
     def diffTable(self, strTableName, tbl_old, tbl_new):
         """ strTableName is there just to be consistant with the other diff... """
-        self.strTableName = tbl_new.getAttribute('name')
+        self.strTableName = getTableName(tbl_new)
         
         self.diffColumns(tbl_old, tbl_new)
         self.diffRelations(tbl_old, tbl_new)
@@ -264,7 +264,7 @@ class FindChanges:
             self.ddli.addTableComment(self.strTableName, strNewComment, self.diffs)
 
     def diffColumns(self, old, new):
-        self.diffSomething(old, new, 'column', self.renameColumn,  self.changeCol, self.addColumn, self.dropCol, self.findColumn, self.getColName)
+        self.diffSomething(old, new, 'column', self.renameColumn,  self.changeCol, self.addColumn, self.dropCol, self.findColumn, getColName)
 
     def diffSomething(self, old, new, strTag, renameFunc, changeFunc, addFunc, deleteFunc, findSomething, getName):
         newXs = new.getElementsByTagName(strTag)
@@ -302,14 +302,14 @@ class FindChanges:
             
             if not newX:
                 try:
-                    strTableName = old.getAttribute('name')
+                    strTableName = getTableName(old)
                 except:
                     strTableName = None
                 
                 deleteFunc(strTableName, oldX)
         
     def getColName(self, col):
-        return col.getAttribute('name')
+        return getColName(col)
         
     def findColumn(self, columns, strColName):
         strColName = strColName.lower()
@@ -335,16 +335,19 @@ class FindChanges:
     def diffIndexes(self, old_xml, new_xml):
         self.diffSomething(old_xml, new_xml, 'index', self.renameIndex, self.changeIndex, self.insertIndex, self.deleteIndex, self.findIndex, self.getIndexName)
 
+    def getIndexName(self, index):
+        return getIndexName(self.strTableName, index)
+        
     def renameIndex(self, strTableName, old, new):
         strColumns = new.getAttribute("columns")
         self.ddli.renameIndex(strTableName, 
-            self.xml2ddl.getIndexName(strTableName, old), 
-            self.xml2ddl.getIndexName(strTableName, new), 
+            getIndexName(strTableName, old), 
+            getIndexName(strTableName, new), 
             strColumns.split(','), 
             self.diffs)
     
     def deleteIndex(self, strTableName, old):
-        strIndexName = self.xml2ddl.getIndexName(strTableName, old)
+        strIndexName = getIndexName(strTableName, old)
         self.ddli.deleteIndex(strTableName, strIndexName, self.diffs)
 
     def changeIndex(self, strTableName, old, new):
@@ -352,18 +355,15 @@ class FindChanges:
         strColumnsNew = new.getAttribute('columns').replace(' ', '').lower()
         if strColumnsOld != strColumnsNew:
             self.ddli.changeIndex(strTableName,
-                self.xml2ddl.getIndexName(strTableName, old), 
-                self.xml2ddl.getIndexName(strTableName, new), 
+                getIndexName(strTableName, old), 
+                getIndexName(strTableName, new), 
                 strColumnsNew.split(','), 
                 self.diffs)
     
     def insertIndex(self, strTableName, new, nIndex):
         strColumns = new.getAttribute("columns")
-        self.ddli.addIndex(self.strTableName, self.xml2ddl.getIndexName(strTableName, new), strColumns.split(','), self.diffs)
+        self.ddli.addIndex(self.strTableName, getIndexName(strTableName, new), strColumns.split(','), self.diffs)
 
-    def getIndexName(self, index):
-        return self.xml2ddl.getIndexName(self.strTableName, index)
-        
     def findIndex(self, indexes, strIndexName):
         strIndexName = strIndexName.lower()
         for index in indexes:
@@ -374,7 +374,7 @@ class FindChanges:
         return None
         
     def diffRelations(self, old_xml, new_xml):
-        self.diffSomething(old_xml, new_xml, 'relation', self.renameRelation, self.changeRelation, self.insertRelation, self.dropRelation, self.findRelation, self.getRelationName)
+        self.diffSomething(old_xml, new_xml, 'relation', self.renameRelation, self.changeRelation, self.insertRelation, self.dropRelation, self.findRelation, getRelationName)
 
     def renameRelation(self, strTableName, old, new):
         # TODO put in ddlinterface
@@ -408,7 +408,7 @@ class FindChanges:
             self.insertRelation(strTableName, new, 0)
     
     def insertRelation(self, strTableName, old, nIndex):
-        strRelationName = self.xml2ddl.getRelationName(old)
+        strRelationName = getRelationName(old)
         strFk = old.getAttribute('fk')
         strOnDelete = old.getAttribute('ondelete')
         strOnUpdate = old.getAttribute('onupdate')
@@ -417,15 +417,12 @@ class FindChanges:
         self.ddli.addRelation(strTableName, strRelationName, strColumn, strFkTable, strFk, strOnDelete, strOnUpdate, self.diffs)
 
     def dropRelation(self, strTableName, old):
-        strRelationName = self.xml2ddl.getRelationName(old)
+        strRelationName = getRelationName(old)
         self.ddli.dropRelation(strTableName, strRelationName, self.diffs)
 
-    def getRelationName(self, relation):
-        return self.xml2ddl.getRelationName(relation)
-        
     def findRelation(self, relations, strRelationName):
         for relation in relations:
-            strCurRelationName = self.getRelationName(relation)
+            strCurRelationName = getRelationName(relation)
             if strCurRelationName == strRelationName:
                 return relation
             
