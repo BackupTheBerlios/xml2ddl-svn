@@ -1,0 +1,36 @@
+<test title="Rename two indexes">
+<before>
+	<schema>
+	<table name="table1">
+		<columns>
+			<column name="col1" type="integer"/>
+			<column name="col2" type="integer"/>
+		</columns>
+        <indexes>
+            <index columns="col1"/>
+            <index name="col1col2" columns="col1,col2"/>
+        </indexes>
+	</table>
+	</schema>
+</before>
+<after>
+	<schema>
+	<table name="table1">
+		<columns>
+			<column name="col1" type="integer"/>
+			<column name="col2" type="integer"/>
+		</columns>
+        <indexes>
+            <index name="rename1" oldname="table1Col1" columns="col1"/>
+            <index name="rename2" oldname="col1col2" columns="col1,col2"/>
+        </indexes>
+	</table>
+	</schema>
+</after>
+<ddls>
+	<ddl>DROP INDEX table1Col1</ddl>
+	<ddl>CREATE INDEX rename1 ON table1 (col1)</ddl>
+	<ddl>DROP INDEX col1col2</ddl>
+	<ddl>CREATE INDEX rename2 ON table1 (col1, col2)</ddl>
+</ddls>
+</test>
