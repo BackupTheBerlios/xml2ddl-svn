@@ -36,7 +36,22 @@ class Xml2Html:
     def addTrailer(self):
         self.lines += ["</body>"]
         self.lines += ["</html>"]
-        
+
+    def tableToc(self):
+        tables = self.xml.getElementsByTagName('table')
+        self.lines += ['<h1>List of Tables</h1>']
+        self.lines += ['<table class="blue">']
+        self.lines += ['<tr>']
+        self.lines += ['<th>Table Name</th>']
+        self.lines += ['<th>Full Name</th>']
+        self.lines += ['</tr>']
+        for table in tables:
+            self.lines += ['<tr>']
+            strTable = table.getAttribute('name')
+            self.lines += ['<td><a href="#%s">%s</a></td>' % (strTable, strTable)]
+            self.lines += ['<td>%s</td>' % (table.getAttribute('fullname'))]
+            self.lines += ['</tr>']
+
     def outTables(self):
         tables = self.xml.getElementsByTagName('table')
         for table in tables:
@@ -47,7 +62,7 @@ class Xml2Html:
         strFullName = table.getAttribute("fullname")
         strDesc = table.getAttribute("desc")
         
-        self.lines += ['<h1>%s</h1>' % (strTableName) ]
+        self.lines += ['<h1 id="%s">%s</h1>' % (strTableName, strTableName) ]
         self.lines += ['<div>%s</div>' % (strDesc) ]
         
         self.outputColumns(table)
@@ -57,10 +72,11 @@ class Xml2Html:
         self.outputIndexes(table)
 
         self.outputDetailColumns(table)
-        
+
+        self.outputDataset(table)
 
     def outputColumns(self, table):
-        self.lines += ['<table class="blue" border="1">']
+        self.lines += ['<table class="blue">']
         self.lines += ['<tr>']
         self.lines += ['<th>Column Name</th>']
         self.lines += ['<th>Full Name</th>']
@@ -70,12 +86,14 @@ class Xml2Html:
         self.lines += ['</tr>']
         
         strTableName = table.getAttribute('name')
+        nIndex = 0
         for column in table.getElementsByTagName('column'):
-            self.outputColumn(strTableName, column)
+            self.outputColumn(strTableName, column, nIndex)
+            nIndex += 1
         
         self.lines += ['</table>']
         
-    def outputColumn(self, strTableName, column):
+    def outputColumn(self, strTableName, column, nIndex):
         strColName = column.getAttribute('name')
         strFullName = column.getAttribute('fullname')
         strType = self.Xml2Ddl.getColType(column)
@@ -83,7 +101,11 @@ class Xml2Html:
         strKey = column.getAttribute('key')
         strDeprecated = column.getAttribute('deprecated')
         
-        self.lines += ['<tr>']
+        if (nIndex % 2) == 0:
+            strEvenOdd = 'even'
+        else:
+            strEvenOdd = 'odd'            
+        self.lines += ['<tr class="%s">' % (strEvenOdd) ]
         self.lines += ['<td><a href="#full_%s.%s" id="%s.%s"/>%s</td>' % (strTableName, strColName, strTableName, strColName, strColName)  ]
         if len(strDeprecated) > 0:
             self.lines += ['<td><span class="deprecated">deprecated</span></td>']
@@ -100,14 +122,25 @@ class Xml2Html:
         
         strTableName = table.getAttribute('name')
         
-        self.lines += ['<table>']
+        self.lines += ['<table class="blue">']
+        self.lines += ['<tr>']
+        self.lines += ['<th>Column name</th>']
+        self.lines += ['<th>Informatino</th>']
+        self.lines += ['</tr>']
+        nIndex = 0
         for column in table.getElementsByTagName('column'):
-            self.outputDetailColumn(strTableName, column)
+            self.outputDetailColumn(strTableName, column, nIndex)
+            nIndex += 1
         self.lines += ['</table>']
         
-    def outputDetailColumn(self, strTableName, column):
+    def outputDetailColumn(self, strTableName, column, nIndex):
         strColName = column.getAttribute('name')
-        self.lines += ['<tr><td class="def" id="full_%s.%s">' % (strTableName, strColName)]
+        if (nIndex % 2) == 0:
+            strEvenOdd = 'even'
+        else:
+            strEvenOdd = 'odd'            
+        self.lines += ['<tr class="%s">' % (strEvenOdd) ]
+        self.lines += ['<td class="def" rowspan="2" id="full_%s.%s">' % (strTableName, strColName)]
         self.lines += [ '<a href="#%s.%s">%s</a></td>' % (strTableName, strColName, strColName) ]
         if column.hasAttribute('fullname'):
             strFullName = column.getAttribute('fullname')
@@ -116,14 +149,72 @@ class Xml2Html:
             self.lines += ['<td></td>']
         self.lines += ['</tr>']
         
-        self.lines += ['<tr><td>&nbsp;</td>']
+        self.lines += ['<tr>']
         self.lines += ['<td>']
+        strDesc = ''
         if column.hasAttribute('desc'):
-            self.lines += [ column.getAttribute('desc') ]
-        else:
-            self.lines += [ "Requires detailed description" ]
-        self.lines += ['</td></tr>']
+            strDesc = column.getAttribute('desc')
         
+        strRelCol = self.getRelatedColumn(column)
+        if strRelCol and len(strDesc) == 0:
+            strDesc = 'Foreign key to <a href="#%s">%s<a>' % (strRelCol, strRelCol)
+        
+        if column.hasAttribute('deprecated'):
+            strDesc += ' (<span class="deprecated">deprecated</span>)'
+        
+        self.lines += [strDesc]
+        self.lines += ['</td></tr>']
+    
+    def getRelatedColumn(self, column):
+        strColName = column.getAttribute('name')
+        parent = column.parentNode.parentNode
+        relations = parent.getElementsByTagName('relation')
+        if not relations:
+            return None
+            
+        for relation in relations:
+            columns = relation.getAttribute('column').split(',')
+            if strColName in columns and len(columns) == 1:
+                strFkTable = relation.getAttribute('table')
+                strFkCol = relation.getAttribute('fk')
+                return "%s.%s" % (strFkTable, strFkCol)
+        
+        
+    def outputDataset(self, table):
+        datasets = table.getElementsByTagName('dataset')
+        if not datasets:
+            return
+        
+        # We need to get the column list in the right order, get it from the list of columns
+        colNames = []
+        for column in table.getElementsByTagName('column'):
+            colNames.append(column.getAttribute('name'))
+            
+        vals = datasets[0].getElementsByTagName('val')
+        self.lines += ['<h2>Data values</h2>']
+        self.lines += ['<table class="blue">']
+        attribs = vals[0].attributes
+        self.lines += ['<tr>']
+        for strColName in colNames:
+            self.lines += ['<th>%s</th>' % (strColName)]
+        
+        self.lines += ['</tr>']
+        
+        nIndex = 0
+        for valLine in vals:
+            if (nIndex % 2) == 0:
+                strEvenOdd = 'even'
+            else:
+                strEvenOdd = 'odd'            
+            self.lines += ['<tr class="%s">' % strEvenOdd]
+            attribs = valLine.attributes
+            for strColName in colNames:
+                strColValue = valLine.getAttribute(strColName)
+                self.lines += ['<td>%s</td>' % (strColValue)]
+            self.lines += ['</tr>']
+            nIndex += 1
+        self.lines += ['</table>']
+
     def outputRelations(self, table):
         relationsNode = table.getElementsByTagName('relations')
         if not relationsNode:
@@ -141,12 +232,14 @@ class Xml2Html:
         self.lines += ['<th>Related Column</th>']
         self.lines += ['</tr>']
         
+        nIndex = 0
         for relation in relations:
-            self.outputRelation(strTableName, relation)
+            self.outputRelation(strTableName, relation, nIndex)
+            nIndex += 1
         
         self.lines += ['</table>']
         
-    def outputRelation(self, strTableName, relation):
+    def outputRelation(self, strTableName, relation, nIndex):
         strColName = relation.getAttribute('column')
         strFkTable = relation.getAttribute('table')
         strFkCol = relation.getAttribute('fk')
@@ -154,7 +247,13 @@ class Xml2Html:
         if len(strFkCol) == 0:
             strFkCol = strColName
         
-        self.lines += ['<tr><td class="def" id="full_%s.%s">' % (strTableName, strColName)]
+        if (nIndex % 2) == 0:
+            strEvenOdd = 'even'
+        else:
+            strEvenOdd = 'odd'            
+        self.lines += ['<tr class="%s">' % (strEvenOdd) ]
+        
+        self.lines += ['<td class="def" id="full_%s.%s">' % (strTableName, strColName)]
         self.lines += [ '<a href="#%s.%s">%s</a></td>' % (strTableName, strColName, strColName) ]
         self.lines += ['<td>%s</td>' % (strFkTable) ]
         self.lines += ['<td><a href="#%s.%s">%s</a></td>' % (strFkTable, strFkCol, strFkCol) ]
@@ -177,16 +276,22 @@ class Xml2Html:
         self.lines += ['<th>Columns</th>']
         self.lines += ['</tr>']
         
+        nIndex = 0
         for index in indexs:
-            self.outputIndex(strTableName, index)
+            self.outputIndex(strTableName, index, nIndex)
+            nIndex += 1
         
         self.lines += ['</table>']
         
-    def outputIndex(self, strTableName, index):
+    def outputIndex(self, strTableName, index, nIndex):
         strIndexName = index.getAttribute('name')
         strColumns = index.getAttribute('columns')
         
-        self.lines += ['<tr>']
+        if (nIndex % 2) == 0:
+            strEvenOdd = 'even'
+        else:
+            strEvenOdd = 'odd'            
+        self.lines += ['<tr class="%s">' % (strEvenOdd) ]
         self.lines += ['<td>%s</td>' % (strIndexName) ]
         self.lines += ['<td>%s</td>' % (strColumns) ]
         self.lines += ['</tr>']
@@ -196,6 +301,7 @@ class Xml2Html:
         self.lines = []
         
         self.addHeader()
+        self.tableToc()
         self.outTables()
         self.addTrailer()
         

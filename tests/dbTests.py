@@ -61,14 +61,13 @@ class DbTests:
     
         ddt = DbDmlTest.DbDmlTest(self.strDbms, self.testList, log)
         ddt.doTests(self.conn, bExec)
-        
 
 def doTests(testList = None):
     dbt = DbTests(testList)
     
-    #dbt.pgTests()
+    dbt.pgTests()
     dbt.mySqlTests()
-    #dbt.fireBirdTests()
+    dbt.fireBirdTests()
     
 if __name__ == "__main__":
     doTests()

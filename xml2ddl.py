@@ -166,14 +166,21 @@ class Xml2Ddl:
             strRet += self.addAutoIncrement(col, strPreDdl, strPostDdl)
 
         return strRet
-        
+    
+    def getSeqName(self, strTableName, strColName):
+        return '%s_%s_seq' % (strTableName, strColName)
+    
+    def getAiTriggerName(self, strTableName, strColName):
+        return 'ai_%s_%s' % (strTableName, strColName)
+    
     def addAutoIncrement(self, col, strPreDdl, strPostDdl):
         strTableName = col.parentNode.parentNode.getAttribute('name')
         
         info = {
             'table_name' : strTableName,
             'col_name'   : col.getAttribute('name'),
-            'seq_name'   : '%s_%s_seq' % (strTableName, col.getAttribute('name')),
+            'seq_name'   : self.getSeqName(strTableName, col.getAttribute('name')),
+            'ai_trigger' : self.getAiTriggerName(strTableName, col.getAttribute('name')),
         }
         
         if self.params['has_auto_increment']:
@@ -183,7 +190,7 @@ class Xml2Ddl:
             strPreDdl.append(('autoincrement generator',
                 'CREATE GENERATOR %(seq_name)s' % info))
             strPostDdl.append(('autoincrement trigger',
-                """CREATE TRIGGER AI_%(col_name)s FOR %(table_name)s
+                """CREATE TRIGGER %(ai_trigger)s FOR %(table_name)s
                 BEFORE INSERT AS
                 BEGIN
                     NEW.%(col_name)s = GEN_ID(%(seq_name)s, 1);

@@ -1,0 +1,30 @@
+<test title="Drop Complex table">
+<before>
+    <schema>
+        <table name="table1">
+            <columns>
+                <column name="table1_id" type="integer" null="no" autoincrement="yes" key="1"/>
+                <column name="col2" type="integer"/>
+            </columns>
+        </table>
+    </schema>
+</before>
+<after>
+    <schema>
+    </schema>
+</after>
+<ddls>
+	<ddl>DROP TABLE table1 CASCADE</ddl>
+</ddls>
+<ddls dbms="postgres,postgres7">
+	<ddl>DROP SEQUENCE table1_table1_id_seq</ddl>
+	<ddl>ALTER TABLE table1 ALTER table1_id SET DEFAULT null</ddl>
+	<ddl>DROP TABLE table1 CASCADE</ddl>
+</ddls>
+<ddls dbms="firebird">
+	<ddl>ALTER TABLE table1 DROP CONSTRAINT pk_table1</ddl>
+	<ddl>DROP TRIGGER ai_table1_table1_id</ddl>
+	<ddl>DROP GENERATOR table1_table1_id_seq</ddl>
+	<ddl>DROP TABLE table1</ddl>
+</ddls>
+</test>

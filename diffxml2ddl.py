@@ -12,8 +12,6 @@ __version__ = "$Revision: 0.2 $"
 
 """
 TODO:
-    - DESC
-    - handling of spaces in column names, table names
     - Unique constraint
     - check constraint
 """
@@ -134,13 +132,25 @@ class FindChanges:
         info = {
             'table_name' : strTableName,
             'col_name'   : col.getAttribute('name'),
-            'seq_name'   : '%s_%s_seq' % (strTableName, col.getAttribute('name')),
+            'seq_name'   : self.xml2ddl.getSeqName(strTableName, col.getAttribute('name')),
+            'ai_trigger' : self.xml2ddl.getAiTriggerName(strTableName, col.getAttribute('name')),
         }
         if self.xml2ddl.params['has_auto_increment']:
-            print "TODO MySQL Drop Auto"
+            old = col.cloneNode(False)
+            old.setAttribute('type', "bla") # Pretend the old type was different
+            self.changeColType(strTableName, old, col)
+            return
+
         
+        if self.dbmsType == 'firebird':
+            self.diffs.append(('Drop Autoincrement Trigger', 
+                'DROP TRIGGER %(ai_trigger)s' % info))
+            
+            self.diffs.append(('Drop Autoincrement', 
+                'DROP GENERATOR %(seq_name)s' % info))
+            return
+            
         # For postgres
-        
         self.diffs.append(('Drop Autoincrement', 
             'DROP SEQUENCE %(seq_name)s' % info))
         
@@ -277,7 +287,7 @@ class FindChanges:
         # Note, apparently wasn't used
         info = {
             'table_name' : strTable,
-            'constraint_name' : 'pk_%s_%s' % (strTable, col.getAttribute('name')),
+            'constraint_name' : 'pk_%s' % (strTable),
         }
         return ('Drop key constraint', 
             'ALTER TABLE %(table_name)s DROP CONSTRAINT %(constraint_name)s' % info)
@@ -338,6 +348,19 @@ class FindChanges:
         for pk in pkList:
             self.diffs.append(pk)
         
+    def dropRelatedSequences(self, strTableName):
+        if self.dbmsType == 'firebird' or self.dbmsType.startswith('postgres'):
+            table = self.findTable(self.old_xml.getElementsByTagName('table'), strTableName)
+            columns = table.getElementsByTagName('column')
+            for column in columns:
+                self._dropRelatedSequence(strTableName, column)
+            
+            return
+        
+    def _dropRelatedSequence(self, strTableName, col):
+        if col.getAttribute('autoincrement').lower() == 'yes':
+            self.dropAutoIncrement(strTableName, col)
+
     def doChangeColType(self, strTableName, strColumnName, strNewColType):
         info = {
             'table_name' : strTableName,
@@ -589,8 +612,6 @@ class FindChanges:
         self.diffs.extend(self.xml2ddl.ddls)
 
     def dropTable(self, strTableName, xml):
-        """ TODO: May need to kill some related constraints which I haven't coded yet. """
-        
         self.strTableName = xml.getAttribute('name')
         strCascade = ''
         if self.params['drop_table_has_cascade']:
@@ -598,6 +619,8 @@ class FindChanges:
         else:
             self.dropRelatedConstraints(self.strTableName)
 
+        self.dropRelatedSequences(self.strTableName)
+        
         info = {
             'table_name' : self.xml2ddl.quoteName(self.strTableName),
             'cascade'    : strCascade,

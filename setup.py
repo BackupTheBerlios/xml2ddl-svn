@@ -16,7 +16,7 @@ import glob
 # 
 setup(
     name='xml2ddl',
-    version='0.2',
+    version='0.3',
     description="Xml to DDL is a set of python programs to convert an XML representation of a database into a set of SQL (or DDL - Data Definition Language) commands.",
     long_description="""
 XML to DDL is a set of Python programs that converts an XML representation of a database into a set of SQL (or DDL commands - Data Definition Language) commands.
@@ -48,5 +48,5 @@ XML to DDL requires no database to run (XML text in -> SQL text out) and current
         'Topic :: Text Processing :: Markup :: XML',
         'Topic :: Utilities',
     ],    
-    py_modules=['xml2ddl', 'diffxml2ddl', 'xml2html'],
+    py_modules=['xml2ddl', 'diffxml2ddl', 'xml2html', 'downloadXml'],
 )

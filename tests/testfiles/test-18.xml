@@ -1,4 +1,4 @@
-<test title="Auto number">
+<test title="Add auto increment">
 <before>
     <schema>
     </schema>
@@ -32,7 +32,7 @@
         table1_id integer NOT NULL,
         col2 integer,
         CONSTRAINT pk_table1 PRIMARY KEY (table1_id))</ddl>
-    <ddl>CREATE TRIGGER AI_table1_id FOR table1
+    <ddl>CREATE TRIGGER ai_table1_table1_id FOR table1
         BEFORE INSERT AS
         BEGIN
             NEW.table1_id = GEN_ID(table1_table1_id_seq, 1);

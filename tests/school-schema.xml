@@ -7,7 +7,7 @@
     <dict class="marks" type="float"   null="yes"/>
 </dictionary>
 
-<table name="students" desc="List of students">
+<table name="students" fullname="List of students" desc="Simple list here">
     <columns>
         <column class="key"/>
         <column name="student_name" fullname="Student Name" class="name" 
@@ -15,7 +15,7 @@
     </columns>
 </table>
 
-<table name="teachers" desc="List of teachers">
+<table name="teachers" fullname="List of teachers" desc="Very simple list here">
     <columns>
         <column class="key"/>
         <column name="teacher_name" class="name" fullname="Teacher's Name"
@@ -24,10 +24,11 @@
             desc="The teacher's home phone number"/>
     </columns>
 </table>
-<table name="levels" desc="Different levels or courses">
+
+<table name="levels" fullname="List of courses by course level" desc="Different levels or courses">
     <columns>
         <column class="key"/>
-        <column name="level_name" class="name"/>
+        <column name="level_name" fullname="fk of the type of course" class="name"/>
     </columns>
     <dataset>
         <val id="1" level_name="Reading 1"/>
@@ -39,7 +40,7 @@
     </dataset>
 </table>
 
-<table name="categories">
+<table name="categories" fullname="List of mark categories" desc="A mark can be categorized by Listening, Reading, etc.">
     <columns>
         <column class="key"/>
         <column name="category_name" fullname="Category Name" class="name"
@@ -54,13 +55,13 @@
     </dataset>
 </table>
 
-<table name="courses">
+<table name="courses" fullname="List of courses" desc="A course exists in a year, semester, has 1 teacher and has a course level">
     <columns>
         <column class="key"/>
-        <column name="level_id"    type="integer" null="no"/>
-        <column name="teacher_id"  type="integer" null="yes"/>
-        <column name="n_year"      type="integer" null="yes"/>
-        <column name="n_semester"  type="integer" null="yes"/>
+        <column name="level_id"    fullname="FK id of the level"    type="integer" null="no"/>
+        <column name="teacher_id"  fullname="FK id to the teacher"  type="integer"/>
+        <column name="n_year"      fullname="The year as 9999"      type="integer"/>
+        <column name="n_semester"  fullname="The semester from 1-3" type="integer"/>
     </columns>
     <relations>
         <relation column="level_id"   table="levels"   fk="id"/>
@@ -71,13 +72,13 @@
     </indexes>
 </table>
 
-<table name="marks">
+<table name="marks" fullname="List of student marks" desc="Each student gets a mark for a course and a category">
     <columns>
         <column class="key"/>
         <column name="course_id"    class="index"/>
         <column name="student_id"   class="index"/>
         <column name="category_id"  class="index"/>
-        <column name="mark"         class="marks"/>
+        <column name="mark"         class="marks" fullname="% mark" desc="Value from 0-100"/>
     </columns>
     <relations>
         <relation column="course_id"   table="courses"    fk="id"/>

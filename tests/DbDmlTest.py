@@ -68,6 +68,7 @@ class DbDmlTest:
         
         outStr = StringIO()
         self.downLoader.downloadSchema(of = outStr)
+        docFromDb = None
         try:
             docFromDb = parseString(outStr.getvalue())
         except:
@@ -91,6 +92,9 @@ class DbDmlTest:
         outStr.close()
         self.aFindChanges.reset()
 
+        #~ if testFilename.endswith('test-01a.xml'):
+            #~ sys.exit(-1)
+        
         ddls = self.aFindChanges.diffTables(docAfter, empty)
         self.execSome(con, ddls, bExec, "(%s) %s: after->empty" % (self.strDbms, testFilename))
         self.aFindChanges.reset()

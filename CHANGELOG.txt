@@ -1,3 +1,13 @@
+Changes since 0.2 (2004-10-04)
+-----------------
+- Can now download the schema from PostgreSQL, MySQL and Firefox
+
+- Unit tests now download the schema from the database to verify the changes expected were made.
+
+- Autoincrement does the right thing for each DBMS.
+
+- Relation constraints like "ON DELETE CASCADE" supported.
+
 Changes since 0.1
 -----------------
 

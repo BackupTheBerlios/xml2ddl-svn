@@ -37,6 +37,9 @@ If you have selected the "auto_increment" functionality for a column, for exampl
 SHOW INDEX FROM tbl_name
 """
 
+def getSeqName(strTableName, strColName):
+    return '%s_%s_seq' % (strTableName.strip(), strColName.strip())
+
 class PgDownloader:
     """ Silly me, I didn't know about INFORMATION_SCHEMA """
     def __init__(self):
@@ -115,7 +118,7 @@ class PgDownloader:
                 default = default.replace('::text', '')
             
             bAutoIncrement = False
-            if default == "nextval('%s_%s_seq')" % (strTable, name):
+            if default == "nextval('%s')" % (getSeqName(strTable, name)):
                 default = ''
                 bAutoIncrement = True
                 
@@ -280,13 +283,16 @@ class MySqlDownloader:
         fullcols = self.cursor.fetchall()
         ret = []
         
-        
-        # TODO: auto_increment
         bAutoIncrement = False 
         for col in fullcols:
             (name, type, bNotNull, key, strDefault, extra) = col
             nColSize = None
             nColPrecision = None
+            if extra == 'auto_increment':
+                bAutoIncrement = True
+            else:
+                bAutoIncrement = False
+            
             match = re_size_prec.match(type)
             if match:
                 newType = match.group(1)
@@ -364,7 +370,7 @@ class MySqlDownloader:
             (strConstraintName, colName, fk_table, fk_columns, confupdtype, confdeltype))
             or []
         """
-        re_ref = re.compile(r'\s*CONSTRAINT\s+`(\w+)`\s+FOREIGN KEY\s+\(([^)]+)\)\s+REFERENCES\s+`(\w+)`\s+\(([^)]+)')
+        re_ref = re.compile(r'\s*CONSTRAINT\s+`(\w+)`\s+FOREIGN KEY\s+\(([^)]+)\)\s+REFERENCES\s+`(\w+)`\s+\(([^)]+)\)( ON DELETE (?:[A-Z]+))?( ON UPDATE (?:[A-Z]+))?')
         """ex. CONSTRAINT `fk_category_id` FOREIGN KEY (`category_id`) REFERENCES `categories` (`id`),"""
         
         # TODO
@@ -380,9 +386,29 @@ class MySqlDownloader:
             if match:
                 myCols = [ str.strip()[1:-1] for str in match.group(2).split(',') ]
                 fkCols = [ str.strip()[1:-1] for str in match.group(4).split(',') ]
+                delType = self.mapMySqlOnSomething(match.group(5))
+                updateType = self.mapMySqlOnSomething(match.group(6))
                 ret.append( ( match.group(1), myCols, match.group(3), fkCols, delType, updateType) )
         
         return ret
+        
+    def mapMySqlOnSomething(self, strStr):
+        if strStr == None:
+            return None
+        
+        if strStr.endswith('CASCADE'):
+            return 'c'
+        
+        if strStr.endswith('RESTRICT'):
+            return 'r'
+        
+        if strStr.endswith('NULL'):
+            return 'n'
+            
+        if strStr.endswith('DEFAULT'):
+            return 'd'
+        
+        return 'a'
 
 class FbDownloader:
     def __init__(self):
@@ -420,7 +446,7 @@ class FbDownloader:
         """
         strSql = """
             SELECT RF.RDB$FIELD_POSITION, RF.RDB$FIELD_NAME, RDB$FIELD_TYPE, F.RDB$FIELD_LENGTH, 
-            RDB$FIELD_PRECISION, RDB$FIELD_SCALE, RF.RDB$NULL_FLAG, RF.RDB$DEFAULT_VALUE
+            RDB$FIELD_PRECISION, RDB$FIELD_SCALE, RF.RDB$NULL_FLAG, RF.RDB$DEFAULT_SOURCE, F.RDB$FIELD_SUB_TYPE
             FROM RDB$RELATION_FIELDS RF, RDB$FIELDS F
             WHERE RF.RDB$RELATION_NAME = ?
             AND RF.RDB$FIELD_SOURCE = F.RDB$FIELD_NAME
@@ -433,26 +459,30 @@ class FbDownloader:
             'character varying' : 'varchar',
         }
         types = {
-            261: 'BLOB',
-            14 : 'CHAR',    
-            40 : 'CSTRING',
-            11 : 'D_FLOAT',
-            27 : 'DOUBLE',
-            10 : 'FLOAT',
-            16 : 'INT64',
-            8  : 'INTEGER',
-            9  : 'QUAD',
-            7  : 'SMALLINT',
-            12 : 'DATE',
-            13 : 'TIME',
-            35 : 'TIMESTAMP',
-            37 : 'VARCHAR',
+            261: 'blob',
+            14 : 'char',    
+            40 : 'cstring',
+            11 : 'd_float',
+            27 : 'double',
+            10 : 'float',
+            16 : 'int64',
+            8  : 'integer',
+            9  : 'quad',
+            7  : 'smallint',
+            12 : 'date',
+            13 : 'time',
+            35 : 'timestamp',
+            37 : 'varchar',
         }
         
         # TODO auto_increment
         bAutoIncrement = False
         for row in rows:
-            attnum, name, nType, size, numsize, scale, attnull, default = row
+            attnum, name, nType, size, numsize, scale, attnull, default, sub_type = row
+            
+            if scale and scale < 0:
+                scale = -scale
+            
             if not size and numprecradix == 10:
                 size = numsize
             
@@ -462,11 +492,38 @@ class FbDownloader:
                     size = None
             else:
                 print "Uknown type %d" % (nType)
+                
+            if sub_type == 1:
+                strType = 'numeric'
+            elif sub_type == 2:
+                strType = 'decimal'
             
+            if not size and numsize > 0:
+                size = numsize
+                numsize = None
+                
+            if default:
+                # Remove the 'DEFAULT ' part of the SQL
+                default = default.replace('DEFAULT ', '')
+            
+            if self.hasAutoincrement(strTable, name):
+                bAutoIncrement = True
+            else:
+                bAutoIncrement = False
+                
             ret.append((name.strip(), strType, size, scale, attnull, default, bAutoIncrement))
             
         return ret
     
+    def hasAutoincrement(self, strTableName, strColName):
+        strSql = "SELECT RDB$GENERATOR_NAME FROM RDB$GENERATORS WHERE UPPER(RDB$GENERATOR_NAME)=UPPER(?);"
+        self.cursor.execute(strSql, [getSeqName(strTableName, strColName)[0:31]])
+        rows = self.cursor.fetchall()
+        if rows:
+            return True
+        
+        return False
+        
     def getTableComment(self, strTableName):
         """ Returns the comment as a string """
         
@@ -496,11 +553,11 @@ class FbDownloader:
         """ Returns 
             (strIndexName, [strColumns,], bIsUnique, bIsPrimary, bIsClustered)
             or []
+            Warning the Primary key constraint cheats by knowing the name probably starts with pk_
         """
         strSql = """SELECT RDB$INDEX_NAME, RDB$UNIQUE_FLAG
             FROM RDB$INDICES
-            WHERE RDB$RELATION_NAME = upper('%s')
-            AND RDB$INDEX_INACTIVE = 0
+            WHERE RDB$RELATION_NAME = '%s'
             """ % (strTableName)
         self.cursor.execute(strSql)
         rows = self.cursor.fetchall()
@@ -513,17 +570,22 @@ class FbDownloader:
         for row in rows:
             (strIndexName, bIsUnique) = row
             colList = self._fetchTableColumnsForIndex(strIndexName)
-            ret.append((strIndexName, colList, bIsUnique, Null, Null))
+            if strIndexName.lower().startswith('pk_'):
+                bIsPrimary = True
+            else:
+                bIsPrimary = False
+            strIndexName = strIndexName.strip()
+            ret.append((strIndexName, colList, bIsUnique, bIsPrimary, None))
         
         return ret
 
     def _fetchTableColumnsForIndex(self, strIndexName):
         strSql = """SELECT RDB$FIELD_NAME
             FROM RDB$INDEX_SEGMENTS
-            WHERE RDB$INDEX_NAME = %s
+            WHERE RDB$INDEX_NAME = ?
             ORDER BY RDB$FIELD_POSITION
             """
-        self.cursor.execute(strSql, [strTableName])
+        self.cursor.execute(strSql, [strIndexName.strip()])
         rows = self.cursor.fetchall()
         return [row[0].strip() for row in rows]
 
@@ -534,7 +596,7 @@ class FbDownloader:
         """
         strSql = """SELECT RDB$CONSTRAINT_NAME
             FROM RDB$RELATION_CONSTRAINTS
-            WHERE RDB$RELATION_NAME = upper('%s')
+            WHERE RDB$RELATION_NAME = '%s'
             """ % (strTableName)
         self.cursor.execute(strSql)
         rows = self.cursor.fetchall()

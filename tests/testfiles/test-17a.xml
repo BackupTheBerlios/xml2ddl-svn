@@ -1,6 +1,13 @@
 <test title="Drop a relation">
 <before>
     <schema>
+        <!-- FIX: Broken if the tables are in the wrong order, need to find the dependancy list and try to build in the right order -->
+        <table name="table1">
+            <columns>
+                <column name="table1_id" type="integer" key="1" null="no"/>
+                <column name="col2" type="integer"/>
+            </columns>
+        </table>
         <table name="table2">
             <columns>
                 <column name="table2_id" type="integer"/>
@@ -9,12 +16,6 @@
             <relations>
                 <relation column="table1_id" table="table1"/>
             </relations>
-        </table>
-        <table name="table1">
-            <columns>
-                <column name="table1_id" type="integer" key="1" null="no" default="0"/>
-                <column name="col2" type="integer"/>
-            </columns>
         </table>
     </schema>
 </before>
@@ -28,7 +29,7 @@
         </table>
         <table name="table1">
             <columns>
-                <column name="table1_id" type="integer" null="no" default="0"/>
+                <column name="table1_id" type="integer" key="1" null="no"/>
                 <column name="col2" type="integer"/>
             </columns>
         </table>

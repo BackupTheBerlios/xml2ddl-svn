@@ -18,7 +18,15 @@ Things That Need to be Done
   + Enumerations should have value="1" name="Name" desc="Description" default="true"
   + where name is mandatory, value is assumed name if value missing. Default changes the columns default.
 
-- Views - Don't have view support at all
+- Views - todo
+
+- Check constraints - todo
+
+- Unique constraint - todo
+
+- Store procedures/functions - todo
+
+- Triggers - todo
 
 - Lint of Schema the ability to check the schema for:
   + Not following naming conventions (of your choosing)
@@ -27,8 +35,6 @@ Things That Need to be Done
   + Un-indexed tables
 
 - Relations should be called fks=""? instead of fk="" or maybe foreignkeys="" + columns="" instead of column=""?
-
-- Relations need to support changes to ondelete="" (action), onupdate="" (action)
 
 - Ordering of columns to match ordering in XML
 

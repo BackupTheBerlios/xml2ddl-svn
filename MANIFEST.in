@@ -1,10 +1,13 @@
 include xml2ddl.py
 include diffxml2ddl.py
 include xml2html.py
+include downloadXml.py
 include CHANGELOG.txt
 include TODO.txt
 include *.css
 include *.gif
+include docs/*.html
+include docs/*.pdf
 include tests/school-schema.xml
 recursive-include tests *.py
 recursive-include tests/testfiles *.xml
