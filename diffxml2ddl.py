@@ -418,10 +418,8 @@ class FindChanges:
             self.insertIndex(strTableName, new, 0)
     
     def insertIndex(self, strTableName, new, nIndex):
-        self.xml2ddl.reset()
-
-        self.xml2ddl.addIndex(self.strTableName, new)
-        self.diffs.extend(self.xml2ddl.ddls)
+        strColumns = new.getAttribute("columns")
+        self.ddli.addIndex(self.strTableName, self.xml2ddl.getIndexName(strTableName, new), strColumns.split(','), self.diffs)
 
     def deleteIndex(self, strTableName, old):
         self.xml2ddl.reset()

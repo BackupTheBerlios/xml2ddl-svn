@@ -177,18 +177,9 @@ class Xml2Ddl:
         strTableName = doc.getAttribute('name')
         indexes = doc.getElementsByTagName('index')
         for index in indexes:
-            self.addIndex(strTableName, index)
+            strColumns = index.getAttribute("columns")
+            self.ddlInterface.addIndex(strTableName, self.getIndexName(strTableName, index), strColumns.split(','), self.ddls)
 
-    def addIndex(self, strTableName, index):
-        strColumns = index.getAttribute("columns")
-        strIndexName = self.getIndexName(strTableName, index)
-        cols = strColumns.split(',')
-        cols = index.getAttribute("columns").split(',')
-        cols = [self.ddlInterface.quoteName(col) for col in cols]
-        
-        self.ddls.append(('Add Index',
-            'CREATE INDEX %s ON %s (%s)' % (self.ddlInterface.quoteName(strIndexName), self.ddlInterface.quoteName(strTableName), ', '.join(cols)) ))
-    
     def getIndexName(self, strTableName, index):
         strIndexName = index.getAttribute("name")
         if strIndexName and len(strIndexName) > 0:
@@ -200,7 +191,7 @@ class Xml2Ddl:
         strIndexName = "idx_" + strTableName + '_'.join([col.strip() for col in cols])
         
         return strIndexName
-        
+
     def col2Type(self, doc):
         ret = {}
         for col in doc.getElementsByTagName('column'):

@@ -59,7 +59,13 @@ class DdlCommonInterface:
         }
         ddls.append(('Column comment',
             self.params['column_desc'] % info ))
-    
+
+    def addIndex(self, strTableName, strIndexName, cols, ddls):
+        cols = [self.quoteName(col) for col in cols]
+        
+        ddls.append(('Add Index',
+            'CREATE INDEX %s ON %s (%s)' % (self.quoteName(strIndexName), self.quoteName(strTableName), ', '.join(cols)) ))
+
     def addAutoIncrement(self, strTableName, strColName, strDefault, strPreDdl, strPostDdl):
         info = {
             'table_name' : strTableName,
@@ -312,9 +318,9 @@ def createDdlInterface(strDbms):
         assert(false)
         
 if __name__ == "__main__":
-    import sys
-    
+    import os, sys
     sys.path += ['tests']
     from diffXml2DdlTest import doTests
     
+    os.chdir('./tests')
     doTests()

@@ -8,7 +8,6 @@ import glob
 from xml.dom.minidom import parse, parseString
 import logging, logging.config
 
-
 logging.config.fileConfig("xml2ddl.ini")
 log = logging.getLogger("xml2ddl.diffXml2DdlTest")
 
