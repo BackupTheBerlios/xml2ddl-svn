@@ -19,7 +19,7 @@ set of SQL (or DDL_: Data Definition Language) statements.
 In addition |xml2ddl| can examine the difference between two XML files and output a sequence of ALTER statements that
 will update the database to conform to the new schema.
 
-If you install the required python package [#]_ you can download the XML schema from the database directly (new).
+If you install the required python package [#]_ you can download the XML schema from the database directly (in the SVN repository).
 
 Finallly, |xml2ddl| can generate HTML documentation of your schema.
 
@@ -187,6 +187,35 @@ Here's a rather contrived example::
 		<dict class="key" inherits="index,pk" name="id" fullname="Primary Key"
 			desc="Primary key for the table"/>
 	</dictionary>
+
+Downloading the XML
+===================
+
+You can download the XML schema directly from the database.
+Requires a connection that conforms to the `Database API <http://www.python.org/peps/pep-0249.html>`_.
+Without changing the code you can use the following connectivities:
+
+========== ================
+Database   Connectivity
+========== ================
+PostgreSQL ``psycopg``
+MySQL      ``MySQLdb``
+Firebird   ``kinterbasdb``
+========== ================
+
+Here's how to use the command::
+
+        python downloadXml.py --dbms <dbms> --database <database> --user <user> --pass <pass> > <filename.xml>
+    
+``dbms`` can be one of ``postgres``, ``mysql``, or ``firebird``. Defaults to "postgres".
+
+``database`` the name of the database, defaults to "postgres"
+
+``user`` the user name to connect to the database, defaults to "postgres"
+
+``pass`` the password to user, defaults to "postgres"
+
+``filename.xml`` by default it sends the XML to the console (stdout) you can pipe the output to a file as shown above.
 
 Outputting HTML Documentation
 =============================
@@ -508,7 +537,7 @@ The <constraints> tag lists an unorder list of contraint rules, if the database 
                   events="5"
                  [fire="6"]
                  [function="7"]>
-            8
+            (8)
         </trigger>
     </triggers>
 
