@@ -6,7 +6,6 @@ XML To DDL
    :keywords: XML, DDL, databases, generation
    :description lang=en: Creating DDL statements from XML
 
-
 ''Bringing some sanity to database maintenance.''
 
 .. contents:: Table of Contents
@@ -15,7 +14,7 @@ Introduction
 ============
 
 |xml2ddl| is a set of python programs to convert an XML representation of a database into a 
-set of DDL_ (Data Definition Language) statements.
+set of SQL (or DDL_: Data Definition Language) statements.
 
 In addition |xml2ddl| can examine the difference between two XML files and output a sequence of ALTER statements that
 will update the database to conform to the new schema.
@@ -23,6 +22,10 @@ will update the database to conform to the new schema.
 Finallly, |xml2ddl| can generate HTML documentation of your schema.
 
 You can find more information and download files at the `Berlios page <http://developer.berlios.de/projects/xml2ddl/>`_
+
+And you can find documentation through the many `test cases <http://xml2ddl.berlios.de/testdetails.html>`_.
+
+You can add comments or help in the `wiki pages <http://openfacts.berlios.de/index-en.phtml?title=XML%20to%20DDL>`_. 
 
 
 Simple Example
@@ -122,7 +125,7 @@ The a temporary column needs to be created, the data copied over and the old col
 	COMMENT ON TABLE students IS 'List of students with their full names';
 
 
-You can find a complete list of examples here: 
+You can find a *complete* list of examples here: 
 http://xml2ddl.berlios.de/testdetails.html
 
 Using a dictionary
@@ -241,10 +244,11 @@ To do
 Here are the major directions I see |xml2ddl| going:
 
 * Support for more databases (currently I've written code only for PostgreSQL, Firebird, and MySQL).
-* Build the XML schema from an existing database.
-* Support comparing differences from the database as well as another XML file.
-* More test cases.
-* Support for database specific features
+* Build the XML schema from an existing database. Some work on this for PostgreSQL is in the subversion repository.
+* Support comparing differences from the database as well as another XML file.  This is a bit different since the 
+  database may be more up-to-date, but the XML probably has more information (like fullname).
+* Support for database specific features.
+* Support for check contraints, triggers, and stored procedures.
 
 .. _PostgreSQL: http://www.postgresql.com/
 .. _Firebird: http://firebird.sourceforge.net/

@@ -1,6 +1,8 @@
 include xml2ddl.py
 include diffxml2ddl.py
 include xml2html.py
+include CHANGELOG.txt
+include TODO.txt
 include *.css
 include *.gif
 include tests/school-schema.xml
@@ -8,6 +10,8 @@ recursive-include tests *.py
 recursive-include tests/testfiles *.xml
 recursive-include doc *.html
 recursive-include doc *.pdf
+exclude .svn
+prune .svn
 prune setup.py
 prune tests/CheckNumbers
 prune tests/my_conn.py

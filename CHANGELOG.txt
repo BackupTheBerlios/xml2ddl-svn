@@ -12,8 +12,8 @@ Changes since 0.1
 - Autonumber support (add, drop as well).  Does the right thing for the various
   database managment systems.
 
-- Create and drop relations
+- Create and drop relations.
 
-- Fixes to the documentation
+- Fixes to the documentation.
 
-- Download of the schema from the database started for PostgreSQL.
+- Alpha code to download of the schema for PostgreSQL.
