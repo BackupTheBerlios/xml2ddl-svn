@@ -1,0 +1,32 @@
+<test title="Drop Auto number">
+<before>
+    <schema>
+        <table name="table1">
+            <columns>
+                <column name="table1_id" type="integer" null="no" autoincrement="true" key="1"/>
+                <column name="col2" type="integer"/>
+            </columns>
+        </table>
+    </schema>
+</before>
+<after>
+    <schema>
+        <table name="table1">
+            <columns>
+                <column name="table1_id" type="integer" null="no" key="1"/>
+                <column name="col2" type="integer"/>
+            </columns>
+        </table>
+    </schema>
+</after>
+<ddls dbms="postgres,postgres7">
+    <ddl>ALTER TABLE table1 ALTER TABLE table1 ALTER col1 SET DEFAULT null</ddl>
+    <ddl>DROP SEQUENCE table1_table1_id_seq</ddl>
+</ddls>
+<ddls dbms="mysql">
+    <ddl>ALTER TABLE table1 MODIFY table1_id integer NOT NULL</ddl>
+</ddls>
+<ddls dbms="firebird">
+    <!-- todo -->
+</ddls>
+</test>

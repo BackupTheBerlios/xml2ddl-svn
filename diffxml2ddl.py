@@ -12,50 +12,66 @@ TODO:
 
 class FindChanges:
     def __init__(self):
-        self.dbmsType = 'postgres'
+        self.xml2ddl = xml2ddl.Xml2Ddl()
+        self._defaults()
         self.reset()
         
     def reset(self):
         self.strTableName = None
         self.diffs = []
+        self.xml2ddl.reset()
+        
+    def _defaults(self):
+        self.dbmsType = 'postgres'
         self.params = {
             'drop_constraints_on_col_rename' : False,
             'rename_keyword' : 'RENAME', # or ALTER
             'no_alter_column_type' : False,
             'drop_table_has_cascade' : True,
+            'no_alter_default' : False,
             'change_type_keyword' : 'ALTER',
             'TYPE' : 'TYPE ',
             'can_change_table_comment' : True,
+            'no_rename_col' : False,
+            'drop_index'    : 'DROP INDEX %(index_name)s'
         }
     
     def setDbms(self, dbmsType):
+        self._defaults()
         self.reset()
+        
         self.dbmsType = dbmsType.lower()
+        self.xml2ddl.setDbms(self.dbmsType)
+        
         if self.dbmsType not in ['postgres', 'postgres7', 'mysql', 'oracle', 'firebird']:
             print "Unknown dbms %s" % (dbmsType)
-        
-        if self.dbmsType == 'postgres7':
+        elif self.dbmsType == 'postgres7':
             self.params['no_alter_column_type'] = True
-            
-        if self.dbmsType == 'firebird':
+        elif self.dbmsType == 'firebird':
             self.params['rename_keyword'] = 'ALTER'
             self.params['drop_constraints_on_col_rename'] = True
             self.params['drop_table_has_cascade'] = False
-        if self.dbmsType == 'mysql':
+            self.params['no_alter_default'] = True
+        elif self.dbmsType == 'mysql':
+            self.params['rename_keyword'] = 'ALTER'
+            self.params['no_rename_col'] = True
             self.params['change_type_keyword'] = 'MODIFY'
             self.params['TYPE'] = ''
             self.params['can_change_table_comment'] = False
-        
+            self.params['drop_index'] = 'DROP INDEX %(index_name)s ON %(table_name)s'
+            
+
     def retColTypeEtc(self, col):
         strNull = ''
         if col.getAttribute('null'):
             strVal = col.getAttribute('null')
-            if re.compile('not', re.IGNORECASE).search(strVal):
+            if re.compile('not|no', re.IGNORECASE).search(strVal):
                 strNull = ' NOT NULL'
         
         strType = col.getAttribute('type')
         strSize = col.getAttribute('size')
         strPrec = col.getAttribute('precision')
+        
         if strPrec:
             strRet = '%s(%s, %s)%s' % (strType, strSize, strPrec, strNull)
         elif strSize:
@@ -87,15 +103,24 @@ class FindChanges:
         strNewDefault = new.getAttribute('default')
         if strNewDefault != strOldDefault:
             info = {
-                'table_name' : strTableName,
-                'column_name' : new.getAttribute('name'),
-                'change_type_keyword' : self.params['change_type_keyword'],
+                'table_name' : self.xml2ddl.quoteName(strTableName),
+                'column_name' : self.xml2ddl.quoteName(new.getAttribute('name')),
+                'change_type_keyword' : 'ALTER',
                 'new_default' : strNewDefault,
+                'default_keyword' : 'SET DEFAULT',
+                'column_type' : self.retColTypeEtc(new),
+                'TYPE' : self.params['TYPE'],
             }
             
-            self.diffs.append(
-                ('Change Default', 
-                'ALTER TABLE %(table_name)s %(change_type_keyword)s %(column_name)s DEFAULT %(new_default)s' % info))
+            if self.params['no_alter_default']:
+                # Firebird
+                self.diffs.append(
+                    ('Change Default', 
+                    'ALTER TABLE %(table_name)s %(change_type_keyword)s %(column_name)s %(TYPE)s%(column_type)s DEFAULT %(new_default)s' % info))
+            else:
+                self.diffs.append(
+                    ('Change Default', 
+                    'ALTER TABLE %(table_name)s %(change_type_keyword)s %(column_name)s %(default_keyword)s %(new_default)s' % info))
 
     def changeColComments(self, strTableName, old, new):
         # Check for difference in comments.
@@ -103,11 +128,10 @@ class FindChanges:
         strOldComment = safeGet(old, 'desc')
         if strNewComment and strNewComment != strOldComment:
             # Fix to delete comments?
-            aCreate = xml2ddl.Xml2Ddl()
-            aCreate.setDbms(self.dbmsType)
+            self.xml2ddl.reset()
     
-            aCreate.addColumnComment(new, strTableName, new.getAttribute('name'), strNewComment)
-            self.diffs.extend(aCreate.dmls)
+            self.xml2ddl.addColumnComment(new, strTableName, new.getAttribute('name'), strNewComment)
+            self.diffs.extend(self.xml2ddl.ddls)
             
 
     def renameColumn(self, strTable, old, new):
@@ -115,19 +139,26 @@ class FindChanges:
         strNewName = new.getAttribute('name')
         
         info = {
-            'table_name' : strTable,
-            'old_col_name' : strOldName,
-            'new_col_name' : strNewName,
+            'table_name'   : self.xml2ddl.quoteName(strTable),
+            'old_col_name' : self.xml2ddl.quoteName(strOldName),
+            'new_col_name' : self.xml2ddl.quoteName(strNewName),
             'rename'       : self.params['rename_keyword'],
+            'column_type'  : self.retColTypeEtc(new), 
         }
         
         if self.params['drop_constraints_on_col_rename']:
             self.dropRelatedConstraints(strTable, strOldName)
         
-        # I think Firebird it's ALTER COLUMN instead of RENAME COLUMN
-        self.diffs.append(
-            ('Rename column',
-            'ALTER TABLE %(table_name)s %(rename)s %(old_col_name)s TO %(new_col_name)s' % info))
+        if self.params['no_rename_col']:
+            # MySQL is like this
+            self.diffs.append(
+                ('Rename column',
+                'ALTER TABLE %(table_name)s CHANGE %(old_col_name)s %(new_col_name)s %(column_type)s' % info))
+        else:
+            # I think Firebird it's ALTER COLUMN instead of RENAME COLUMN
+            self.diffs.append(
+                ('Rename column',
+                'ALTER TABLE %(table_name)s %(rename)s %(old_col_name)s TO %(new_col_name)s' % info))
 
         if self.params['drop_constraints_on_col_rename']:
             self.rebuildRelatedConstraints(strTable, strNewName)
@@ -164,14 +195,25 @@ class FindChanges:
             if column.hasAttribute('key'):
                 keys.append(column.getAttribute('name'))
         
+        info = {
+            'table_name'    : self.xml2ddl.quoteName(strTableName), 
+            'pk_constraint' : self.xml2ddl.quoteName('pk_%s' % (strTableName)),
+            'keys'          : ', '.join(keys),
+        }
         self.diffs.append( ('Create primary keys',
-                'ALTER TABLE %s ADD CONSTRAINT pk_%s PRIMARY KEY (%s)' % (strTableName, strTableName, ', '.join(keys))) )
+            'ALTER TABLE %(table_name)s ADD CONSTRAINT %(pk_constraint)s PRIMARY KEY (%(keys)s)' % info))
 
     def addRelation(self, strTable, strColumn, strRelatedTable, strRelatedColumn):
         """ Todo Missing multicolumn relations """
+        info = {
+            'table_name'  : self.xml2ddl.quoteName(strTable), 
+            'column_name' : self.xml2ddl.quoteName(strColumn), 
+            'constraint_name' : self.xml2ddl.quoteName('fk_%s_%s' % (strTable, strColumn)),
+            'related_table' : strRelatedTable, 
+            'related_column' : strRelatedColumn,
+        }
         self.diffs.append( ('Create relation ',
-                'ALTER TABLE %s ADD CONSTRAINT fk_%s FOREIGN KEY (%s) REFERENCES %s(%s)' % 
-                    (strTable, strColumn, strColumn, strRelatedTable, strRelatedColumn)) )
+                'ALTER TABLE %(table_name)s ADD CONSTRAINT %(constraint_name)s FOREIGN KEY (%(column_name)s) REFERENCES %(related_table)s(%(related_column)s)' % info))
 
         
     def dropRelatedConstraints(self, strTable, strColumnName = None):
@@ -218,12 +260,20 @@ class FindChanges:
             self.diffs.append(pk)
         
     def dropRelation(self, strTable, strColumnName):
+        info = {
+            'table_name' : strTable,
+            'constraint_name' : 'fk_%s_%s' % (strTable, strColumnName),
+        }
         return ('Drop relation constraint', 
-            'ALTER TABLE %s DROP CONSTRAINT fk_%s' % (strTable, strColumnName))
+            'ALTER TABLE %(table_name)s DROP CONSTRAINT %(constraint_name)s' % info)
     
     def dropKeyConstraint(self, strTable):
+        info = {
+            'table_name' : strTable,
+            'constraint_name' : 'pk_%s_%s' % (strTable, strColumnName),
+        }
         return ('Drop key constraint', 
-            'ALTER TABLE %s DROP CONSTRAINT pk_%s' % (strTable, strTable))
+            'ALTER TABLE %(table_name)s DROP CONSTRAINT %(constraint_name)s' % info)
     
     def doChangeColType(self, strTableName, strColumnName, strNewColType):
         info = {
@@ -250,12 +300,12 @@ class FindChanges:
                 'ALTER TABLE %(table_name)s %(change_type_keyword)s %(column_name)s %(TYPE)s%(column_type)s' % info))
             
 
-    def newCol(self, strTableName, new, nAfter):
+    def addColumn(self, strTableName, new, nAfter):
         """ nAfter not used yet """
         
         info = { 
-            'table_name' : strTableName,
-            'column_name' : new.getAttribute('name'),
+            'table_name' : self.xml2ddl.quoteName(strTableName),
+            'column_name' : self.xml2ddl.quoteName(new.getAttribute('name')),
             'column_type' : self.retColTypeEtc(new) 
         }
         
@@ -265,8 +315,8 @@ class FindChanges:
 
     def deletedCol(self, strTableName, oldCol):
         info = { 
-            'table_name' : strTableName,
-            'column_name' : oldCol.getAttribute('name'),
+            'table_name' : self.xml2ddl.quoteName(strTableName),
+            'column_name' : self.xml2ddl.quoteName(oldCol.getAttribute('name')),
         }
         
         strAlter = 'ALTER TABLE %(table_name)s DROP %(column_name)s' % info
@@ -291,15 +341,14 @@ class FindChanges:
             return
             
         if strOldComment != strNewComment and strNewComment:
-            aCreate = xml2ddl.Xml2Ddl()
-            aCreate.setDbms(self.dbmsType)
-            aCreate.addTableComment(self.strTableName, strNewComment)
-            self.diffs.extend(aCreate.dmls)
+            self.xml2ddl.reset()
+            self.xml2ddl.addTableComment(self.strTableName, strNewComment)
+            self.diffs.extend(self.xml2ddl.ddls)
 
     def diffColumns(self, old, new):
-        self.diffSomething(old, new, 'column', self.renameColumn,  self.changeCol, self.newCol, self.deletedCol, self.findColumn)
+        self.diffSomething(old, new, 'column', self.renameColumn,  self.changeCol, self.addColumn, self.deletedCol, self.findColumn)
 
-    def diffSomething(self, old, new, strTag, renameFunc, changeFunc, insertFunc, deleteFunc, findSomething):
+    def diffSomething(self, old, new, strTag, renameFunc, changeFunc, addFunc, deleteFunc, findSomething):
         newCols = new.getElementsByTagName(strTag)
         oldCols = old.getElementsByTagName(strTag)
         
@@ -320,7 +369,7 @@ class FindChanges:
                     renameFunc(self.strTableName, oldCol, newCol)
                     skipCols.append(strOldName)
                 else:                    
-                    insertFunc(self.strTableName, newCol, nIndex)
+                    addFunc(self.strTableName, newCol, nIndex)
             
         newCols = new.getElementsByTagName(strTag)
         oldCols = old.getElementsByTagName(strTag)
@@ -370,24 +419,25 @@ class FindChanges:
             self.insertIndex(strTableName, new, 0)
     
     def insertIndex(self, strTableName, new, nIndex):
-        aCreate = xml2ddl.Xml2Ddl()
-        aCreate.setDbms(self.dbmsType)
+        self.xml2ddl.reset()
 
-        aCreate.addIndex(self.strTableName, new)
-        self.diffs.extend(aCreate.dmls)
+        self.xml2ddl.addIndex(self.strTableName, new)
+        self.diffs.extend(self.xml2ddl.ddls)
 
     def deleteIndex(self, strTableName, old):
-        aCreate = xml2ddl.Xml2Ddl()
-        aCreate.setDbms(self.dbmsType)
-        strIndexName = aCreate.getIndexName(strTableName, old)
-
-        self.diffs += [('Drop Index', 'DROP INDEX %s' % (strIndexName))]
+        self.xml2ddl.reset()
+        strIndexName = self.xml2ddl.getIndexName(strTableName, old)
+        info = { 
+            'index_name' : self.xml2ddl.quoteName(strIndexName),
+            'table_name' : strTableName,
+        }
+        self.diffs += [(
+            'Drop Index', self.params['drop_index'] % info)]
     
     def findIndex(self, indexes, strIndexName):
         for index in indexes:
-            aCreate = xml2ddl.Xml2Ddl()
-            aCreate.setDbms(self.dbmsType)
-            strCurIndexName = aCreate.getIndexName(self.strTableName, index)
+            self.xml2ddl.reset()
+            strCurIndexName = self.xml2ddl.getIndexName(self.strTableName, index)
             if strCurIndexName == strIndexName:
                 return index
             
@@ -421,36 +471,37 @@ class FindChanges:
             self.insertRelation(strTableName, new, 0)
     
     def insertRelation(self, strTableName, new, nRelation):
-        aCreate = xml2ddl.Xml2Ddl()
-        aCreate.setDbms(self.dbmsType)
+        self.xml2ddl.reset()
 
-        aCreate.addRelation(self.strTableName, new)
-        self.diffs.extend(aCreate.dmls)
+        self.xml2ddl.addRelation(self.strTableName, new)
+        self.diffs.extend(self.xml2ddl.ddls)
 
     def deleteRelation(self, strTableName, old):
-        aCreate = xml2ddl.Xml2Ddl()
-        aCreate.setDbms(self.dbmsType)
-        strRelationName = aCreate.getRelationName(strTableName, old)
+        self.xml2ddl.reset()
+        strRelationName = self.xml2ddl.getRelationName(old)
 
-        self.diffs += [('Drop Relation', 'DROP RELATION %s' % (strRelationName))]
+        info = {
+            'constraintname' : strRelationName,
+        }
+        
+        self.diffs += [
+            ('Drop Relation', 'DROP CONSTRAINT %(constraintname)s' % info)]
 
     def findRelation(self, relations, strRelationName):
         for relation in relations:
-            aCreate = xml2ddl.Xml2Ddl()
-            aCreate.setDbms(self.dbmsType)
-            strCurRelationName = aCreate.getRelationName(self.strTableName, relation)
+            self.xml2ddl.reset()
+            strCurRelationName = self.xml2ddl.getRelationName(relation)
             if strCurRelationName == strRelationName:
                 return relation
             
         return None
         
     def createTable(self, strTableName, xml, nIndex):
-        aCreate = xml2ddl.Xml2Ddl()
-        aCreate.setDbms(self.dbmsType)
-        aCreate.params['drop-tables'] = False
+        self.xml2ddl.reset()
+        self.xml2ddl.params['drop-tables'] = False
 
-        aCreate.createTable(xml)
-        self.diffs.extend(aCreate.dmls)
+        self.xml2ddl.createTable(xml)
+        self.diffs.extend(self.xml2ddl.ddls)
 
     def dropTable(self, strTableName, xml):
         """ TODO: May need to kill some related constraints which I haven't coded yet. """
@@ -462,15 +513,24 @@ class FindChanges:
         else:
             self.dropRelatedConstraints(self.strTableName)
 
+        info = {
+            'table_name' : self.xml2ddl.quoteName(self.strTableName),
+            'cascade'    : strCascade,
+        }
+        
         self.diffs.append(
-            ('Drop Table', 'DROP TABLE %s%s' % (self.strTableName, strCascade)))
+            ('Drop Table', 'DROP TABLE %(table_name)s%(cascade)s' % info))
         
     def renameTable(self, strTableName, tblOldXml, tblNewXml):
         strTableOld = tblOldXml.getAttribute('name')
         strTableNew = tblNewXml.getAttribute('name')
         
+        info = {
+            'table_name' : self.xml2ddl.quoteName(strTableOld), 
+            'new_table_name' : self.xml2ddl.quoteName(strTableNew),
+        }
         self.diffs.append(('Rename Table',
-            'ALTER TABLE %s RENAME TO %s' % (strTableOld, strTableNew)) )
+            'ALTER TABLE %(table_name)s RENAME TO %(new_table_name)s' % info) )
 
     def diffFiles(self, strOldFilename, strNewFilename):
         self.old_xml = xml2ddl.readMergeDict(strOldFilename) # parse an XML file by name

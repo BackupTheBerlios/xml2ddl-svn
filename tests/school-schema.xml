@@ -19,6 +19,8 @@
         <column class="key"/>
         <column name="teacher_name" class="name" fullname="Teacher's Name"
             desc="The first + last name of the teacher"/>
+        <column name="teacher_phone" type="varchar" size="80" fullname="Teacher's phone number" deprecated="true"
+            desc="The teacher's home phone number"/>
     </columns>
 </table>
 <table name="levels" desc="Different levels or courses">

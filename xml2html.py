@@ -80,10 +80,15 @@ class Xml2Html:
         strType = self.Xml2Ddl.getColType(column)
         strNull = column.getAttribute('null')
         strKey = column.getAttribute('key')
+        strDeprecated = column.getAttribute('deprecated')
         
         self.lines += ['<tr>']
         self.lines += ['<td><a href="#full_%s.%s" id="%s.%s"/>%s</td>' % (strTableName, strColName, strTableName, strColName, strColName)  ]
-        self.lines += ['<td>%s</td>' % strFullName]
+        if len(strDeprecated) > 0:
+            self.lines += ['<td><span class="deprecated">deprecated</span></td>']
+        else:
+            self.lines += ['<td>%s</td>' % strFullName]
+        
         self.lines += ['<td>%s</td>' % strType]
         self.lines += ['<td>%s</td>' % strNull]
         self.lines += ['<td>%s</td>' % strKey]

@@ -36,3 +36,7 @@ td.extradef {
     font-style: oblique;
 }
 
+span.deprecated {
+    color: red;
+    font-weight: bold;
+}

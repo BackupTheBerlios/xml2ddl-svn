@@ -1,24 +1,24 @@
-<test title="Drop column">
+<test title="Drop column last">
 <before>
-	<schema>
-	<table name="table1">
-		<columns>
-			<column name="col1" type="integer"/>
-			<column name="col2" type="integer"/>
-		</columns>
-	</table>
-	</schema>
+    <schema>
+    <table name="table1">
+        <columns>
+            <column name="col1" type="integer"/>
+            <column name="col2" type="integer"/>
+        </columns>
+    </table>
+    </schema>
 </before>
 <after>
-	<schema>
-	<table name="table1">
-		<columns>
-			<column name="col1" type="integer"/>
-		</columns>
-	</table>
-	</schema>
+    <schema>
+    <table name="table1">
+        <columns>
+            <column name="col1" type="integer"/>
+        </columns>
+    </table>
+    </schema>
 </after>
 <ddls>
-	<ddl>ALTER TABLE table1 DROP col2</ddl>
+    <ddl>ALTER TABLE table1 DROP col2</ddl>
 </ddls>
 </test>

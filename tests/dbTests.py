@@ -7,6 +7,11 @@ if os.path.exists('my_conn.py'):
 else:
     from connect_info import conn_info
 
+import logging, logging.config
+
+logging.config.fileConfig("xml2ddl.ini")
+log = logging.getLogger("xml2ddl")
+
 tests = [
     (None, 'Add table', [ 
             ('A:<schema>', '<table name="table1">|</table>'), 
@@ -88,24 +93,38 @@ bExec = True
 class DbTests:
 
     def pgTests(self):
-        import psycopg
+        try:
+            import psycopg
+        except:
+            print "Missing PostgreSQL support through psycopg"
+            return
         
         self.strDbms = 'postgres'
         info = conn_info[self.strDbms]
         self.conn = psycopg.connect('dbname=%(dbname)s user=%(user)s password=%(pass)s' % info)
-        DbDmlTest.doTests(self.conn, tests, self.strDbms, bExec)
+        ddt = DbDmlTest.DbDmlTest(self.strDbms, log)
+        ddt.doTests(self.conn, tests, bExec)
 
     def mySqlTests(self):
-        import MySQLdb
+        try:
+            import MySQLdb
+        except:
+            print "Missing MySQL support through MySQLdb"
+            return
         
         self.strDbms = 'mysql'
         info = conn_info[self.strDbms]
     
         self.conn = MySQLdb.connect(db=info['dbname'], user=info['user'], passwd=info['pass'])
-        DbDmlTest.doTests(self.conn, tests, self.strDbms, bExec)
+        ddt = DbDmlTest.DbDmlTest(self.strDbms, log)
+        ddt.doTests(self.conn, tests, bExec)
 
     def fireBirdTests(self):
-        import kinterbasdb
+        try:
+            import kinterbasdb
+        except:
+            print "Missing Firebird support through kinterbasdb"
+            return
         
         self.strDbms = 'firebird'
         info = conn_info[self.strDbms]
@@ -114,13 +133,15 @@ class DbTests:
             user = info['user'], 
             password = info['pass'])
     
-        DbDmlTest.doTests(self.conn, tests, self.strDbms, bExec)
+        ddt = DbDmlTest.DbDmlTest(self.strDbms, log)
+        ddt.doTests(self.conn, tests, bExec)
+        
 
 def doTests():
     dbt = DbTests()
     
     dbt.pgTests()
-    #dbt.mySqlTests()
+    dbt.mySqlTests()
     dbt.fireBirdTests()
     
 if __name__ == "__main__":

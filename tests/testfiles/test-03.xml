@@ -1,26 +1,27 @@
 <test title="Add a column last">
 <before>
-	<schema>
-	<table name="table1">
-		<columns>
-			<column name="col1" type="integer"/>
-			<column name="col2" type="integer"/>
-		</columns>
-	</table>
-	</schema>
+    <schema>
+    <table name="table1">
+        <columns>
+            <column name="col1" type="integer"/>
+            <column name="col2" type="integer"/>
+        </columns>
+    </table>
+    </schema>
 </before>
 <after>
-	<schema>
-	<table name="table1">
-		<columns>
-			<column name="col1" type="integer"/>
-			<column name="col2" type="integer"/>
-			<column name="col3" type="integer" desc="Added column for Bob"/>
-		</columns>
-	</table>
-	</schema>
+    <schema>
+    <table name="table1">
+        <columns>
+            <column name="col1" type="integer"/>
+            <column name="col2" type="integer"/>
+            <column name="col3" type="integer" 
+                desc="Added column for Bob"/>
+        </columns>
+    </table>
+    </schema>
 </after>
 <ddls>
-	<ddl>ALTER TABLE table1 ADD col3 integer</ddl>
+    <ddl>ALTER TABLE table1 ADD col3 integer</ddl>
 </ddls>
 </test>

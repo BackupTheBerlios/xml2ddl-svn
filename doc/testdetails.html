@@ -1,0 +1,780 @@
+<html>
+<head>
+<link rel="stylesheet" href="default.css" type="text/css" />
+</head>
+<body>
+<div class="document" id="xml-to-ddl">
+<h2>Introduction</h2>
+<div class="intro">
+
+    The following is a list of examples of diffxml2ddl's output.
+    The XML on the left is the database schema before hand, and the XML on the right
+    is what we want to get to.
+    Below is the list of SQL statements required to get from the Before to the After
+    for each type of database system supported.<br/>
+    
+    The output comes directly from the test files which are used to unit test xml2ddl.
+    
+    </head>
+<table><td></td><td><h2>Index</h2></td>
+<tr><td align="right">1 -</td><td><a href="#_1" class="ddltitle">Create table with various types</a></td>
+</tr><tr><td align="right">2 -</td><td><a href="#_2" class="ddltitle">Test special names</a></td>
+</tr><tr><td align="right">3 -</td><td><a href="#_3" class="ddltitle">Drop Table</a></td>
+</tr><tr><td align="right">4 -</td><td><a href="#_4" class="ddltitle">Add a column last</a></td>
+</tr><tr><td align="right">5 -</td><td><a href="#_5" class="ddltitle">Add a column middle</a></td>
+</tr><tr><td align="right">6 -</td><td><a href="#_6" class="ddltitle">Change column larger size</a></td>
+</tr><tr><td align="right">7 -</td><td><a href="#_7" class="ddltitle">Change column smaller size</a></td>
+</tr><tr><td align="right">8 -</td><td><a href="#_8" class="ddltitle">Add, change defaults</a></td>
+</tr><tr><td align="right">9 -</td><td><a href="#_9" class="ddltitle">Rename a column</a></td>
+</tr><tr><td align="right">10 -</td><td><a href="#_10" class="ddltitle">Rename and change column type at the same time</a></td>
+</tr><tr><td align="right">11 -</td><td><a href="#_11" class="ddltitle">Change a column type and a default at the same time</a></td>
+</tr><tr><td align="right">12 -</td><td><a href="#_12" class="ddltitle">Drop column first</a></td>
+</tr><tr><td align="right">13 -</td><td><a href="#_13" class="ddltitle">Drop column last</a></td>
+</tr><tr><td align="right">14 -</td><td><a href="#_14" class="ddltitle">Rename Table</a></td>
+</tr><tr><td align="right">15 -</td><td><a href="#_15" class="ddltitle">Change a table description</a></td>
+</tr><tr><td align="right">16 -</td><td><a href="#_16" class="ddltitle">Change a column description</a></td>
+</tr><tr><td align="right">17 -</td><td><a href="#_17" class="ddltitle">Create two indexes</a></td>
+</tr><tr><td align="right">18 -</td><td><a href="#_18" class="ddltitle">Drop two indexes</a></td>
+</tr><tr><td align="right">19 -</td><td><a href="#_19" class="ddltitle">Rename two indexes</a></td>
+</tr><tr><td align="right">20 -</td><td><a href="#_20" class="ddltitle">Rename two indexes, no index name given originally</a></td>
+</tr><tr><td align="right">21 -</td><td><a href="#_21" class="ddltitle">Change two indexes</a></td>
+</tr><tr><td align="right">22 -</td><td><a href="#_22" class="ddltitle">Change two indexes, no index name given originally</a></td>
+</tr><tr><td align="right">23 -</td><td><a href="#_23" class="ddltitle">Create a relation</a></td>
+</tr><tr><td align="right">24 -</td><td><a href="#_24" class="ddltitle">Drop a relation</a></td>
+</tr><tr><td align="right">25 -</td><td><a href="#_25" class="ddltitle">Auto number</a></td>
+</tr><tr><td align="right">26 -</td><td><a href="#_26" class="ddltitle">Drop Auto number</a></td>
+</tr></table><div id="_1" class="ddltitle">1 Create table with various types</div>
+<small>..\tests\testfiles\test-01.xml</small>
+<table width="100%" class="beforeafter">
+<tr>
+<th>Before</th><th class="after">After</th></tr>
+<tr>
+<td"><div class="xml">
+<span class="tags">&lt;schema></span><br/><span class="tags">&lt;/schema></span></div></td>
+<td class="after"><div class="xml">
+<span class="tags">&lt;schema></span><br/>&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;dictionary </span><span class="attrib">name</span>="column"><br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;dict </span><span class="attrib">class</span>="mytype" <span class="attrib">type</span>="integer"/><br/>&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;/dictionary></span><br/>&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;table </span><span class="attrib">name</span>="table1"><br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;columns></span><br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;column </span><span class="attrib">class</span>="mytype" <span class="attrib">name</span>="col1"/><br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;column </span><span class="attrib">name</span>="col2" <span class="attrib">type</span>="integer"/><br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;column </span><span class="attrib">name</span>="col3" <span class="attrib">size</span>="32" <span class="attrib">type</span>="varchar"/><br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;column </span><span class="attrib">name</span>="col4" <span class="attrib">size</span>="15" <span class="attrib">type</span>="decimal"/><br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;column </span><span class="attrib">name</span>="col5" <span class="attrib">precision</span>="3" <span class="attrib">size</span>="15" <span class="attrib">type</span>="decimal"/><br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;column </span><span class="attrib">name</span>="col6" <span class="attrib">type</span>="date"/><br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;column </span><span class="attrib">name</span>="col7" <span class="attrib">type</span>="timestamp"/><br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;column </span><span class="attrib">default</span>="2" <span class="attrib">name</span>="col8" <span class="attrib">type</span>="int"/><br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;column </span><span class="attrib">default</span>="1.234" <span class="attrib">name</span>="col9" <span class="attrib">type</span>="float"/><br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;/columns></span><br/>&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;/table></span><br/><span class="tags">&lt;/schema></span></div></td>
+</tr>
+</table>
+<table class="ddls" width="100%">
+<tr>
+<th align="left">DBMS: Default</th></tr>
+<tr>
+<td><span class="keyword">CREATE</span> <span class="keyword">TABLE</span> table1 (<br/>&nbsp;&nbsp;&nbsp;&nbsp;col1 <span class="keyword">integer</span>,<br/>&nbsp;&nbsp;&nbsp;&nbsp;col2 <span class="keyword">integer</span>,<br/>&nbsp;&nbsp;&nbsp;&nbsp;col3 <span class="keyword">varchar</span>(32),<br/>&nbsp;&nbsp;&nbsp;&nbsp;col4 <span class="keyword">decimal</span>(15),<br/>&nbsp;&nbsp;&nbsp;&nbsp;col5 <span class="keyword">decimal</span>(15, 3),<br/>&nbsp;&nbsp;&nbsp;&nbsp;col6 <span class="keyword">date</span>,<br/>&nbsp;&nbsp;&nbsp;&nbsp;col7 <span class="keyword">timestamp</span>,<br/>&nbsp;&nbsp;&nbsp;&nbsp;col8 <span class="keyword">int</span> <span class="keyword">DEFAULT</span> 2,<br/>&nbsp;&nbsp;&nbsp;&nbsp;col9 <span class="keyword">float</span> <span class="keyword">DEFAULT</span> 1.234<br/>);</td></tr>
+</table>
+<div id="_2" class="ddltitle">2 Test special names</div>
+<small>..\tests\testfiles\test-01a.xml</small>
+<table width="100%" class="beforeafter">
+<tr>
+<th>Before</th><th class="after">After</th></tr>
+<tr>
+<td"><div class="xml">
+<span class="tags">&lt;schema></span><br/><span class="tags">&lt;/schema></span></div></td>
+<td class="after"><div class="xml">
+<span class="tags">&lt;schema></span><br/>&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;table </span><span class="attrib">name</span>="Table with spaces"><br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;columns></span><br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;column </span><span class="attrib">name</span>="column with spaces" <span class="attrib">type</span>="int"/><br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;column </span><span class="attrib">name</span>="select" <span class="attrib">type</span>="int"/><br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;/columns></span><br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;indexes></span><br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;index </span><span class="attrib">columns</span>="column with spaces,select" <span class="attrib">name</span>="from"/><br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;/indexes></span><br/>&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;/table></span><br/><span class="tags">&lt;/schema></span></div></td>
+</tr>
+</table>
+<table class="ddls" width="100%">
+<tr>
+<th align="left">DBMS: Default</th></tr>
+<tr>
+<td><span class="keyword">CREATE</span> <span class="keyword">TABLE</span> "<span class="keyword">Table</span> <span class="keyword">with</span> spaces" (<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"<span class="keyword">column</span> <span class="keyword">with</span> spaces" <span class="keyword">int</span>,<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"<span class="keyword">select</span>" <span class="keyword">int</span><br/>&nbsp;&nbsp;&nbsp;&nbsp;);</td></tr>
+<tr>
+<td><span class="keyword">CREATE</span> <span class="keyword">INDEX</span> "<span class="keyword">from</span>" <span class="keyword">ON</span> "<span class="keyword">Table</span> <span class="keyword">with</span> spaces" ("<span class="keyword">column</span> <span class="keyword">with</span> spaces", "<span class="keyword">select</span>");</td></tr>
+</table>
+<table class="ddls" width="100%">
+<tr>
+<th align="left">DBMS: mysql</th></tr>
+<tr>
+<td><span class="keyword">CREATE</span> <span class="keyword">TABLE</span> `<span class="keyword">Table</span> <span class="keyword">with</span> spaces` ( <br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;`<span class="keyword">column</span> <span class="keyword">with</span> spaces` <span class="keyword">int</span>,<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;`<span class="keyword">select</span>` <span class="keyword">int</span><br/>&nbsp;&nbsp;&nbsp;&nbsp;);</td></tr>
+<tr>
+<td><span class="keyword">CREATE</span> <span class="keyword">INDEX</span> `<span class="keyword">from</span>` <span class="keyword">ON</span> `<span class="keyword">Table</span> <span class="keyword">with</span> spaces` (`<span class="keyword">column</span> <span class="keyword">with</span> spaces`, `<span class="keyword">select</span>`);</td></tr>
+</table>
+<div id="_3" class="ddltitle">3 Drop Table</div>
+<small>..\tests\testfiles\test-02.xml</small>
+<table width="100%" class="beforeafter">
+<tr>
+<th>Before</th><th class="after">After</th></tr>
+<tr>
+<td"><div class="xml">
+<span class="tags">&lt;schema></span><br/>&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;dictionary </span><span class="attrib">name</span>="column"><br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;dict </span><span class="attrib">class</span>="mytype" <span class="attrib">type</span>="integer"/><br/>&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;/dictionary></span><br/>&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;table </span><span class="attrib">name</span>="table1"><br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;columns></span><br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;column </span><span class="attrib">class</span>="mytype" <span class="attrib">name</span>="col1"/><br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;column </span><span class="attrib">name</span>="col2" <span class="attrib">type</span>="integer"/><br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;/columns></span><br/>&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;/table></span><br/><span class="tags">&lt;/schema></span></div></td>
+<td class="after"><div class="xml">
+<span class="tags">&lt;schema></span><br/><span class="tags">&lt;/schema></span></div></td>
+</tr>
+</table>
+<table class="ddls" width="100%">
+<tr>
+<th align="left">DBMS: postgres,postgres7,mysql</th></tr>
+<tr>
+<td><span class="keyword">DROP</span> <span class="keyword">TABLE</span> table1 <span class="keyword">CASCADE</span>;</td></tr>
+</table>
+<table class="ddls" width="100%">
+<tr>
+<th align="left">DBMS: Default</th></tr>
+<tr>
+<td><span class="keyword">DROP</span> <span class="keyword">TABLE</span> table1;</td></tr>
+</table>
+<div id="_4" class="ddltitle">4 Add a column last</div>
+<small>..\tests\testfiles\test-03.xml</small>
+<table width="100%" class="beforeafter">
+<tr>
+<th>Before</th><th class="after">After</th></tr>
+<tr>
+<td"><div class="xml">
+<span class="tags">&lt;schema></span><br/><span class="tags">&lt;table </span><span class="attrib">name</span>="table1"><br/>&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;columns></span><br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;column </span><span class="attrib">name</span>="col1" <span class="attrib">type</span>="integer"/><br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;column </span><span class="attrib">name</span>="col2" <span class="attrib">type</span>="integer"/><br/>&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;/columns></span><br/><span class="tags">&lt;/table></span><br/><span class="tags">&lt;/schema></span></div></td>
+<td class="after"><div class="xml">
+<span class="tags">&lt;schema></span><br/><span class="tags">&lt;table </span><span class="attrib">name</span>="table1"><br/>&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;columns></span><br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;column </span><span class="attrib">name</span>="col1" <span class="attrib">type</span>="integer"/><br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;column </span><span class="attrib">name</span>="col2" <span class="attrib">type</span>="integer"/><br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;column </span><span class="attrib">desc</span>="Added column for Bob" <span class="attrib">name</span>="col3" <span class="attrib">type</span>="integer"/><br/>&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;/columns></span><br/><span class="tags">&lt;/table></span><br/><span class="tags">&lt;/schema></span></div></td>
+</tr>
+</table>
+<table class="ddls" width="100%">
+<tr>
+<th align="left">DBMS: Default</th></tr>
+<tr>
+<td><span class="keyword">ALTER</span> <span class="keyword">TABLE</span> table1 <span class="keyword">ADD</span> col3 <span class="keyword">integer</span>;</td></tr>
+</table>
+<div id="_5" class="ddltitle">5 Add a column middle</div>
+<small>..\tests\testfiles\test-04.xml</small>
+<table width="100%" class="beforeafter">
+<tr>
+<th>Before</th><th class="after">After</th></tr>
+<tr>
+<td"><div class="xml">
+<span class="tags">&lt;schema></span><br/><span class="tags">&lt;table </span><span class="attrib">name</span>="table1"><br/>&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;columns></span><br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;column </span><span class="attrib">name</span>="col1" <span class="attrib">type</span>="integer"/><br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;column </span><span class="attrib">name</span>="col2" <span class="attrib">type</span>="integer"/><br/>&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;/columns></span><br/><span class="tags">&lt;/table></span><br/><span class="tags">&lt;/schema></span></div></td>
+<td class="after"><div class="xml">
+<span class="tags">&lt;schema></span><br/><span class="tags">&lt;table </span><span class="attrib">name</span>="table1"><br/>&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;columns></span><br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;column </span><span class="attrib">name</span>="col1" <span class="attrib">type</span>="integer"/><br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;column </span><span class="attrib">name</span>="col1_5" <span class="attrib">type</span>="integer"><br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;desc></span>Added column for Bob<span class="tags">&lt;/desc></span><br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;/column></span><br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;column </span><span class="attrib">name</span>="col2" <span class="attrib">type</span>="integer"/><br/>&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;/columns></span><br/><span class="tags">&lt;/table></span><br/><span class="tags">&lt;/schema></span></div></td>
+</tr>
+</table>
+<table class="ddls" width="100%">
+<tr>
+<th align="left">DBMS: Default</th></tr>
+<tr>
+<td><span class="keyword">ALTER</span> <span class="keyword">TABLE</span> table1 <span class="keyword">ADD</span> col1_5 <span class="keyword">integer</span>;</td></tr>
+</table>
+<div id="_6" class="ddltitle">6 Change column larger size</div>
+<small>..\tests\testfiles\test-05.xml</small>
+<table width="100%" class="beforeafter">
+<tr>
+<th>Before</th><th class="after">After</th></tr>
+<tr>
+<td"><div class="xml">
+<span class="tags">&lt;schema></span><br/><span class="tags">&lt;table </span><span class="attrib">name</span>="table1"><br/>&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;columns></span><br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;column </span><span class="attrib">name</span>="col1" <span class="attrib">type</span>="integer"/><br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;column </span><span class="attrib">name</span>="col2" <span class="attrib">type</span>="integer"/><br/>&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;/columns></span><br/><span class="tags">&lt;/table></span><br/><span class="tags">&lt;/schema></span></div></td>
+<td class="after"><div class="xml">
+<span class="tags">&lt;schema></span><br/><span class="tags">&lt;table </span><span class="attrib">name</span>="table1"><br/>&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;columns></span><br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;column </span><span class="attrib">name</span>="col1" <span class="attrib">size</span>="10" <span class="attrib">type</span>="decimal"/><br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;column </span><span class="attrib">name</span>="col2" <span class="attrib">type</span>="integer"/><br/>&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;/columns></span><br/><span class="tags">&lt;/table></span><br/><span class="tags">&lt;/schema></span></div></td>
+</tr>
+</table>
+<table class="ddls" width="100%">
+<tr>
+<th align="left">DBMS: Default</th></tr>
+<tr>
+<td><span class="keyword">ALTER</span> <span class="keyword">TABLE</span> table1 <span class="keyword">ALTER</span> col1 <span class="keyword">TYPE</span> <span class="keyword">decimal</span>(10);</td></tr>
+</table>
+<table class="ddls" width="100%">
+<tr>
+<th align="left">DBMS: postgres7</th></tr>
+<tr>
+<td><span class="keyword">ALTER</span> <span class="keyword">TABLE</span> table1 <span class="keyword">ADD</span> tmp_col1 <span class="keyword">decimal</span>(10);</td></tr>
+<tr>
+<td><span class="keyword">UPDATE</span> table1 <span class="keyword">SET</span> tmp_col1 = col1;</td></tr>
+<tr>
+<td><span class="keyword">ALTER</span> <span class="keyword">TABLE</span> table1 <span class="keyword">DROP</span> col1;</td></tr>
+<tr>
+<td><span class="keyword">ALTER</span> <span class="keyword">TABLE</span> table1 RENAME tmp_col1 <span class="keyword">TO</span> col1;</td></tr>
+</table>
+<table class="ddls" width="100%">
+<tr>
+<th align="left">DBMS: mysql</th></tr>
+<tr>
+<td><span class="keyword">ALTER</span> <span class="keyword">TABLE</span> table1 MODIFY col1 <span class="keyword">decimal</span>(10);</td></tr>
+</table>
+<div id="_7" class="ddltitle">7 Change column smaller size</div>
+<small>..\tests\testfiles\test-06.xml</small>
+<table width="100%" class="beforeafter">
+<tr>
+<th>Before</th><th class="after">After</th></tr>
+<tr>
+<td"><div class="xml">
+<span class="tags">&lt;schema></span><br/><span class="tags">&lt;table </span><span class="attrib">name</span>="table1"><br/>&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;columns></span><br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;column </span><span class="attrib">name</span>="col1" <span class="attrib">size</span>="15" <span class="attrib">type</span>="decimal"/><br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;column </span><span class="attrib">name</span>="col2" <span class="attrib">type</span>="integer"/><br/>&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;/columns></span><br/><span class="tags">&lt;/table></span><br/><span class="tags">&lt;/schema></span></div></td>
+<td class="after"><div class="xml">
+<span class="tags">&lt;schema></span><br/><span class="tags">&lt;table </span><span class="attrib">name</span>="table1"><br/>&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;columns></span><br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;column </span><span class="attrib">name</span>="col1" <span class="attrib">size</span>="10" <span class="attrib">type</span>="decimal"/><br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;column </span><span class="attrib">name</span>="col2" <span class="attrib">type</span>="integer"/><br/>&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;/columns></span><br/><span class="tags">&lt;/table></span><br/><span class="tags">&lt;/schema></span></div></td>
+</tr>
+</table>
+<table class="ddls" width="100%">
+<tr>
+<th align="left">DBMS: Default</th></tr>
+<tr>
+<td><span class="keyword">ALTER</span> <span class="keyword">TABLE</span> table1 <span class="keyword">ALTER</span> col1 <span class="keyword">TYPE</span> <span class="keyword">decimal</span>(10);</td></tr>
+</table>
+<table class="ddls" width="100%">
+<tr>
+<th align="left">DBMS: postgres7</th></tr>
+<tr>
+<td><span class="keyword">ALTER</span> <span class="keyword">TABLE</span> table1 <span class="keyword">ADD</span> tmp_col1 <span class="keyword">decimal</span>(10);</td></tr>
+<tr>
+<td><span class="keyword">UPDATE</span> table1 <span class="keyword">SET</span> tmp_col1 = col1;</td></tr>
+<tr>
+<td><span class="keyword">ALTER</span> <span class="keyword">TABLE</span> table1 <span class="keyword">DROP</span> col1;</td></tr>
+<tr>
+<td><span class="keyword">ALTER</span> <span class="keyword">TABLE</span> table1 RENAME tmp_col1 <span class="keyword">TO</span> col1;</td></tr>
+</table>
+<table class="ddls" width="100%">
+<tr>
+<th align="left">DBMS: mysql</th></tr>
+<tr>
+<td><span class="keyword">ALTER</span> <span class="keyword">TABLE</span> table1 MODIFY col1 <span class="keyword">decimal</span>(10);</td></tr>
+</table>
+<div id="_8" class="ddltitle">8 Add, change defaults</div>
+<small>..\tests\testfiles\test-06a.xml</small>
+<table width="100%" class="beforeafter">
+<tr>
+<th>Before</th><th class="after">After</th></tr>
+<tr>
+<td"><div class="xml">
+<span class="tags">&lt;schema></span><br/><span class="tags">&lt;table </span><span class="attrib">name</span>="table1"><br/>&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;columns></span><br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;column </span><span class="attrib">default</span>="0" <span class="attrib">name</span>="col1" <span class="attrib">size</span>="15" <span class="attrib">type</span>="decimal"/><br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;column </span><span class="attrib">name</span>="col2" <span class="attrib">type</span>="integer"/><br/>&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;/columns></span><br/><span class="tags">&lt;/table></span><br/><span class="tags">&lt;/schema></span></div></td>
+<td class="after"><div class="xml">
+<span class="tags">&lt;schema></span><br/><span class="tags">&lt;table </span><span class="attrib">name</span>="table1"><br/>&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;columns></span><br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;column </span><span class="attrib">default</span>="2" <span class="attrib">name</span>="col1" <span class="attrib">size</span>="15" <span class="attrib">type</span>="decimal"/><br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;column </span><span class="attrib">default</span>="3" <span class="attrib">name</span>="col2" <span class="attrib">type</span>="integer"/><br/>&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;/columns></span><br/><span class="tags">&lt;/table></span><br/><span class="tags">&lt;/schema></span></div></td>
+</tr>
+</table>
+<table class="ddls" width="100%">
+<tr>
+<th align="left">DBMS: Default</th></tr>
+<tr>
+<td><span class="keyword">ALTER</span> <span class="keyword">TABLE</span> table1 <span class="keyword">ALTER</span> col1 <span class="keyword">SET</span> <span class="keyword">DEFAULT</span> 2;</td></tr>
+<tr>
+<td><span class="keyword">ALTER</span> <span class="keyword">TABLE</span> table1 <span class="keyword">ALTER</span> col2 <span class="keyword">SET</span> <span class="keyword">DEFAULT</span> 3;</td></tr>
+</table>
+<table class="ddls" width="100%">
+<tr>
+<th align="left">DBMS: firebird <span class="warning">Warning: Fails</span></th></tr>
+<tr>
+<td><span class="keyword">ALTER</span> <span class="keyword">TABLE</span> table1 <span class="keyword">ALTER</span> col1 <span class="keyword">TYPE</span> <span class="keyword">decimal</span>(15) <span class="keyword">DEFAULT</span> 2;</td></tr>
+<tr>
+<td><span class="keyword">ALTER</span> <span class="keyword">TABLE</span> table1 <span class="keyword">ALTER</span> col2 <span class="keyword">TYPE</span> <span class="keyword">integer</span> <span class="keyword">DEFAULT</span> 3;</td></tr>
+</table>
+<div id="_9" class="ddltitle">9 Rename a column</div>
+<small>..\tests\testfiles\test-07.xml</small>
+<table width="100%" class="beforeafter">
+<tr>
+<th>Before</th><th class="after">After</th></tr>
+<tr>
+<td"><div class="xml">
+<span class="tags">&lt;schema></span><br/><span class="tags">&lt;table </span><span class="attrib">name</span>="table1"><br/>&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;columns></span><br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;column </span><span class="attrib">name</span>="col1" <span class="attrib">type</span>="integer"/><br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;column </span><span class="attrib">name</span>="col2" <span class="attrib">type</span>="integer"/><br/>&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;/columns></span><br/><span class="tags">&lt;/table></span><br/><span class="tags">&lt;/schema></span></div></td>
+<td class="after"><div class="xml">
+<span class="tags">&lt;schema></span><br/><span class="tags">&lt;table </span><span class="attrib">name</span>="table1"><br/>&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;columns></span><br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;column </span><span class="attrib">name</span>="col1" <span class="attrib">type</span>="integer"/><br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;column </span><span class="attrib">name</span>="col_newname" <span class="attrib">oldname</span>="col2" <span class="attrib">type</span>="integer"/><br/>&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;/columns></span><br/><span class="tags">&lt;/table></span><br/><span class="tags">&lt;/schema></span></div></td>
+</tr>
+</table>
+<table class="ddls" width="100%">
+<tr>
+<th align="left">DBMS: Default</th></tr>
+<tr>
+<td><span class="keyword">ALTER</span> <span class="keyword">TABLE</span> table1 RENAME col2 <span class="keyword">TO</span> col_newname;</td></tr>
+</table>
+<table class="ddls" width="100%">
+<tr>
+<th align="left">DBMS: mysql</th></tr>
+<tr>
+<td><span class="keyword">ALTER</span> <span class="keyword">TABLE</span> table1 CHANGE col2 col_newname <span class="keyword">integer</span>;</td></tr>
+</table>
+<table class="ddls" width="100%">
+<tr>
+<th align="left">DBMS: firebird</th></tr>
+<tr>
+<td><span class="keyword">ALTER</span> <span class="keyword">TABLE</span> table1 <span class="keyword">ALTER</span> col2 <span class="keyword">TO</span> col_newname;</td></tr>
+</table>
+<div id="_10" class="ddltitle">10 Rename and change column type at the same time</div>
+<small>..\tests\testfiles\test-07a.xml</small>
+<table width="100%" class="beforeafter">
+<tr>
+<th>Before</th><th class="after">After</th></tr>
+<tr>
+<td"><div class="xml">
+<span class="tags">&lt;schema></span><br/><span class="tags">&lt;table </span><span class="attrib">name</span>="table1"><br/>&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;columns></span><br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;column </span><span class="attrib">name</span>="col1" <span class="attrib">type</span>="integer"/><br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;column </span><span class="attrib">name</span>="col2" <span class="attrib">type</span>="integer"/><br/>&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;/columns></span><br/><span class="tags">&lt;/table></span><br/><span class="tags">&lt;/schema></span></div></td>
+<td class="after"><div class="xml">
+<span class="tags">&lt;schema></span><br/><span class="tags">&lt;table </span><span class="attrib">name</span>="table1"><br/>&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;columns></span><br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;column </span><span class="attrib">name</span>="col1" <span class="attrib">type</span>="integer"/><br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;column </span><span class="attrib">name</span>="col-newname" <span class="attrib">oldname</span>="col2" <span class="attrib">size</span>="80" <span class="attrib">type</span>="varchar"/><br/>&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;/columns></span><br/><span class="tags">&lt;/table></span><br/><span class="tags">&lt;/schema></span></div></td>
+</tr>
+</table>
+<table class="ddls" width="100%">
+<tr>
+<th align="left">DBMS: Default <span class="warning">Warning: Fails</span></th></tr>
+<tr>
+<td><span class="keyword">ALTER</span> <span class="keyword">TABLE</span> table1 RENAME col2 <span class="keyword">TO</span> col-newname;</td></tr>
+<tr>
+<td><span class="keyword">ALTER</span> <span class="keyword">TABLE</span> table1 <span class="keyword">ALTER</span> col-newname <span class="keyword">TYPE</span> <span class="keyword">varchar</span>(80);</td></tr>
+</table>
+<table class="ddls" width="100%">
+<tr>
+<th align="left">DBMS: firebird <span class="warning">Warning: Fails</span></th></tr>
+<tr>
+<td><span class="keyword">ALTER</span> <span class="keyword">TABLE</span> table1 <span class="keyword">ALTER</span> col2 <span class="keyword">TO</span> col-newname;</td></tr>
+<tr>
+<td><span class="keyword">ALTER</span> <span class="keyword">TABLE</span> table1 <span class="keyword">ALTER</span> col-newname <span class="keyword">TYPE</span> <span class="keyword">varchar</span>(80);</td></tr>
+</table>
+<div id="_11" class="ddltitle">11 Change a column type and a default at the same time</div>
+<small>..\tests\testfiles\test-07b.xml</small>
+<table width="100%" class="beforeafter">
+<tr>
+<th>Before</th><th class="after">After</th></tr>
+<tr>
+<td"><div class="xml">
+<span class="tags">&lt;schema></span><br/><span class="tags">&lt;table </span><span class="attrib">name</span>="table1"><br/>&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;columns></span><br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;column </span><span class="attrib">name</span>="col1" <span class="attrib">type</span>="integer"/><br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;column </span><span class="attrib">default</span>="1" <span class="attrib">name</span>="col2" <span class="attrib">type</span>="integer"/><br/>&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;/columns></span><br/><span class="tags">&lt;/table></span><br/><span class="tags">&lt;/schema></span></div></td>
+<td class="after"><div class="xml">
+<span class="tags">&lt;schema></span><br/><span class="tags">&lt;table </span><span class="attrib">name</span>="table1"><br/>&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;columns></span><br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;column </span><span class="attrib">default</span>="2" <span class="attrib">name</span>="col1" <span class="attrib">size</span>="10" <span class="attrib">type</span>="decimal"/><br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;column </span><span class="attrib">default</span>="3" <span class="attrib">name</span>="col2" <span class="attrib">size</span>="15" <span class="attrib">type</span>="decimal"/><br/>&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;/columns></span><br/><span class="tags">&lt;/table></span><br/><span class="tags">&lt;/schema></span></div></td>
+</tr>
+</table>
+<table class="ddls" width="100%">
+<tr>
+<th align="left">DBMS: Default</th></tr>
+<tr>
+<td><span class="keyword">ALTER</span> <span class="keyword">TABLE</span> table1 <span class="keyword">ALTER</span> col1 <span class="keyword">TYPE</span> <span class="keyword">decimal</span>(10);</td></tr>
+<tr>
+<td><span class="keyword">ALTER</span> <span class="keyword">TABLE</span> table1 <span class="keyword">ALTER</span> col1 <span class="keyword">SET</span> <span class="keyword">DEFAULT</span> 2;</td></tr>
+<tr>
+<td><span class="keyword">ALTER</span> <span class="keyword">TABLE</span> table1 <span class="keyword">ALTER</span> col2 <span class="keyword">TYPE</span> <span class="keyword">decimal</span>(15);</td></tr>
+<tr>
+<td><span class="keyword">ALTER</span> <span class="keyword">TABLE</span> table1 <span class="keyword">ALTER</span> col2 <span class="keyword">SET</span> <span class="keyword">DEFAULT</span> 3;</td></tr>
+</table>
+<table class="ddls" width="100%">
+<tr>
+<th align="left">DBMS: firebird <span class="warning">Warning: Fails</span></th></tr>
+<tr>
+<td><span class="keyword">ALTER</span> <span class="keyword">TABLE</span> table1 <span class="keyword">ALTER</span> col1 <span class="keyword">TYPE</span> <span class="keyword">decimal</span>(10);</td></tr>
+<tr>
+<td><span class="keyword">ALTER</span> <span class="keyword">TABLE</span> table1 <span class="keyword">ALTER</span> col1 <span class="keyword">SET</span> <span class="keyword">DEFAULT</span> 2;</td></tr>
+<tr>
+<td><span class="keyword">ALTER</span> <span class="keyword">TABLE</span> table1 <span class="keyword">ALTER</span> col2 <span class="keyword">TYPE</span> <span class="keyword">decimal</span>(15);</td></tr>
+<tr>
+<td><span class="keyword">ALTER</span> <span class="keyword">TABLE</span> table1 <span class="keyword">ALTER</span> col2 <span class="keyword">SET</span> <span class="keyword">DEFAULT</span> 3;</td></tr>
+</table>
+<table class="ddls" width="100%">
+<tr>
+<th align="left">DBMS: mysql</th></tr>
+<tr>
+<td><span class="keyword">ALTER</span> <span class="keyword">TABLE</span> table1 MODIFY col1 <span class="keyword">decimal</span>(10);</td></tr>
+<tr>
+<td><span class="keyword">ALTER</span> <span class="keyword">TABLE</span> table1 <span class="keyword">ALTER</span> col1 <span class="keyword">SET</span> <span class="keyword">DEFAULT</span> 2;</td></tr>
+<tr>
+<td><span class="keyword">ALTER</span> <span class="keyword">TABLE</span> table1 MODIFY col2 <span class="keyword">decimal</span>(15);</td></tr>
+<tr>
+<td><span class="keyword">ALTER</span> <span class="keyword">TABLE</span> table1 <span class="keyword">ALTER</span> col2 <span class="keyword">SET</span> <span class="keyword">DEFAULT</span> 3;</td></tr>
+</table>
+<table class="ddls" width="100%">
+<tr>
+<th align="left">DBMS: postgres7</th></tr>
+<tr>
+<td><span class="keyword">ALTER</span> <span class="keyword">TABLE</span> table1 <span class="keyword">ADD</span> tmp_col1 <span class="keyword">decimal</span>(10);</td></tr>
+<tr>
+<td><span class="keyword">UPDATE</span> table1 <span class="keyword">SET</span> tmp_col1 = col1;</td></tr>
+<tr>
+<td><span class="keyword">ALTER</span> <span class="keyword">TABLE</span> table1 <span class="keyword">DROP</span> col1;</td></tr>
+<tr>
+<td><span class="keyword">ALTER</span> <span class="keyword">TABLE</span> table1 RENAME tmp_col1 <span class="keyword">TO</span> col1;</td></tr>
+<tr>
+<td><span class="keyword">ALTER</span> <span class="keyword">TABLE</span> table1 <span class="keyword">ALTER</span> col1 <span class="keyword">SET</span> <span class="keyword">DEFAULT</span> 2;</td></tr>
+<tr>
+<td><span class="keyword">ALTER</span> <span class="keyword">TABLE</span> table1 <span class="keyword">ADD</span> tmp_col2 <span class="keyword">decimal</span>(15);</td></tr>
+<tr>
+<td><span class="keyword">UPDATE</span> table1 <span class="keyword">SET</span> tmp_col2 = col2;</td></tr>
+<tr>
+<td><span class="keyword">ALTER</span> <span class="keyword">TABLE</span> table1 <span class="keyword">DROP</span> col2;</td></tr>
+<tr>
+<td><span class="keyword">ALTER</span> <span class="keyword">TABLE</span> table1 RENAME tmp_col2 <span class="keyword">TO</span> col2;</td></tr>
+<tr>
+<td><span class="keyword">ALTER</span> <span class="keyword">TABLE</span> table1 <span class="keyword">ALTER</span> col2 <span class="keyword">SET</span> <span class="keyword">DEFAULT</span> 3;</td></tr>
+</table>
+<div id="_12" class="ddltitle">12 Drop column first</div>
+<small>..\tests\testfiles\test-08.xml</small>
+<table width="100%" class="beforeafter">
+<tr>
+<th>Before</th><th class="after">After</th></tr>
+<tr>
+<td"><div class="xml">
+<span class="tags">&lt;schema></span><br/><span class="tags">&lt;table </span><span class="attrib">name</span>="table1"><br/>&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;columns></span><br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;column </span><span class="attrib">name</span>="col1" <span class="attrib">type</span>="integer"/><br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;column </span><span class="attrib">name</span>="col2" <span class="attrib">type</span>="integer"/><br/>&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;/columns></span><br/><span class="tags">&lt;/table></span><br/><span class="tags">&lt;/schema></span></div></td>
+<td class="after"><div class="xml">
+<span class="tags">&lt;schema></span><br/><span class="tags">&lt;table </span><span class="attrib">name</span>="table1"><br/>&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;columns></span><br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;column </span><span class="attrib">name</span>="col2" <span class="attrib">type</span>="integer"/><br/>&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;/columns></span><br/><span class="tags">&lt;/table></span><br/><span class="tags">&lt;/schema></span></div></td>
+</tr>
+</table>
+<table class="ddls" width="100%">
+<tr>
+<th align="left">DBMS: Default</th></tr>
+<tr>
+<td><span class="keyword">ALTER</span> <span class="keyword">TABLE</span> table1 <span class="keyword">DROP</span> col1;</td></tr>
+</table>
+<div id="_13" class="ddltitle">13 Drop column last</div>
+<small>..\tests\testfiles\test-09.xml</small>
+<table width="100%" class="beforeafter">
+<tr>
+<th>Before</th><th class="after">After</th></tr>
+<tr>
+<td"><div class="xml">
+<span class="tags">&lt;schema></span><br/><span class="tags">&lt;table </span><span class="attrib">name</span>="table1"><br/>&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;columns></span><br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;column </span><span class="attrib">name</span>="col1" <span class="attrib">type</span>="integer"/><br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;column </span><span class="attrib">name</span>="col2" <span class="attrib">type</span>="integer"/><br/>&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;/columns></span><br/><span class="tags">&lt;/table></span><br/><span class="tags">&lt;/schema></span></div></td>
+<td class="after"><div class="xml">
+<span class="tags">&lt;schema></span><br/><span class="tags">&lt;table </span><span class="attrib">name</span>="table1"><br/>&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;columns></span><br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;column </span><span class="attrib">name</span>="col1" <span class="attrib">type</span>="integer"/><br/>&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;/columns></span><br/><span class="tags">&lt;/table></span><br/><span class="tags">&lt;/schema></span></div></td>
+</tr>
+</table>
+<table class="ddls" width="100%">
+<tr>
+<th align="left">DBMS: Default</th></tr>
+<tr>
+<td><span class="keyword">ALTER</span> <span class="keyword">TABLE</span> table1 <span class="keyword">DROP</span> col2;</td></tr>
+</table>
+<div id="_14" class="ddltitle">14 Rename Table</div>
+<small>..\tests\testfiles\test-10.xml</small>
+<table width="100%" class="beforeafter">
+<tr>
+<th>Before</th><th class="after">After</th></tr>
+<tr>
+<td"><div class="xml">
+<span class="tags">&lt;schema></span><br/><span class="tags">&lt;table </span><span class="attrib">name</span>="table1"><br/>&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;columns></span><br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;column </span><span class="attrib">name</span>="col1" <span class="attrib">type</span>="integer"/><br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;column </span><span class="attrib">name</span>="col2" <span class="attrib">type</span>="integer"/><br/>&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;/columns></span><br/><span class="tags">&lt;/table></span><br/><span class="tags">&lt;/schema></span></div></td>
+<td class="after"><div class="xml">
+<span class="tags">&lt;schema></span><br/><span class="tags">&lt;table </span><span class="attrib">name</span>="new_table_name" <span class="attrib">oldname</span>="table1"><br/>&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;columns></span><br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;column </span><span class="attrib">name</span>="col1" <span class="attrib">type</span>="integer"/><br/>&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;/columns></span><br/><span class="tags">&lt;/table></span><br/><span class="tags">&lt;/schema></span></div></td>
+</tr>
+</table>
+<table class="ddls" width="100%">
+<tr>
+<th align="left">DBMS: Default</th></tr>
+<tr>
+<td><span class="keyword">ALTER</span> <span class="keyword">TABLE</span> table1 RENAME <span class="keyword">TO</span> new_table_name;</td></tr>
+</table>
+<table class="ddls" width="100%">
+<tr>
+<th align="left">DBMS: firebird <span class="warning">Warning: Fails</span></th></tr>
+<tr>
+<td><span class="keyword">ALTER</span> <span class="keyword">TABLE</span> table1 RENAME <span class="keyword">TO</span> new_table_name;</td></tr>
+</table>
+<div id="_15" class="ddltitle">15 Change a table description</div>
+<small>..\tests\testfiles\test-11.xml</small>
+<table width="100%" class="beforeafter">
+<tr>
+<th>Before</th><th class="after">After</th></tr>
+<tr>
+<td"><div class="xml">
+<span class="tags">&lt;schema></span><br/><span class="tags">&lt;table </span><span class="attrib">name</span>="table1"><br/>&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;columns></span><br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;column </span><span class="attrib">name</span>="col1" <span class="attrib">type</span>="integer"/><br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;column </span><span class="attrib">name</span>="col2" <span class="attrib">type</span>="integer"/><br/>&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;/columns></span><br/><span class="tags">&lt;/table></span><br/><span class="tags">&lt;/schema></span></div></td>
+<td class="after"><div class="xml">
+<span class="tags">&lt;schema></span><br/><span class="tags">&lt;table </span><span class="attrib">desc</span>="A description" <span class="attrib">name</span>="table1"><br/>&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;columns></span><br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;column </span><span class="attrib">name</span>="col1" <span class="attrib">type</span>="integer"/><br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;column </span><span class="attrib">name</span>="col2" <span class="attrib">type</span>="integer"/><br/>&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;/columns></span><br/><span class="tags">&lt;/table></span><br/><span class="tags">&lt;/schema></span></div></td>
+</tr>
+</table>
+<table class="ddls" width="100%">
+<tr>
+<th align="left">DBMS: Default</th></tr>
+<tr>
+<td>COMMENT <span class="keyword">ON</span> <span class="keyword">TABLE</span> table1 <span class="keyword">IS</span> 'A description';</td></tr>
+</table>
+<table class="ddls" width="100%">
+<tr>
+<th align="left">DBMS: mysql</th></tr>
+<tr>
+<td>Note: <em>Can't change a comment on a mysql table, would require recreating table from scratch. If anyone knows otherwise, please let me know.</em></td></tr>
+</table>
+<table class="ddls" width="100%">
+<tr>
+<th align="left">DBMS: firebird</th></tr>
+<tr>
+<td><span class="keyword">UPDATE</span> RDB$RELATIONS <span class="keyword">SET</span> RDB$DESCRIPTION = 'A description'<br/>&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">WHERE</span> RDB$RELATION_NAME = <span class="keyword">upper</span>('table1');</td></tr>
+</table>
+<div id="_16" class="ddltitle">16 Change a column description</div>
+<small>..\tests\testfiles\test-12.xml</small>
+<table width="100%" class="beforeafter">
+<tr>
+<th>Before</th><th class="after">After</th></tr>
+<tr>
+<td"><div class="xml">
+<span class="tags">&lt;schema></span><br/><span class="tags">&lt;table </span><span class="attrib">name</span>="table1"><br/>&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;columns></span><br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;column </span><span class="attrib">name</span>="col1" <span class="attrib">type</span>="integer"/><br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;column </span><span class="attrib">name</span>="col2" <span class="attrib">type</span>="integer"/><br/>&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;/columns></span><br/><span class="tags">&lt;/table></span><br/><span class="tags">&lt;/schema></span></div></td>
+<td class="after"><div class="xml">
+<span class="tags">&lt;schema></span><br/><span class="tags">&lt;table </span><span class="attrib">name</span>="table1"><br/>&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;columns></span><br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;column </span><span class="attrib">desc</span>="A description" <span class="attrib">name</span>="col1" <span class="attrib">type</span>="integer"/><br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;column </span><span class="attrib">name</span>="col2" <span class="attrib">type</span>="integer"/><br/>&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;/columns></span><br/><span class="tags">&lt;/table></span><br/><span class="tags">&lt;/schema></span></div></td>
+</tr>
+</table>
+<table class="ddls" width="100%">
+<tr>
+<th align="left">DBMS: Default</th></tr>
+<tr>
+<td>COMMENT <span class="keyword">ON</span> <span class="keyword">COLUMN</span> table1.col1 <span class="keyword">IS</span> 'A description';</td></tr>
+</table>
+<table class="ddls" width="100%">
+<tr>
+<th align="left">DBMS: mysql</th></tr>
+<tr>
+<td><span class="keyword">ALTER</span> <span class="keyword">TABLE</span> table1 MODIFY col1 <span class="keyword">integer</span> COMMENT 'A description';</td></tr>
+</table>
+<table class="ddls" width="100%">
+<tr>
+<th align="left">DBMS: firebird</th></tr>
+<tr>
+<td><span class="keyword">UPDATE</span> RDB$RELATION_FIELDS <span class="keyword">SET</span> RDB$DESCRIPTION = 'A description' <span class="keyword">WHERE</span> RDB$RELATION_NAME = <span class="keyword">upper</span>('table1') <span class="keyword">AND</span> RDB$FIELD_NAME = <span class="keyword">upper</span>('col1');</td></tr>
+</table>
+<div id="_17" class="ddltitle">17 Create two indexes</div>
+<small>..\tests\testfiles\test-13.xml</small>
+<table width="100%" class="beforeafter">
+<tr>
+<th>Before</th><th class="after">After</th></tr>
+<tr>
+<td"><div class="xml">
+<span class="tags">&lt;schema></span><br/><span class="tags">&lt;table </span><span class="attrib">name</span>="table1"><br/>&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;columns></span><br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;column </span><span class="attrib">name</span>="col1" <span class="attrib">type</span>="integer"/><br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;column </span><span class="attrib">name</span>="col2" <span class="attrib">type</span>="integer"/><br/>&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;/columns></span><br/><span class="tags">&lt;/table></span><br/><span class="tags">&lt;/schema></span></div></td>
+<td class="after"><div class="xml">
+<span class="tags">&lt;schema></span><br/><span class="tags">&lt;table </span><span class="attrib">name</span>="table1"><br/>&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;columns></span><br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;column </span><span class="attrib">name</span>="col1" <span class="attrib">type</span>="integer"/><br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;column </span><span class="attrib">name</span>="col2" <span class="attrib">type</span>="integer"/><br/>&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;/columns></span><br/>&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;indexes></span><br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;index </span><span class="attrib">columns</span>="col1"/><br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;index </span><span class="attrib">columns</span>="col1,col2" <span class="attrib">name</span>="col1col2"/><br/>&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;/indexes></span><br/><span class="tags">&lt;/table></span><br/><span class="tags">&lt;/schema></span></div></td>
+</tr>
+</table>
+<table class="ddls" width="100%">
+<tr>
+<th align="left">DBMS: Default</th></tr>
+<tr>
+<td><span class="keyword">CREATE</span> <span class="keyword">INDEX</span> table1Col1 <span class="keyword">ON</span> table1 (col1);</td></tr>
+<tr>
+<td><span class="keyword">CREATE</span> <span class="keyword">INDEX</span> col1col2 <span class="keyword">ON</span> table1 (col1, col2);</td></tr>
+</table>
+<div id="_18" class="ddltitle">18 Drop two indexes</div>
+<small>..\tests\testfiles\test-14.xml</small>
+<table width="100%" class="beforeafter">
+<tr>
+<th>Before</th><th class="after">After</th></tr>
+<tr>
+<td"><div class="xml">
+<span class="tags">&lt;schema></span><br/><span class="tags">&lt;table </span><span class="attrib">name</span>="table1"><br/>&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;columns></span><br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;column </span><span class="attrib">name</span>="col1" <span class="attrib">type</span>="integer"/><br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;column </span><span class="attrib">name</span>="col2" <span class="attrib">type</span>="integer"/><br/>&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;/columns></span><br/>&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;indexes></span><br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;index </span><span class="attrib">columns</span>="col1"/><br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;index </span><span class="attrib">columns</span>="col1,col2" <span class="attrib">name</span>="col1col2"/><br/>&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;/indexes></span><br/><span class="tags">&lt;/table></span><br/><span class="tags">&lt;/schema></span></div></td>
+<td class="after"><div class="xml">
+<span class="tags">&lt;schema></span><br/><span class="tags">&lt;table </span><span class="attrib">name</span>="table1"><br/>&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;columns></span><br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;column </span><span class="attrib">name</span>="col1" <span class="attrib">type</span>="integer"/><br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;column </span><span class="attrib">name</span>="col2" <span class="attrib">type</span>="integer"/><br/>&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;/columns></span><br/><span class="tags">&lt;/table></span><br/><span class="tags">&lt;/schema></span></div></td>
+</tr>
+</table>
+<table class="ddls" width="100%">
+<tr>
+<th align="left">DBMS: Default</th></tr>
+<tr>
+<td><span class="keyword">DROP</span> <span class="keyword">INDEX</span> table1Col1;</td></tr>
+<tr>
+<td><span class="keyword">DROP</span> <span class="keyword">INDEX</span> col1col2;</td></tr>
+</table>
+<table class="ddls" width="100%">
+<tr>
+<th align="left">DBMS: mysql</th></tr>
+<tr>
+<td><span class="keyword">DROP</span> <span class="keyword">INDEX</span> table1Col1 <span class="keyword">ON</span> table1;</td></tr>
+<tr>
+<td><span class="keyword">DROP</span> <span class="keyword">INDEX</span> col1col2 <span class="keyword">ON</span> table1;</td></tr>
+</table>
+<div id="_19" class="ddltitle">19 Rename two indexes</div>
+<small>..\tests\testfiles\test-15.xml</small>
+<table width="100%" class="beforeafter">
+<tr>
+<th>Before</th><th class="after">After</th></tr>
+<tr>
+<td"><div class="xml">
+<span class="tags">&lt;schema></span><br/><span class="tags">&lt;table </span><span class="attrib">name</span>="table1"><br/>&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;columns></span><br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;column </span><span class="attrib">name</span>="col1" <span class="attrib">type</span>="integer"/><br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;column </span><span class="attrib">name</span>="col2" <span class="attrib">type</span>="integer"/><br/>&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;/columns></span><br/>&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;indexes></span><br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;index </span><span class="attrib">columns</span>="col1" <span class="attrib">name</span>="table1Col1"/><br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;index </span><span class="attrib">columns</span>="col1,col2" <span class="attrib">name</span>="col1col2"/><br/>&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;/indexes></span><br/><span class="tags">&lt;/table></span><br/><span class="tags">&lt;/schema></span></div></td>
+<td class="after"><div class="xml">
+<span class="tags">&lt;schema></span><br/><span class="tags">&lt;table </span><span class="attrib">name</span>="table1"><br/>&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;columns></span><br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;column </span><span class="attrib">name</span>="col1" <span class="attrib">type</span>="integer"/><br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;column </span><span class="attrib">name</span>="col2" <span class="attrib">type</span>="integer"/><br/>&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;/columns></span><br/>&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;indexes></span><br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;index </span><span class="attrib">columns</span>="col1" <span class="attrib">name</span>="rename1" <span class="attrib">oldname</span>="table1Col1"/><br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;index </span><span class="attrib">columns</span>="col1,col2" <span class="attrib">name</span>="rename2" <span class="attrib">oldname</span>="col1col2"/><br/>&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;/indexes></span><br/><span class="tags">&lt;/table></span><br/><span class="tags">&lt;/schema></span></div></td>
+</tr>
+</table>
+<table class="ddls" width="100%">
+<tr>
+<th align="left">DBMS: Default</th></tr>
+<tr>
+<td><span class="keyword">DROP</span> <span class="keyword">INDEX</span> table1Col1;</td></tr>
+<tr>
+<td><span class="keyword">CREATE</span> <span class="keyword">INDEX</span> rename1 <span class="keyword">ON</span> table1 (col1);</td></tr>
+<tr>
+<td><span class="keyword">DROP</span> <span class="keyword">INDEX</span> col1col2;</td></tr>
+<tr>
+<td><span class="keyword">CREATE</span> <span class="keyword">INDEX</span> rename2 <span class="keyword">ON</span> table1 (col1, col2);</td></tr>
+</table>
+<table class="ddls" width="100%">
+<tr>
+<th align="left">DBMS: mysql</th></tr>
+<tr>
+<td><span class="keyword">DROP</span> <span class="keyword">INDEX</span> table1Col1 <span class="keyword">ON</span> table1;</td></tr>
+<tr>
+<td><span class="keyword">CREATE</span> <span class="keyword">INDEX</span> rename1 <span class="keyword">ON</span> table1 (col1);</td></tr>
+<tr>
+<td><span class="keyword">DROP</span> <span class="keyword">INDEX</span> col1col2 <span class="keyword">ON</span> table1;</td></tr>
+<tr>
+<td><span class="keyword">CREATE</span> <span class="keyword">INDEX</span> rename2 <span class="keyword">ON</span> table1 (col1, col2);</td></tr>
+</table>
+<div id="_20" class="ddltitle">20 Rename two indexes, no index name given originally</div>
+<small>..\tests\testfiles\test-15a.xml</small>
+<table width="100%" class="beforeafter">
+<tr>
+<th>Before</th><th class="after">After</th></tr>
+<tr>
+<td"><div class="xml">
+<span class="tags">&lt;schema></span><br/><span class="tags">&lt;table </span><span class="attrib">name</span>="table1"><br/>&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;columns></span><br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;column </span><span class="attrib">name</span>="col1" <span class="attrib">type</span>="integer"/><br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;column </span><span class="attrib">name</span>="col2" <span class="attrib">type</span>="integer"/><br/>&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;/columns></span><br/>&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;indexes></span><br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;index </span><span class="attrib">columns</span>="col1"/><br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;index </span><span class="attrib">columns</span>="col1,col2" <span class="attrib">name</span>="col1col2"/><br/>&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;/indexes></span><br/><span class="tags">&lt;/table></span><br/><span class="tags">&lt;/schema></span></div></td>
+<td class="after"><div class="xml">
+<span class="tags">&lt;schema></span><br/><span class="tags">&lt;table </span><span class="attrib">name</span>="table1"><br/>&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;columns></span><br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;column </span><span class="attrib">name</span>="col1" <span class="attrib">type</span>="integer"/><br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;column </span><span class="attrib">name</span>="col2" <span class="attrib">type</span>="integer"/><br/>&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;/columns></span><br/>&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;indexes></span><br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;index </span><span class="attrib">columns</span>="col1" <span class="attrib">name</span>="rename1" <span class="attrib">oldname</span>="table1Col1"/><br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;index </span><span class="attrib">columns</span>="col1,col2" <span class="attrib">name</span>="rename2" <span class="attrib">oldname</span>="col1col2"/><br/>&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;/indexes></span><br/><span class="tags">&lt;/table></span><br/><span class="tags">&lt;/schema></span></div></td>
+</tr>
+</table>
+<table class="ddls" width="100%">
+<tr>
+<th align="left">DBMS: firebird,mysql,postgres <span class="warning">Warning: Fails</span></th></tr>
+<tr>
+<td><span class="keyword">DROP</span> <span class="keyword">INDEX</span> table1Col1;</td></tr>
+<tr>
+<td><span class="keyword">CREATE</span> <span class="keyword">INDEX</span> rename1 <span class="keyword">ON</span> table1 (col1);</td></tr>
+<tr>
+<td><span class="keyword">DROP</span> <span class="keyword">INDEX</span> col1col2;</td></tr>
+<tr>
+<td><span class="keyword">CREATE</span> <span class="keyword">INDEX</span> rename2 <span class="keyword">ON</span> table1 (col1, col2);</td></tr>
+</table>
+<div id="_21" class="ddltitle">21 Change two indexes</div>
+<small>..\tests\testfiles\test-16.xml</small>
+<table width="100%" class="beforeafter">
+<tr>
+<th>Before</th><th class="after">After</th></tr>
+<tr>
+<td"><div class="xml">
+<span class="tags">&lt;schema></span><br/><span class="tags">&lt;table </span><span class="attrib">name</span>="table1"><br/>&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;columns></span><br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;column </span><span class="attrib">name</span>="col1" <span class="attrib">type</span>="integer"/><br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;column </span><span class="attrib">name</span>="col2" <span class="attrib">type</span>="integer"/><br/>&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;/columns></span><br/>&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;indexes></span><br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;index </span><span class="attrib">columns</span>="col1" <span class="attrib">name</span>="table1Col1"/><br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;index </span><span class="attrib">columns</span>="col1,col2" <span class="attrib">name</span>="col1col2"/><br/>&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;/indexes></span><br/><span class="tags">&lt;/table></span><br/><span class="tags">&lt;/schema></span></div></td>
+<td class="after"><div class="xml">
+<span class="tags">&lt;schema></span><br/><span class="tags">&lt;table </span><span class="attrib">name</span>="table1"><br/>&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;columns></span><br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;column </span><span class="attrib">name</span>="col1" <span class="attrib">type</span>="integer"/><br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;column </span><span class="attrib">name</span>="col2" <span class="attrib">type</span>="integer"/><br/>&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;/columns></span><br/>&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;indexes></span><br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;index </span><span class="attrib">columns</span>="col2" <span class="attrib">name</span>="table1Col1"/><br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;index </span><span class="attrib">columns</span>="col2,col1" <span class="attrib">name</span>="col1col2"/><br/>&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;/indexes></span><br/><span class="tags">&lt;/table></span><br/><span class="tags">&lt;/schema></span></div></td>
+</tr>
+</table>
+<table class="ddls" width="100%">
+<tr>
+<th align="left">DBMS: Default</th></tr>
+<tr>
+<td><span class="keyword">DROP</span> <span class="keyword">INDEX</span> table1Col1;</td></tr>
+<tr>
+<td><span class="keyword">CREATE</span> <span class="keyword">INDEX</span> table1Col1 <span class="keyword">ON</span> table1 (col2);</td></tr>
+<tr>
+<td><span class="keyword">DROP</span> <span class="keyword">INDEX</span> col1col2;</td></tr>
+<tr>
+<td><span class="keyword">CREATE</span> <span class="keyword">INDEX</span> col1col2 <span class="keyword">ON</span> table1 (col2, col1);</td></tr>
+</table>
+<table class="ddls" width="100%">
+<tr>
+<th align="left">DBMS: mysql</th></tr>
+<tr>
+<td><span class="keyword">DROP</span> <span class="keyword">INDEX</span> table1Col1 <span class="keyword">ON</span> table1;</td></tr>
+<tr>
+<td><span class="keyword">CREATE</span> <span class="keyword">INDEX</span> table1Col1 <span class="keyword">ON</span> table1 (col2);</td></tr>
+<tr>
+<td><span class="keyword">DROP</span> <span class="keyword">INDEX</span> col1col2 <span class="keyword">ON</span> table1;</td></tr>
+<tr>
+<td><span class="keyword">CREATE</span> <span class="keyword">INDEX</span> col1col2 <span class="keyword">ON</span> table1 (col2, col1);</td></tr>
+</table>
+<div id="_22" class="ddltitle">22 Change two indexes, no index name given originally</div>
+<small>..\tests\testfiles\test-16a.xml</small>
+<table width="100%" class="beforeafter">
+<tr>
+<th>Before</th><th class="after">After</th></tr>
+<tr>
+<td"><div class="xml">
+<span class="tags">&lt;schema></span><br/><span class="tags">&lt;table </span><span class="attrib">name</span>="table1"><br/>&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;columns></span><br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;column </span><span class="attrib">name</span>="col1" <span class="attrib">type</span>="integer"/><br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;column </span><span class="attrib">name</span>="col2" <span class="attrib">type</span>="integer"/><br/>&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;/columns></span><br/>&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;indexes></span><br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;index </span><span class="attrib">columns</span>="col1"/><br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;index </span><span class="attrib">columns</span>="col1,col2" <span class="attrib">name</span>="col1col2"/><br/>&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;/indexes></span><br/><span class="tags">&lt;/table></span><br/><span class="tags">&lt;/schema></span></div></td>
+<td class="after"><div class="xml">
+<span class="tags">&lt;schema></span><br/><span class="tags">&lt;table </span><span class="attrib">name</span>="table1"><br/>&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;columns></span><br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;column </span><span class="attrib">name</span>="col1" <span class="attrib">type</span>="integer"/><br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;column </span><span class="attrib">name</span>="col2" <span class="attrib">type</span>="integer"/><br/>&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;/columns></span><br/>&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;indexes></span><br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;index </span><span class="attrib">columns</span>="col2" <span class="attrib">name</span>="table1Col1"/><br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;index </span><span class="attrib">columns</span>="col2,col1" <span class="attrib">name</span>="col1col2"/><br/>&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;/indexes></span><br/><span class="tags">&lt;/table></span><br/><span class="tags">&lt;/schema></span></div></td>
+</tr>
+</table>
+<table class="ddls" width="100%">
+<tr>
+<th align="left">DBMS: Default <span class="warning">Warning: Fails</span></th></tr>
+<tr>
+<td><span class="keyword">DROP</span> <span class="keyword">INDEX</span> table1Col1;</td></tr>
+<tr>
+<td><span class="keyword">CREATE</span> <span class="keyword">INDEX</span> table1Col1 <span class="keyword">ON</span> table1 (col2);</td></tr>
+<tr>
+<td><span class="keyword">DROP</span> <span class="keyword">INDEX</span> col1col2;</td></tr>
+<tr>
+<td><span class="keyword">CREATE</span> <span class="keyword">INDEX</span> col1col2 <span class="keyword">ON</span> table1 (col2, col1);</td></tr>
+</table>
+<div id="_23" class="ddltitle">23 Create a relation</div>
+<small>..\tests\testfiles\test-17.xml</small>
+<table width="100%" class="beforeafter">
+<tr>
+<th>Before</th><th class="after">After</th></tr>
+<tr>
+<td"><div class="xml">
+<span class="tags">&lt;schema></span><br/>&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;table </span><span class="attrib">name</span>="table1"><br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;columns></span><br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;column </span><span class="attrib">key</span>="1" <span class="attrib">name</span>="table1_id" <span class="attrib">null</span>="no" <span class="attrib">type</span>="integer"/><br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;column </span><span class="attrib">name</span>="col2" <span class="attrib">type</span>="integer"/><br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;/columns></span><br/>&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;/table></span><br/>&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;table </span><span class="attrib">name</span>="table2"><br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;columns></span><br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;column </span><span class="attrib">name</span>="table2_id" <span class="attrib">type</span>="integer"/><br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;column </span><span class="attrib">name</span>="table1_id" <span class="attrib">type</span>="integer"/><br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;/columns></span><br/>&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;/table></span><br/><span class="tags">&lt;/schema></span></div></td>
+<td class="after"><div class="xml">
+<span class="tags">&lt;schema></span><br/>&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;table </span><span class="attrib">name</span>="table1"><br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;columns></span><br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;column </span><span class="attrib">name</span>="table1_id" <span class="attrib">null</span>="no" <span class="attrib">type</span>="integer"/><br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;column </span><span class="attrib">name</span>="col2" <span class="attrib">type</span>="integer"/><br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;/columns></span><br/>&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;/table></span><br/>&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;table </span><span class="attrib">name</span>="table2"><br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;columns></span><br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;column </span><span class="attrib">name</span>="table2_id" <span class="attrib">type</span>="integer"/><br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;column </span><span class="attrib">name</span>="table1_id" <span class="attrib">type</span>="integer"/><br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;/columns></span><br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;relations></span><br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;relation </span><span class="attrib">column</span>="table1_id" <span class="attrib">table</span>="table1"/><br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;/relations></span><br/>&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;/table></span><br/><span class="tags">&lt;/schema></span></div></td>
+</tr>
+</table>
+<table class="ddls" width="100%">
+<tr>
+<th align="left">DBMS: Default</th></tr>
+<tr>
+<td><span class="keyword">ALTER</span> <span class="keyword">TABLE</span> table2 <span class="keyword">ADD</span> <span class="keyword">CONSTRAINT</span> fk_table1_id <span class="keyword">FOREIGN</span> <span class="keyword">KEY</span> (table1_id) <span class="keyword">REFERENCES</span> table1(table1_id);</td></tr>
+</table>
+<table class="ddls" width="100%">
+<tr>
+<th align="left">DBMS: firebird <span class="warning">Warning: Fails</span></th></tr>
+<tr>
+<td><span class="keyword">ALTER</span> <span class="keyword">TABLE</span> table2 <span class="keyword">ADD</span> <span class="keyword">CONSTRAINT</span> fk_table1_id <span class="keyword">FOREIGN</span> <span class="keyword">KEY</span> (table1_id) <span class="keyword">REFERENCES</span> table1(table1_id);</td></tr>
+</table>
+<div id="_24" class="ddltitle">24 Drop a relation</div>
+<small>..\tests\testfiles\test-17a.xml</small>
+<table width="100%" class="beforeafter">
+<tr>
+<th>Before</th><th class="after">After</th></tr>
+<tr>
+<td"><div class="xml">
+<span class="tags">&lt;schema></span><br/>&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;table </span><span class="attrib">name</span>="table1"><br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;columns></span><br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;column </span><span class="attrib">key</span>="1" <span class="attrib">name</span>="table1_id" <span class="attrib">null</span>="no" <span class="attrib">type</span>="integer"/><br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;column </span><span class="attrib">name</span>="col2" <span class="attrib">type</span>="integer"/><br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;/columns></span><br/>&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;/table></span><br/>&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;table </span><span class="attrib">name</span>="table2"><br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;columns></span><br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;column </span><span class="attrib">name</span>="table2_id" <span class="attrib">type</span>="integer"/><br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;column </span><span class="attrib">name</span>="table1_id" <span class="attrib">type</span>="integer"/><br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;/columns></span><br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;relations></span><br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;relation </span><span class="attrib">column</span>="table1_id" <span class="attrib">table</span>="table1"/><br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;/relations></span><br/>&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;/table></span><br/><span class="tags">&lt;/schema></span></div></td>
+<td class="after"><div class="xml">
+<span class="tags">&lt;schema></span><br/>&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;table </span><span class="attrib">name</span>="table1"><br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;columns></span><br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;column </span><span class="attrib">name</span>="table1_id" <span class="attrib">null</span>="no" <span class="attrib">type</span>="integer"/><br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;column </span><span class="attrib">name</span>="col2" <span class="attrib">type</span>="integer"/><br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;/columns></span><br/>&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;/table></span><br/>&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;table </span><span class="attrib">name</span>="table2"><br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;columns></span><br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;column </span><span class="attrib">name</span>="table2_id" <span class="attrib">type</span>="integer"/><br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;column </span><span class="attrib">name</span>="table1_id" <span class="attrib">type</span>="integer"/><br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;/columns></span><br/>&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;/table></span><br/><span class="tags">&lt;/schema></span></div></td>
+</tr>
+</table>
+<table class="ddls" width="100%">
+<tr>
+<th align="left">DBMS: Default</th></tr>
+<tr>
+<td><span class="keyword">DROP</span> <span class="keyword">CONSTRAINT</span> fk_table1_id;</td></tr>
+</table>
+<div id="_25" class="ddltitle">25 Auto number</div>
+<small>..\tests\testfiles\test-18.xml</small>
+<table width="100%" class="beforeafter">
+<tr>
+<th>Before</th><th class="after">After</th></tr>
+<tr>
+<td"><div class="xml">
+<span class="tags">&lt;schema></span><br/><span class="tags">&lt;/schema></span></div></td>
+<td class="after"><div class="xml">
+<span class="tags">&lt;schema></span><br/>&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;table </span><span class="attrib">name</span>="table1"><br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;columns></span><br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;column </span><span class="attrib">autoincrement</span>="true" <span class="attrib">key</span>="1" <span class="attrib">name</span>="table1_id" <span class="attrib">null</span>="no" <span class="attrib">type</span>="integer"/><br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;column </span><span class="attrib">name</span>="col2" <span class="attrib">type</span>="integer"/><br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;/columns></span><br/>&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;/table></span><br/><span class="tags">&lt;/schema></span></div></td>
+</tr>
+</table>
+<table class="ddls" width="100%">
+<tr>
+<th align="left">DBMS: postgres,postgres7</th></tr>
+<tr>
+<td><span class="keyword">CREATE</span> SEQUENCE table1_table1_id_seq;</td></tr>
+<tr>
+<td><span class="keyword">CREATE</span> <span class="keyword">TABLE</span> table1 (<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;table1_id <span class="keyword">integer</span> <span class="keyword">NOT</span> <span class="keyword">NULL</span> <span class="keyword">DEFAULT</span> nextval('table1_table1_id_seq'),<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;col2 <span class="keyword">integer</span>,<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">CONSTRAINT</span> pk_table1 <span class="keyword">PRIMARY</span> <span class="keyword">KEY</span> (table1_id));</td></tr>
+</table>
+<table class="ddls" width="100%">
+<tr>
+<th align="left">DBMS: mysql</th></tr>
+<tr>
+<td><span class="keyword">CREATE</span> <span class="keyword">TABLE</span> table1 ( table1_id <span class="keyword">integer</span> <span class="keyword">NOT</span> <span class="keyword">NULL</span> AUTO_INCREMENT, col2 <span class="keyword">integer</span>, <span class="keyword">CONSTRAINT</span> pk_table1 <span class="keyword">PRIMARY</span> <span class="keyword">KEY</span> (table1_id));</td></tr>
+</table>
+<table class="ddls" width="100%">
+<tr>
+<th align="left">DBMS: firebird</th></tr>
+<tr>
+<td><span class="keyword">CREATE</span> <span class="keyword">GENERATOR</span> table1_table1_id_seq;</td></tr>
+<tr>
+<td><span class="keyword">CREATE</span> <span class="keyword">TABLE</span> table1 (<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;table1_id <span class="keyword">integer</span> <span class="keyword">NOT</span> <span class="keyword">NULL</span>,<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;col2 <span class="keyword">integer</span>,<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">CONSTRAINT</span> pk_table1 <span class="keyword">PRIMARY</span> <span class="keyword">KEY</span> (table1_id));</td></tr>
+<tr>
+<td><span class="keyword">CREATE</span> <span class="keyword">TRIGGER</span> AI_table1_id <span class="keyword">FOR</span> table1<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">BEFORE</span> <span class="keyword">INSERT</span> <span class="keyword">AS</span><br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">BEGIN</span><br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;NEW.table1_id = <span class="keyword">GEN_ID</span>(table1_table1_id_seq, 1);<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">END</span>;</td></tr>
+</table>
+<div id="_26" class="ddltitle">26 Drop Auto number</div>
+<small>..\tests\testfiles\test-19.xml</small>
+<table width="100%" class="beforeafter">
+<tr>
+<th>Before</th><th class="after">After</th></tr>
+<tr>
+<td"><div class="xml">
+<span class="tags">&lt;schema></span><br/>&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;table </span><span class="attrib">name</span>="table1"><br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;columns></span><br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;column </span><span class="attrib">autoincrement</span>="true" <span class="attrib">key</span>="1" <span class="attrib">name</span>="table1_id" <span class="attrib">null</span>="no" <span class="attrib">type</span>="integer"/><br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;column </span><span class="attrib">name</span>="col2" <span class="attrib">type</span>="integer"/><br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;/columns></span><br/>&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;/table></span><br/><span class="tags">&lt;/schema></span></div></td>
+<td class="after"><div class="xml">
+<span class="tags">&lt;schema></span><br/>&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;table </span><span class="attrib">name</span>="table1"><br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;columns></span><br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;column </span><span class="attrib">key</span>="1" <span class="attrib">name</span>="table1_id" <span class="attrib">null</span>="no" <span class="attrib">type</span>="integer"/><br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;column </span><span class="attrib">name</span>="col2" <span class="attrib">type</span>="integer"/><br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;/columns></span><br/>&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;/table></span><br/><span class="tags">&lt;/schema></span></div></td>
+</tr>
+</table>
+<table class="ddls" width="100%">
+<tr>
+<th align="left">DBMS: postgres,postgres7</th></tr>
+<tr>
+<td><span class="keyword">ALTER</span> <span class="keyword">TABLE</span> table1 <span class="keyword">ALTER</span> <span class="keyword">TABLE</span> table1 <span class="keyword">ALTER</span> col1 <span class="keyword">SET</span> <span class="keyword">DEFAULT</span> <span class="keyword">null</span>;</td></tr>
+<tr>
+<td><span class="keyword">DROP</span> SEQUENCE table1_table1_id_seq;</td></tr>
+</table>
+<table class="ddls" width="100%">
+<tr>
+<th align="left">DBMS: mysql</th></tr>
+<tr>
+<td><span class="keyword">ALTER</span> <span class="keyword">TABLE</span> table1 MODIFY table1_id <span class="keyword">integer</span> <span class="keyword">NOT</span> <span class="keyword">NULL</span>;</td></tr>
+</table>
+<table class="ddls" width="100%">
+<tr>
+<th align="left">DBMS: firebird</th></tr>
+</table>
+</div>
+</body>
+</html>

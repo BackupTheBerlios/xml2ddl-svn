@@ -1,34 +1,34 @@
 <test title="Change column smaller size">
 <before>
-	<schema>
-	<table name="table1">
-		<columns>
-			<column name="col1" type="decimal" size="20"/>
-			<column name="col2" type="integer"/>
-		</columns>
-	</table>
-	</schema>
+    <schema>
+    <table name="table1">
+        <columns>
+            <column name="col1" type="decimal" size="15"/>
+            <column name="col2" type="integer"/>
+        </columns>
+    </table>
+    </schema>
 </before>
 <after>
-	<schema>
-	<table name="table1">
-		<columns>
-			<column name="col1" type="decimal" size="10"/>
-			<column name="col2" type="integer"/>
-		</columns>
-	</table>
-	</schema>
+    <schema>
+    <table name="table1">
+        <columns>
+            <column name="col1" type="decimal" size="10"/>
+            <column name="col2" type="integer"/>
+        </columns>
+    </table>
+    </schema>
 </after>
 <ddls>
-	<ddl>ALTER TABLE table1 ALTER col1 TYPE decimal(10)</ddl>
+    <ddl>ALTER TABLE table1 ALTER col1 TYPE decimal(10)</ddl>
 </ddls>
 <ddls dbms="postgres7">
-	<ddl>ALTER TABLE table1 ADD tmp_col1 decimal(10)</ddl>
-	<ddl>UPDATE table1 SET tmp_col1 = col1</ddl>
-	<ddl>ALTER TABLE table1 DROP col1</ddl>
-	<ddl>ALTER TABLE table1 RENAME tmp_col1 TO col1</ddl>
+    <ddl>ALTER TABLE table1 ADD tmp_col1 decimal(10)</ddl>
+    <ddl>UPDATE table1 SET tmp_col1 = col1</ddl>
+    <ddl>ALTER TABLE table1 DROP col1</ddl>
+    <ddl>ALTER TABLE table1 RENAME tmp_col1 TO col1</ddl>
 </ddls>
 <ddls dbms="mysql">
-	<ddl>ALTER TABLE table1 MODIFY col1 decimal(10)</ddl>
+    <ddl>ALTER TABLE table1 MODIFY col1 decimal(10)</ddl>
 </ddls>
 </test>

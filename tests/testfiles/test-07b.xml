@@ -1,46 +1,52 @@
-<test title="Change column type and default">
+<test title="Change a column type and a default at the same time">
 <before>
-	<schema>
-	<table name="table1">
-		<columns>
-			<column name="col1" type="integer"/>
-			<column name="col2" type="integer" default="1"/>
-		</columns>
-	</table>
-	</schema>
+    <schema>
+    <table name="table1">
+        <columns>
+            <column name="col1" type="integer"/>
+            <column name="col2" type="integer" default="1"/>
+        </columns>
+    </table>
+    </schema>
 </before>
 <after>
-	<schema>
-	<table name="table1">
-		<columns>
-			<column name="col1" type="decimal" size="10" default="2"/>
-			<column name="col2" type="decimal" size="15" default="3"/>
-		</columns>
-	</table>
-	</schema>
+    <schema>
+    <table name="table1">
+        <columns>
+            <column name="col1" type="decimal" size="10" default="2"/>
+            <column name="col2" type="decimal" size="15" default="3"/>
+        </columns>
+    </table>
+    </schema>
 </after>
 <ddls>
-	<ddl>ALTER TABLE table1 ALTER col1 TYPE decimal(10)</ddl>
-	<ddl>ALTER TABLE table1 ALTER col1 DEFAULT 2</ddl>
-	<ddl>ALTER TABLE table1 ALTER col2 TYPE decimal(15)</ddl>
-	<ddl>ALTER TABLE table1 ALTER col2 DEFAULT 3</ddl>
+    <ddl>ALTER TABLE table1 ALTER col1 TYPE decimal(10)</ddl>
+    <ddl>ALTER TABLE table1 ALTER col1 SET DEFAULT 2</ddl>
+    <ddl>ALTER TABLE table1 ALTER col2 TYPE decimal(15)</ddl>
+    <ddl>ALTER TABLE table1 ALTER col2 SET DEFAULT 3</ddl>
+</ddls>
+<ddls dbms="firebird" fails="true">
+    <ddl>ALTER TABLE table1 ALTER col1 TYPE decimal(10)</ddl>
+    <ddl>ALTER TABLE table1 ALTER col1 SET DEFAULT 2</ddl>
+    <ddl>ALTER TABLE table1 ALTER col2 TYPE decimal(15)</ddl>
+    <ddl>ALTER TABLE table1 ALTER col2 SET DEFAULT 3</ddl>
 </ddls>
 <ddls dbms="mysql">
-	<ddl>ALTER TABLE table1 MODIFY col1 decimal(10)</ddl>
-	<ddl>ALTER TABLE table1 MODIFY col1 DEFAULT 2</ddl>
-	<ddl>ALTER TABLE table1 MODIFY col2 decimal(15)</ddl>
-	<ddl>ALTER TABLE table1 MODIFY col2 DEFAULT 3</ddl>
+    <ddl>ALTER TABLE table1 MODIFY col1 decimal(10)</ddl>
+    <ddl>ALTER TABLE table1 ALTER col1 SET DEFAULT 2</ddl>
+    <ddl>ALTER TABLE table1 MODIFY col2 decimal(15)</ddl>
+    <ddl>ALTER TABLE table1 ALTER col2 SET DEFAULT 3</ddl>
 </ddls>
 <ddls dbms="postgres7">
-	<ddl>ALTER TABLE table1 ADD tmp_col1 decimal(10)</ddl>
-	<ddl>UPDATE table1 SET tmp_col1 = col1</ddl>
-	<ddl>ALTER TABLE table1 DROP col1</ddl>
-	<ddl>ALTER TABLE table1 RENAME tmp_col1 TO col1</ddl>
-	<ddl>ALTER TABLE table1 ALTER col1 DEFAULT 2</ddl>
-	<ddl>ALTER TABLE table1 ADD tmp_col2 decimal(15)</ddl>
-	<ddl>UPDATE table1 SET tmp_col2 = col2</ddl>
-	<ddl>ALTER TABLE table1 DROP col2</ddl>
-	<ddl>ALTER TABLE table1 RENAME tmp_col2 TO col2</ddl>
-	<ddl>ALTER TABLE table1 ALTER col2 DEFAULT 3</ddl>
+    <ddl>ALTER TABLE table1 ADD tmp_col1 decimal(10)</ddl>
+    <ddl>UPDATE table1 SET tmp_col1 = col1</ddl>
+    <ddl>ALTER TABLE table1 DROP col1</ddl>
+    <ddl>ALTER TABLE table1 RENAME tmp_col1 TO col1</ddl>
+    <ddl>ALTER TABLE table1 ALTER col1 SET DEFAULT 2</ddl>
+    <ddl>ALTER TABLE table1 ADD tmp_col2 decimal(15)</ddl>
+    <ddl>UPDATE table1 SET tmp_col2 = col2</ddl>
+    <ddl>ALTER TABLE table1 DROP col2</ddl>
+    <ddl>ALTER TABLE table1 RENAME tmp_col2 TO col2</ddl>
+    <ddl>ALTER TABLE table1 ALTER col2 SET DEFAULT 3</ddl>
 </ddls>
 </test>

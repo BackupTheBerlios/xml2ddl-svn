@@ -1,0 +1,38 @@
+<test title="Auto number">
+<before>
+    <schema>
+    </schema>
+</before>
+<after>
+    <schema>
+        <table name="table1">
+            <columns>
+                <column name="table1_id" type="integer" null="no" autoincrement="true" key="1"/>
+                <column name="col2" type="integer"/>
+            </columns>
+        </table>
+    </schema>
+</after>
+<ddls dbms="postgres,postgres7">
+    <ddl>CREATE SEQUENCE table1_table1_id_seq</ddl>
+    <ddl>CREATE TABLE table1 (
+        table1_id integer NOT NULL DEFAULT nextval('table1_table1_id_seq'),
+        col2 integer,
+        CONSTRAINT pk_table1 PRIMARY KEY (table1_id))</ddl>
+</ddls>
+<ddls dbms="mysql">
+    <ddl>CREATE TABLE table1 ( table1_id integer NOT NULL AUTO_INCREMENT, col2 integer, CONSTRAINT pk_table1 PRIMARY KEY (table1_id))</ddl>
+</ddls>
+<ddls dbms="firebird">
+    <ddl>CREATE GENERATOR table1_table1_id_seq</ddl>
+    <ddl>CREATE TABLE table1 (
+        table1_id integer NOT NULL,
+        col2 integer,
+        CONSTRAINT pk_table1 PRIMARY KEY (table1_id))</ddl>
+    <ddl>CREATE TRIGGER AI_table1_id FOR table1
+        BEFORE INSERT AS
+        BEGIN
+            NEW.table1_id = GEN_ID(table1_table1_id_seq, 1);
+        END</ddl>
+</ddls>
+</test>

@@ -1,0 +1,19 @@
+
+Changes since 0.1
+-----------------
+
+- dbTests.py now uses the test XML files for testing as well.
+  It's a far better system and I may scrap the previous, more complex system.
+
+- Added nice HTML output of the above test files.
+
+- Better support for object names with spaces, special character or a keywords.
+
+- Autonumber support (add, drop as well).  Does the right thing for the various
+  database managment systems.
+
+- Create and drop relations
+
+- Fixes to the documentation
+
+- Download of the schema from the database started for PostgreSQL.

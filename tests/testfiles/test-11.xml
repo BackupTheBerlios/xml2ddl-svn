@@ -1,28 +1,29 @@
 <test title="Change a table description">
 <before>
-	<schema>
-	<table name="table1">
-		<columns>
-			<column name="col1" type="integer"/>
-			<column name="col2" type="integer"/>
-		</columns>
-	</table>
-	</schema>
+    <schema>
+    <table name="table1">
+        <columns>
+            <column name="col1" type="integer"/>
+            <column name="col2" type="integer"/>
+        </columns>
+    </table>
+    </schema>
 </before>
 <after>
-	<schema>
-	<table name="table1" desc="A description">
-		<columns>
-			<column name="col1" type="integer"/>
-			<column name="col2" type="integer"/>
-		</columns>
-	</table>
-	</schema>
+    <schema>
+    <table name="table1" desc="A description">
+        <columns>
+            <column name="col1" type="integer"/>
+            <column name="col2" type="integer"/>
+        </columns>
+    </table>
+    </schema>
 </after>
 <ddls>
-	<ddl>COMMENT ON TABLE table1 IS 'A description'</ddl>
+    <ddl>COMMENT ON TABLE table1 IS 'A description'</ddl>
 </ddls>
-<ddls dbms="mysql" desc="Can't change a comment on a mysql table, would require recreating table from scratch">
+<ddls dbms="mysql" desc="Can't change a comment on a mysql table, would require recreating table from scratch.
+If anyone knows otherwise, please let me know.">
 </ddls>
 
 <ddls dbms="firebird">

@@ -1,28 +1,31 @@
 <test title="Rename a column">
 <before>
-	<schema>
-	<table name="table1">
-		<columns>
-			<column name="col1" type="integer"/>
-			<column name="col2" type="integer"/>
-		</columns>
-	</table>
-	</schema>
+    <schema>
+    <table name="table1">
+        <columns>
+            <column name="col1" type="integer"/>
+            <column name="col2" type="integer"/>
+        </columns>
+    </table>
+    </schema>
 </before>
 <after>
-	<schema>
-	<table name="table1">
-		<columns>
-			<column name="col1" type="integer"/>
-			<column name="col-newname" oldname="col2" type="integer"/>
-		</columns>
-	</table>
-	</schema>
+    <schema>
+    <table name="table1">
+        <columns>
+            <column name="col1" type="integer"/>
+            <column name="col_newname" oldname="col2" type="integer"/>
+        </columns>
+    </table>
+    </schema>
 </after>
 <ddls>
-	<ddl>ALTER TABLE table1 RENAME col2 TO col-newname</ddl>
+    <ddl>ALTER TABLE table1 RENAME col2 TO col_newname</ddl>
+</ddls>
+<ddls dbms="mysql">
+    <ddl>ALTER TABLE table1 CHANGE col2 col_newname integer</ddl>
 </ddls>
 <ddls dbms="firebird">
-	<ddl>ALTER TABLE table1 ALTER col2 TO col-newname</ddl>
+    <ddl>ALTER TABLE table1 ALTER col2 TO col_newname</ddl>
 </ddls>
 </test>

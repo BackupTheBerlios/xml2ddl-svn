@@ -1,4 +1,4 @@
-<test title="Create a relation">
+<test title="Drop a relation">
 <before>
     <schema>
         <table name="table1">
@@ -12,6 +12,9 @@
                 <column name="table2_id" type="integer"/>
                 <column name="table1_id" type="integer"/>
             </columns>
+            <relations>
+                <relation column="table1_id" table="table1"/>
+            </relations>
         </table>
     </schema>
 </before>
@@ -28,17 +31,10 @@
                 <column name="table2_id" type="integer"/>
                 <column name="table1_id" type="integer"/>
             </columns>
-            <relations>
-                <relation column="table1_id" table="table1"/>
-            </relations>
         </table>
     </schema>
 </after>
 <ddls>
-    <ddl>ALTER TABLE table2 ADD CONSTRAINT fk_table1_id FOREIGN KEY (table1_id) REFERENCES table1(table1_id)</ddl>
-</ddls>
-<ddls dbms="firebird" fails="true">
-    <!-- TABLE1 is in use error? -->
-    <ddl>ALTER TABLE table2 ADD CONSTRAINT fk_table1_id FOREIGN KEY (table1_id) REFERENCES table1(table1_id)</ddl>
+    <ddl>DROP CONSTRAINT fk_table1_id</ddl>
 </ddls>
 </test>

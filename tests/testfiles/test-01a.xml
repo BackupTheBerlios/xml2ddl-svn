@@ -1,4 +1,4 @@
-<test title="create small table special names">
+<test title="Test special names">
 <before>
     <schema>
     </schema>
@@ -8,13 +8,26 @@
         <table name="Table with spaces">
             <columns>
                 <column name="column with spaces" type="int"/>
+                <column name="select" type="int"/>
             </columns>
+            <indexes>
+                <index name="from" columns="column with spaces,select"/>
+            </indexes>
         </table>
     </schema>
 </after>
 <ddls>
-<ddl>CREATE TABLE "Table with spaces" (
-	"column with spaces" int
-)</ddl>
+    <ddl>CREATE TABLE "Table with spaces" (
+        "column with spaces" int,
+        "select" int
+    )</ddl>
+    <ddl>CREATE INDEX "from" ON "Table with spaces" ("column with spaces", "select")</ddl>
+</ddls>
+<ddls dbms="mysql">
+    <ddl>CREATE TABLE `Table with spaces` ( 
+        `column with spaces` int,
+        `select` int
+    )</ddl>
+    <ddl>CREATE INDEX `from` ON `Table with spaces` (`column with spaces`, `select`)</ddl>
 </ddls>
 </test>

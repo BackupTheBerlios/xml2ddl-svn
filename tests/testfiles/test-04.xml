@@ -1,28 +1,28 @@
 <test title="Add a column middle">
 <before>
-	<schema>
-	<table name="table1">
-		<columns>
-			<column name="col1" type="integer"/>
-			<column name="col2" type="integer"/>
-		</columns>
-	</table>
-	</schema>
+    <schema>
+    <table name="table1">
+        <columns>
+            <column name="col1" type="integer"/>
+            <column name="col2" type="integer"/>
+        </columns>
+    </table>
+    </schema>
 </before>
 <after>
 <schema>
-	<table name="table1">
-		<columns>
-			<column name="col1" type="integer"/>
-			<column name="col1_5" type="integer">
-				<desc>Added column for Bob</desc>
-			</column>
-			<column name="col2" type="integer"/>
-		</columns>
-	</table>
-	</schema>
+    <table name="table1">
+        <columns>
+            <column name="col1" type="integer"/>
+            <column name="col1_5" type="integer">
+                <desc>Added column for Bob</desc>
+            </column>
+            <column name="col2" type="integer"/>
+        </columns>
+    </table>
+    </schema>
 </after>
 <ddls>
-	<ddl>ALTER TABLE table1 ADD col1_5 integer</ddl>
+    <ddl>ALTER TABLE table1 ADD col1_5 integer</ddl>
 </ddls>
 </test>

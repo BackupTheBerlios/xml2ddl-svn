@@ -1,36 +1,36 @@
-<test title="Change two indexes">
+<test title="Change two indexes, no index name given originally">
 <before>
-	<schema>
-	<table name="table1">
-		<columns>
-			<column name="col1" type="integer"/>
-			<column name="col2" type="integer"/>
-		</columns>
+    <schema>
+    <table name="table1">
+        <columns>
+            <column name="col1" type="integer"/>
+            <column name="col2" type="integer"/>
+        </columns>
         <indexes>
-            <index columns="col1"/> <!-- there's a bug here where the      column doesn't get changed unless there's an index name -->
+            <index columns="col1"/>
             <index name="col1col2" columns="col1,col2"/>
         </indexes>
-	</table>
-	</schema>
+    </table>
+    </schema>
 </before>
 <after>
-	<schema>
-	<table name="table1">
-		<columns>
-			<column name="col1" type="integer"/>
-			<column name="col2" type="integer"/>
-		</columns>
+    <schema>
+    <table name="table1">
+        <columns>
+            <column name="col1" type="integer"/>
+            <column name="col2" type="integer"/>
+        </columns>
         <indexes>
             <index name="table1Col1" columns="col2"/>
             <index name="col1col2" columns="col2,col1"/>
         </indexes>
-	</table>
-	</schema>
+    </table>
+    </schema>
 </after>
 <ddls fails="true">
-	<ddl>DROP INDEX table1Col1</ddl>
-	<ddl>CREATE INDEX table1Col1 ON table1 (col2)</ddl>
-	<ddl>DROP INDEX col1col2</ddl>
-	<ddl>CREATE INDEX col1col2 ON table1 (col2, col1)</ddl>
+    <ddl>DROP INDEX table1Col1</ddl>
+    <ddl>CREATE INDEX table1Col1 ON table1 (col2)</ddl>
+    <ddl>DROP INDEX col1col2</ddl>
+    <ddl>CREATE INDEX col1col2 ON table1 (col2, col1)</ddl>
 </ddls>
 </test>

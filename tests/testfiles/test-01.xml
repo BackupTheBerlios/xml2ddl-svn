@@ -1,4 +1,4 @@
-<test title="create small table">
+<test title="Create table with various types">
 <before>
     <schema>
     </schema>
@@ -16,26 +16,24 @@
                 <column name="col4" type="decimal" size="15"/>
                 <column name="col5" type="decimal" size="15" precision="3"/>
                 <column name="col6" type="date"/>
-                <column name="col7" type="datetime"/>
+                <column name="col7" type="timestamp"/>
                 <column name="col8" type="int" default="2"/>
                 <column name="col9" type="float" default="1.234"/>
-                <column name="col10" type="text" default="''"/>
             </columns>
         </table>
     </schema>
 </after>
 <ddls>
 <ddl>CREATE TABLE table1 (
-	col1 integer,
-	col2 integer,
+    col1 integer,
+    col2 integer,
     col3 varchar(32),
     col4 decimal(15),
     col5 decimal(15, 3),
     col6 date,
-    col7 datetime,
+    col7 timestamp,
     col8 int DEFAULT 2,
-    col9 float DEFAULT 1.234,
-    col10 text DEFAULT ''
+    col9 float DEFAULT 1.234
 )</ddl>
 </ddls>
 </test>
