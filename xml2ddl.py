@@ -33,6 +33,9 @@ TODO:
     - desc
     - autoincrement
     - handling of tables, columns with spaces & other special characters
+
+http://weblogs.asp.net/jamauss/articles/DatabaseNamingConventions.aspx
+
 """
 
 class Xml2Ddl:
@@ -135,17 +138,28 @@ class Xml2Ddl:
         strTableName = doc.getAttribute('name')
         indexes = doc.getElementsByTagName('index')
         for index in indexes:
-            self.addIndex(strTableName, index.getAttribute("columns"), index.getAttribute("name"))
+            self.addIndex(strTableName, index)
 
-    def addIndex(self, strTableName, strColumns, strIndexName = None):
+    def addIndex(self, strTableName, index):
+        strColumns = index.getAttribute("columns")
+        strIndexName = self.getIndexName(strTableName, index)
         cols = strColumns.split(',')
-        cols = [ col.strip() for col in cols ] # Remove spaces
-        
-        if len(strIndexName) == 0:
-            strIndexName = '_'.join(cols)
+        cols = index.getAttribute("columns").split(',')
         
         self.dmls.append(('Add Index',
             'CREATE INDEX %s ON %s (%s)' % (strIndexName, strTableName, ', '.join(cols)) ))
+    
+    def getIndexName(self, strTableName, index):
+        strIndexName = index.getAttribute("name")
+        if strIndexName and len(strIndexName) > 0:
+            return strIndexName
+        
+        cols = index.getAttribute("columns").split(',')
+        cols = [ col.strip() for col in cols ] # Remove spaces
+        
+        strIndexName = strTableName + '_'.join([col.title() for col in cols])
+        
+        return strIndexName
         
     def col2Type(self, doc):
         ret = {}

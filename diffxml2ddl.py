@@ -66,14 +66,14 @@ class FindChanges:
         
         return strRet
 
-    def checkColDiff(self, old, new):
+    def changeCol(self, strTableName, old, new):
         strOldColType = self.retColTypeEtc(old)
         strNewColType = self.retColTypeEtc(new)
         
         if strNewColType != strOldColType:
-            self.changeColType(self.strTableName, old.getAttribute('name'), strNewColType)
+            self.changeColType(strTableName, old.getAttribute('name'), strNewColType)
         elif new.getAttribute('name') != old.getAttribute('name'):
-            self.renameColumn(self.strTableName, old.getAttribute('name'), new.getAttribute('name'))
+            self.renameColumn(strTableName, old, new)
         
         # Check for difference in comments.
         strNewComment = safeGet(new, 'desc')
@@ -83,11 +83,14 @@ class FindChanges:
             aCreate = xml2ddl.Xml2Ddl()
             aCreate.setDbms(self.dbmsType)
     
-            aCreate.addColumnComment(new, self.strTableName, new.getAttribute('name'), strNewComment)
+            aCreate.addColumnComment(new, strTableName, new.getAttribute('name'), strNewComment)
             self.diffs.extend(aCreate.dmls)
             
 
-    def renameColumn(self, strTable, strOldName, strNewName):
+    def renameColumn(self, strTable, old, new):
+        strOldName = old.getAttribute('name')
+        strNewName = new.getAttribute('name')
+        
         info = {
             'table_name' : strTable,
             'old_col_name' : strOldName,
@@ -224,9 +227,9 @@ class FindChanges:
                 'ALTER TABLE %(table_name)s %(change_type_keyword)s %(column_name)s %(TYPE)s%(column_type)s' % info))
             
 
-    def newCol(self, new, after):
+    def newCol(self, strTableName, new, after):
         info = { 
-            'table_name' : self.strTableName,
+            'table_name' : strTableName,
             'column_name' : new.getAttribute('name'),
             'column_type' : self.retColTypeEtc(new) 
         }
@@ -235,10 +238,10 @@ class FindChanges:
 
         self.diffs.append(('Add Column', strAlter))
 
-    def deletedCol(self, oldCol):
+    def deletedCol(self, strTableName, oldCol):
         info = { 
-            'table_name' : self.strTableName,
-            'column_name' : oldCol,
+            'table_name' : strTableName,
+            'column_name' : oldCol.getAttribute('name'),
         }
         
         strAlter = 'ALTER TABLE %(table_name)s DROP %(column_name)s' % info
@@ -253,50 +256,59 @@ class FindChanges:
         self.diffTableComment(tbl_old, tbl_new)
 
     def diffColumns(self, old, new):
-        newCols = new.getElementsByTagName('column')
-        oldCols = old.getElementsByTagName('column')
+        self.diffSomething(old, new, 'column', self.renameColumn,  self.changeCol, self.newCol, self.deletedCol, self.findColumn)
+
+    def diffSomething(self, old, new, strTag, renameFunc, changeFunc, insertFunc, deleteFunc, findSomething):
+        newCols = new.getElementsByTagName(strTag)
+        oldCols = old.getElementsByTagName(strTag)
         
         nOldIndex = 0
         skipCols = []
         for nIndex, newCol in enumerate(newCols):
             strNewColName = newCol.getAttribute('name')
-            oldCol = self.findColumn(oldCols, strNewColName)
+            oldCol = findSomething(oldCols, strNewColName)
             
             if oldCol:
-                self.checkColDiff(oldCol, newCol)
+                changeFunc(self.strTableName, oldCol, newCol)
             else:
                 if newCol.hasAttribute('oldname'):
                     strOldName = newCol.getAttribute('oldname')
-                    oldCol = self.findColumn(oldCols, strOldName)
+                    oldCol = findSomething(oldCols, strOldName)
                     
                 if oldCol:
-                    self.renameColumn(self.strTableName, strOldName, strNewColName)
+                    renameFunc(self.strTableName, oldCol, newCol)
                     skipCols.append(strOldName)
                 else:                    
-                    self.newCol(newCol, nIndex)
+                    insertFunc(self.strTableName, newCol, nIndex)
             
-        newCols = new.getElementsByTagName('column')
-        oldCols = old.getElementsByTagName('column')
+        newCols = new.getElementsByTagName(strTag)
+        oldCols = old.getElementsByTagName(strTag)
         for nIndex, oldCol in enumerate(oldCols):
             strOldColName = oldCol.getAttribute('name')
             if strOldColName in skipCols:
                 continue
-            newCol = self.findColumn(newCols, strOldColName)
+            
+            newCol = findSomething(newCols, strOldColName)
             
             if not newCol:
-                self.deletedCol(strOldColName)
-
+                deleteFunc(old.getAttribute('name'), oldCol)
+        
     def findColumn(self, columns, strColName):
         for column in columns:
             strCurColName = column.getAttribute('name')
             if strCurColName == strColName:
                 return column
             
-            if column.hasAttribute('oldname'):
-                strCurColName = column.getAttribute('name')
-                if strCurColName == strColName:
-                    return column
+        return None
         
+    def findIndex(self, indexes, strIndexName):
+        for index in indexes:
+            aCreate = xml2ddl.Xml2Ddl()
+            aCreate.setDbms(self.dbmsType)
+            strCurIndexName = aCreate.getIndexName(self.strTableName, index)
+            if strCurIndexName == strIndexName:
+                return index
+            
         return None
         
     def findTable(self, xml, strTableName):
@@ -305,16 +317,35 @@ class FindChanges:
             if strCurTableName == strTableName:
                 return tbl
             
-            if tbl.hasAttribute('oldname'):
-                strCurTableName = tbl.getAttribute('oldname')
-                if strCurTableName == strTableName:
-                    return tbl
-        
         return None
         
     def diffIndexes(self, old_xml, new_xml):
-        pass
-        #print "TODO: diffIndexes"
+        self.diffSomething(old_xml, new_xml, 'index', self.renameIndex, self.changeIndex, self.insertIndex, self.deleteIndex, self.findIndex)
+
+    def renameIndex(self, strTableName, old, new):
+        self.deleteIndex(strTableName, old)
+        self.insertIndex(strTableName, new, -1)
+    
+    def changeIndex(self, strTableName, old, new):
+        strColumnsOld = old.getAttribute('columns')
+        strColumnsNew = new.getAttribute('columns')
+        if strColumnsOld != strColumnsNew:
+            self.deleteIndex(strTableName, old)
+            self.insertIndex(strTableName, new, 0)
+    
+    def insertIndex(self, strTableName, new, nIndex):
+        aCreate = xml2ddl.Xml2Ddl()
+        aCreate.setDbms(self.dbmsType)
+
+        aCreate.addIndex(self.strTableName, new)
+        self.diffs.extend(aCreate.dmls)
+
+    def deleteIndex(self, strTableName, old):
+        aCreate = xml2ddl.Xml2Ddl()
+        aCreate.setDbms(self.dbmsType)
+        strIndexName = aCreate.getIndexName(strTableName, old)
+
+        self.diffs += [('Drop Index', 'DROP INDEX %s' % (strIndexName))]
     
     def diffRelations(self, old_xml, new_xml):
         pass

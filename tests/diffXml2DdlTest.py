@@ -31,10 +31,6 @@ def doOne(strDbms, testFilename, docBefore, docAfter, docDdl):
             print "%s (%s): Excepted '%s' got nothing instead"  % (testFilename, strDbms, strGood)
 
 def doTests():
-    tests = [
-        # With constraints on firebird
-    ]
-    
     for testFilename in glob.glob('testfiles/test*.xml'):
         doc = parse(testFilename)
         docBefore = doc.getElementsByTagName('before')[0].firstChild.nextSibling
