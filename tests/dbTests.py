@@ -15,7 +15,9 @@ log = logging.getLogger("xml2ddl")
 bExec = True
 
 class DbTests:
-
+    def __init__(self, testList = None):
+        self.testList = testList
+        
     def pgTests(self):
         try:
             import psycopg
@@ -26,7 +28,7 @@ class DbTests:
         self.strDbms = 'postgres'
         info = conn_info[self.strDbms]
         self.conn = psycopg.connect('dbname=%(dbname)s user=%(user)s password=%(pass)s' % info)
-        ddt = DbDmlTest.DbDmlTest(self.strDbms, log)
+        ddt = DbDmlTest.DbDmlTest(self.strDbms, self.testList, log)
         ddt.doTests(self.conn, bExec)
 
     def mySqlTests(self):
@@ -40,7 +42,7 @@ class DbTests:
         info = conn_info[self.strDbms]
     
         self.conn = MySQLdb.connect(db=info['dbname'], user=info['user'], passwd=info['pass'])
-        ddt = DbDmlTest.DbDmlTest(self.strDbms, log)
+        ddt = DbDmlTest.DbDmlTest(self.strDbms, self.testList, log)
         ddt.doTests(self.conn, bExec)
 
     def fireBirdTests(self):
@@ -57,12 +59,12 @@ class DbTests:
             user = info['user'], 
             password = info['pass'])
     
-        ddt = DbDmlTest.DbDmlTest(self.strDbms, log)
+        ddt = DbDmlTest.DbDmlTest(self.strDbms, self.testList, log)
         ddt.doTests(self.conn, bExec)
         
 
-def doTests():
-    dbt = DbTests()
+def doTests(testList = None):
+    dbt = DbTests(testList)
     
     dbt.pgTests()
     #dbt.mySqlTests()

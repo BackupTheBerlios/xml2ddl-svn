@@ -19,7 +19,7 @@
     <schema>
         <table name="table1">
             <columns>
-                <column name="table1_id" type="integer" null="no"/>
+                <column name="table1_id" type="integer" key="1" null="no"/>
                 <column name="col2" type="integer"/>
             </columns>
         </table>

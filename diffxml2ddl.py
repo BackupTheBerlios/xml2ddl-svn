@@ -1,5 +1,6 @@
 import re, os
 import xml2ddl
+import copy
 from xml.dom.minidom import parse, parseString
 
 __author__ = "Scott Kirkwood (scott_kirkwood at berlios.com)"
@@ -91,6 +92,8 @@ class FindChanges:
     def changeCol(self, strTableName, old, new):
         self.changeColType(strTableName, old, new)
         
+        self.changeAutoIncrement(strTableName, old, new)
+        
         self.changeColDefaults(strTableName, old, new)
         
         self.changeColComments(strTableName, old, new)
@@ -99,11 +102,8 @@ class FindChanges:
         strOldColType = self.retColTypeEtc(old)
         strNewColType = self.retColTypeEtc(new)
         
-        # TODO: I think this is wrong if change name and type at the same time.
         if self.normalizedColType(strNewColType) != self.normalizedColType(strOldColType):
             self.doChangeColType(strTableName, old.getAttribute('name'), strNewColType)
-        elif new.getAttribute('name') != old.getAttribute('name'):
-            self.renameColumn(strTableName, old, new)
 
     def normalizedColType(self, strColTypeEtc):
         if not self.bGenerated:
@@ -118,6 +118,33 @@ class FindChanges:
         strColTypeEtc = strColTypeEtc.replace('timestamp without time zone', 'timestamp')
         
         return strColTypeEtc
+    
+    def changeAutoIncrement(self, strTableName, old, new):
+        strOldAuto = old.getAttribute('autoincrement').lower()
+        strNewAuto = new.getAttribute('autoincrement').lower()
+        if strOldAuto != strNewAuto:
+            if strNewAuto == 'yes':
+                # Hmm, if we created the column the autoincrement would already be there anyway.
+                pass
+                #print "Add Autoincrement TODO"
+            else:
+                self.dropAutoIncrement(strTableName, old)
+
+    def dropAutoIncrement(self, strTableName, col):
+        info = {
+            'table_name' : strTableName,
+            'col_name'   : col.getAttribute('name'),
+            'seq_name'   : '%s_%s_seq' % (strTableName, col.getAttribute('name')),
+        }
+        if self.xml2ddl.params['has_auto_increment']:
+            print "TODO MySQL Drop Auto"
+        
+        # For postgres
+        
+        self.diffs.append(('Drop Autoincrement', 
+            'DROP SEQUENCE %(seq_name)s' % info))
+        
+        self.dropDefault(strTableName, col)
     
     def changeColDefaults(self, strTableName, old, new):
         strOldDefault = old.getAttribute('default')
@@ -142,6 +169,27 @@ class FindChanges:
                 self.diffs.append(
                     ('Change Default', 
                     'ALTER TABLE %(table_name)s %(change_type_keyword)s %(column_name)s %(default_keyword)s %(new_default)s' % info))
+
+    def dropDefault(self, strTableName, col):
+        info = {
+            'table_name' : self.xml2ddl.quoteName(strTableName),
+            'column_name' : self.xml2ddl.quoteName(col.getAttribute('name')),
+            'change_type_keyword' : 'ALTER',
+            'new_default' : 'null', # FIX TODO Null, 0 or ''
+            'default_keyword' : 'SET DEFAULT',
+            'column_type' : self.retColTypeEtc(col),
+            'TYPE' : self.params['TYPE'],
+        }
+            
+        if self.params['no_alter_default']:
+            # Firebird
+            self.diffs.append(
+                ('Drop Default', 
+                'ALTER TABLE %(table_name)s %(change_type_keyword)s %(column_name)s %(TYPE)s%(column_type)s' % info))
+        else:
+            self.diffs.append(
+                ('Drop Default', 
+                'ALTER TABLE %(table_name)s %(change_type_keyword)s %(column_name)s %(default_keyword)s %(new_default)s' % info))
 
     def changeColComments(self, strTableName, old, new):
         # Check for difference in comments.
@@ -381,15 +429,17 @@ class FindChanges:
                     oldX = findSomething(oldXs, strOldName)
                     
                 if oldX:
+                    changeFunc(self.strTableName, oldX, newX)
                     renameFunc(self.strTableName, oldX, newX)
                     skipXs.append(strOldName)
+                    # Just in case user changed name and the type as well.
                 else:                    
                     addFunc(self.strTableName, newX, nIndex)
             
         newXs = new.getElementsByTagName(strTag)
         oldXs = old.getElementsByTagName(strTag)
         for nIndex, oldX in enumerate(oldXs):
-            stroldXName = oldX.getAttribute('name')
+            stroldXName = getName(oldX)
             if stroldXName in skipXs:
                 continue
             
@@ -407,8 +457,9 @@ class FindChanges:
         return col.getAttribute('name')
         
     def findColumn(self, columns, strColName):
+        strColName = strColName.lower()
         for column in columns:
-            strCurColName = column.getAttribute('name')
+            strCurColName = column.getAttribute('name').lower()
             if strCurColName == strColName:
                 return column
             
@@ -418,8 +469,9 @@ class FindChanges:
         return table.getAttribute('name')
 
     def findTable(self, tables, strTableName):
+        strTableName = strTableName.lower()
         for tbl in tables:
-            strCurTableName = tbl.getAttribute('name')
+            strCurTableName = tbl.getAttribute('name').lower()
             if strCurTableName == strTableName:
                 return tbl
             
@@ -433,8 +485,8 @@ class FindChanges:
         self.insertIndex(strTableName, new, -1)
     
     def changeIndex(self, strTableName, old, new):
-        strColumnsOld = old.getAttribute('columns')
-        strColumnsNew = new.getAttribute('columns')
+        strColumnsOld = old.getAttribute('columns').replace(' ', '').lower()
+        strColumnsNew = new.getAttribute('columns').replace(' ', '').lower()
         if strColumnsOld != strColumnsNew:
             self.deleteIndex(strTableName, old)
             self.insertIndex(strTableName, new, 0)
@@ -459,8 +511,9 @@ class FindChanges:
         return self.xml2ddl.getIndexName(self.strTableName, index)
         
     def findIndex(self, indexes, strIndexName):
+        strIndexName = strIndexName.lower()
         for index in indexes:
-            strCurIndexName = self.getIndexName(index)
+            strCurIndexName = self.getIndexName(index).lower()
             if strCurIndexName == strIndexName:
                 return index
             

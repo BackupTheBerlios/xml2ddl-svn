@@ -277,16 +277,15 @@ Attribute, values are case insensitive, (eg. dotschema="Yes" and dotschema="yes"
         </table>
         ...
         
-        <function>
-            -- function contents.
-        </function>
-        ...
-        
         <view>
             -- view contents
         </view>
         ...
         
+        <function>
+            -- function contents.
+        </function>
+        ...
     </schema>
 
 Here are the details of each of the XML tags.
@@ -337,7 +336,7 @@ The dictionary is a general system for adding attributes.
           [oldname="2"
           [fullname="3"] 
           [desc="4"]
-          [inherits="5">
+          [inherits="5"]>
 
 Create a table definition. 
 The order may be important since xml2ddl isn't too careful about creating contraints before the table exists.
@@ -531,13 +530,13 @@ The <constraints> tag lists an unorder list of contraint rules, if the database 
     <triggers>
         <trigger  name="1"
                  [oldname="2"]
-                 [longname="2"]
-                 [desc="3"]
-                  timing="4" 
-                  events="5"
-                 [fire="6"]
-                 [function="7"]>
-            (8)
+                 [longname="3"]
+                 [desc="4"]
+                  timing="5" 
+                  events="6"
+                 [fire="7"]
+                 [function="8"]>
+            (9)
         </trigger>
     </triggers>
 
@@ -582,8 +581,11 @@ Useful, when you need to store a small set of values in the table.
 
 ::
 
-    <view name="1" [fullname="2"] [desc="3"] [columns="4"]>
-        5
+    <view name="1" 
+         [fullname="2"] 
+         [desc="3"] 
+         [columns="4"]>
+        (5)
     </view>
 
 |Not supported|
@@ -706,7 +708,6 @@ Similar Work
 I've been pointed to another project which looks similar calle `ERW <http://erw.dsi.unimi.it/>`_ 
 A quick look shows that it tries to work at a higher level than my XML does (i.e. more abstract).
 It also generates code for PHP and produces nicer documentation.
-
 
 .. _PostgreSQL: http://www.postgresql.com/
 .. _Firebird: http://firebird.sourceforge.net/

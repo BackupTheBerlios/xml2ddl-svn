@@ -83,7 +83,7 @@ class PgDownloader:
     
     def getTableColumns(self, strTable):
         """ Returns column in this format
-            (nColIndex, strColumnName, strColType, CHARACTER_MAXIMUM_LENGTH, NUMERIC_PRECISION, bNotNull, strDefault)
+            (nColIndex, strColumnName, strColType, CHARACTER_MAXIMUM_LENGTH, NUMERIC_PRECISION, bNotNull, strDefault, auto_increment)
         """
         strSql = """
             SELECT ORDINAL_POSITION, COLUMN_NAME, DATA_TYPE, CHARACTER_MAXIMUM_LENGTH, NUMERIC_PRECISION, NUMERIC_PRECISION_RADIX, NUMERIC_SCALE, IS_NULLABLE, COLUMN_DEFAULT
@@ -104,8 +104,22 @@ class PgDownloader:
             
             if not size and numprecradix == 10:
                 size = numsize
+            
+            if attnotnull.lower() == "yes":
+                attnotnull = False
+            else:
+                attnotnull = True
+            
+            if default:
+                # remove the '::text stuff
+                default = default.replace('::text', '')
+            
+            bAutoIncrement = False
+            if default == "nextval('%s_%s_seq')" % (strTable, name):
+                default = ''
+                bAutoIncrement = True
                 
-            ret.append((name, type, size, numprec, not attnotnull, default))
+            ret.append((name, type, size, numprec, attnotnull, default, bAutoIncrement))
             
         return ret
     
@@ -164,7 +178,7 @@ class PgDownloader:
 
     def getTableRelations(self, strTableName):
         """ Returns 
-            (strConstraintName, colName, fk_table, fk_columns)
+            (strConstraintName, colName, fk_table, fk_columns, confupdtype, confdeltype)
             or []
         """
         strSql = """SELECT pcon.conname, pcon.conkey, pcla2.relname, pcon.confkey, pcon.confupdtype, pcon.confdeltype
@@ -194,20 +208,25 @@ class PgDownloader:
         return ret
 
     def _fetchTableColumnsNamesByNums(self, strTableName, nums):
-        strSql = """
-            SELECT pa.attname
-            FROM pg_attribute pa, pg_class pc
-            WHERE pa.attrelid = pc.oid
-            AND pa.attisdropped = 'f'
-            AND pc.relname = %s
-            AND pc.relkind = 'r'
-            AND pa.attnum in (%s)
-            ORDER BY pa.attnum
-            """ % ( '%s', ','.join(['%s' for num in nums]) )
+        ret = []
+        
+        for num in nums:
+            strSql = """
+                SELECT pa.attname
+                FROM pg_attribute pa, pg_class pc
+                WHERE pa.attrelid = pc.oid
+                AND pa.attisdropped = 'f'
+                AND pc.relname = %s
+                AND pc.relkind = 'r'
+                AND pa.attnum = %s
+                ORDER BY pa.attnum
+                """
             
-        self.cursor.execute(strSql, [strTableName] + nums)
-        rows = self.cursor.fetchall()
-        return [row[0] for row in rows]
+            self.cursor.execute(strSql, [strTableName] + [num])
+            rows = self.cursor.fetchall()
+            ret.append(rows[0][0])
+                
+        return ret
         
     def _decodeLength(self, type, atttypmod):
         # gleamed from http://www.postgresql-websource.com/psql713/source-format_type.htm
@@ -251,15 +270,18 @@ class MySqlDownloader:
     
     def getTableColumns(self, strTable):
         """ Returns column in this format
-            (strColumnName, strColType, nColSize, nColPrecision, bNotNull, strDefault)
+            (strColumnName, strColType, nColSize, nColPrecision, bNotNull, strDefault, auto_increment)
         """
-        re_size_prec = re.compile(r'(\w+)\((\d+),(\s*)\d+\)')
+        re_size_prec = re.compile(r'(\w+)\((\d+),\s*(\d+)\)')
         re_size = re.compile(r'(\w+)\((\d+)\)')
         
         strQuery = "SHOW COLUMNS FROM `%s`" % (strTable)
         self.cursor.execute(strQuery)
         fullcols = self.cursor.fetchall()
         ret = []
+        
+        # TODO: auto_increment
+        bAutoIncrement = False 
         for col in fullcols:
             (name, type, bNotNull, key, strDefault, extra) = col
             nColSize = None
@@ -278,7 +300,7 @@ class MySqlDownloader:
                 else:
                     newType = type
                     
-            ret.append( (name, newType, nColSize, nColPrecision, bNotNull, strDefault) )
+            ret.append( (name, newType, nColSize, nColPrecision, bNotNull, strDefault, bAutoIncrement) )
         return ret
     
     def getTableComment(self, strTableName):
@@ -332,11 +354,15 @@ class MySqlDownloader:
 
     def getTableRelations(self, strTableName):
         """ Returns 
-            (strConstraintName, colName, fk_table, fk_columns)
+            (strConstraintName, colName, fk_table, fk_columns, confupdtype, confdeltype))
             or []
         """
         re_ref = re.compile(r'\s*CONSTRAINT\s+`(\w+)`\s+FOREIGN KEY\s+\(([^)]+)\)\s+REFERENCES\s+`(\w+)`\s+\(([^)]+)')
         """ex. CONSTRAINT `fk_category_id` FOREIGN KEY (`category_id`) REFERENCES `categories` (`id`),"""
+        
+        # TODO
+        delType = ''
+        updateType = ''
         
         strQuery = 'SHOW CREATE TABLE `%s`' % (strTableName)
         self.cursor.execute(strQuery)
@@ -347,7 +373,7 @@ class MySqlDownloader:
             if match:
                 myCols = [ str.strip()[1:-1] for str in match.group(2).split(',') ]
                 fkCols = [ str.strip()[1:-1] for str in match.group(4).split(',') ]
-                ret.append( ( match.group(1), myCols, match.group(3), fkCols) )
+                ret.append( ( match.group(1), myCols, match.group(3), fkCols, delType, updateType) )
         
         return ret
 
@@ -383,7 +409,7 @@ class FbDownloader:
     
     def getTableColumns(self, strTable):
         """ Returns column in this format
-            (nColIndex, strColumnName, strColType, CHARACTER_MAXIMUM_LENGTH, NUMERIC_PRECISION, bNotNull, strDefault)
+            (nColIndex, strColumnName, strColType, CHARACTER_MAXIMUM_LENGTH, NUMERIC_PRECISION, bNotNull, strDefault, auto_increment)
         """
         strSql = """
             SELECT RF.RDB$FIELD_POSITION, RF.RDB$FIELD_NAME, RDB$FIELD_TYPE, F.RDB$FIELD_LENGTH, 
@@ -415,6 +441,9 @@ class FbDownloader:
             35 : 'TIMESTAMP',
             37 : 'VARCHAR',
         }
+        
+        # TODO auto_increment
+        bAutoIncrement = False
         for row in rows:
             attnum, name, nType, size, numsize, scale, attnull, default = row
             if not size and numprecradix == 10:
@@ -427,7 +456,7 @@ class FbDownloader:
             else:
                 print "Uknown type %d" % (nType)
             
-            ret.append((name.strip(), strType, size, scale, attnull, default))
+            ret.append((name.strip(), strType, size, scale, attnull, default, bAutoIncrement))
             
         return ret
     
@@ -572,7 +601,7 @@ class DownloadXml:
             curTable['relations'] = self.db.getTableRelations(strTableName)
             
             for colRow in self.db.getTableColumns(strTableName):
-                (strColumnName, type, attlen, precision, attnotnull, default) = colRow
+                (strColumnName, type, attlen, precision, attnotnull, default, bAutoIncrement) = colRow
                 curCol = {
                     'name' : str(strColumnName),
                     'type' : str(type),
@@ -596,6 +625,9 @@ class DownloadXml:
                 if strComment:
                     curCol['desc'] = strComment
                 
+                if bAutoIncrement:
+                    curCol['autoincrement'] = "yes"
+                
                 curTable['columns'].append(curCol)
             
             self.dumpTable(curTable, of)
@@ -604,7 +636,7 @@ class DownloadXml:
     def dumpTable(self, info, of):
         of.write('  <table %s>\n' % (self.doAttribs(info, ['name', 'desc'])))
         for col in info['columns']:
-            of.write('    <column %s/>\n' % (self.doAttribs(col, ['name', 'type', 'size', 'precision', 'null', 'default', 'key', 'desc'])))
+            of.write('    <column %s/>\n' % (self.doAttribs(col, ['name', 'type', 'size', 'precision', 'null', 'default', 'key', 'desc', 'autoincrement'])))
         
         strIndexes = ""
         for index in info['indexes']:
@@ -626,7 +658,31 @@ class DownloadXml:
                 confdeltype = 'n' THEN 2 -- set Null
                 confdeltype = 'a' THEN 3 -- no Action
                 confdeltype = 'd' THEN 4 -- Default """
-                of.write('        <relation name="%s" column="%s" table="%s" fk="%s"/>\n' % (index[0], ','.join(index[1]), index[2], ','.join(index[3])))
+                curInfo = {
+                    'name' : index[0],
+                    'column' : ','.join(index[1]),
+                    'table'  : index[2],
+                    'fk'     : ','.join(index[3])
+                }
+                if index[4] == 'c':
+                    curInfo['onupdate'] = 'cascade'
+                elif index[4] == 'r':
+                    curInfo['onupdate'] = 'restrict'
+                elif index[4] == 'n':
+                    curInfo['onupdate'] = 'setnull'
+                elif index[4] == 'd':
+                    curInfo['onupdate'] = 'default'
+                    
+                if index[5] == 'c':
+                    curInfo['ondelete'] = 'cascade'
+                elif index[5] == 'r':
+                    curInfo['ondelete'] = 'restrict'
+                elif index[5] == 'n':
+                    curInfo['ondelete'] = 'setnull'
+                elif index[5] == 'd':
+                    curInfo['ondelete'] = 'default'
+                    
+                of.write('        <relation %s/>\n' % (self.doAttribs(curInfo, ['name', 'column', 'table', 'fk', 'ondelete', 'onupdate'])))
             
             of.write('    </relations>\n')
             
@@ -665,7 +721,7 @@ if __name__ == "__main__":
                   dest="strDbms", metavar="DBMS", default="postgres",
                   help="Dowload for which Database Managment System (postgres, mysql, or firebird)")
     parser.add_option("-d", "--dbname",
-                  dest="strDbName", metavar="DATABASE", default="public",
+                  dest="strDbName", metavar="DATABASE", default="simplifia",
                   help="Dowload for which named Database")
     parser.add_option("-u", "--user",
                   dest="strUserName", metavar="USER", default="postgres",

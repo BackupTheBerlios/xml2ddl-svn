@@ -6,6 +6,7 @@ sys.path += ['..']
 
 import diffxml2ddl
 import re, glob
+import os.path
 from xml.dom.minidom import parse, parseString
 from xml2ddl import handleDictionary
 import downloadXml
@@ -13,8 +14,9 @@ from cStringIO import StringIO
 import logging
 
 class DbDmlTest:
-    def __init__(self, strDbms, log):
+    def __init__(self, strDbms, testList, log):
         self.log = log
+        self.testList = testList
         self.aFindChanges = diffxml2ddl.FindChanges()
 
         self.aFindChanges.setDbms(strDbms)
@@ -28,6 +30,9 @@ class DbDmlTest:
         self.downLoader = downloadXml.createDownloader(self.strDbms, con)
         
         for testFilename in glob.glob('testfiles/test*.xml'):
+            if self.testList != None and len(self.testList) > 0 and os.path.basename(testFilename) not in self.testList:
+                continue
+            
             doc = parse(testFilename)
             
             bDoIt = True
@@ -66,36 +71,37 @@ class DbDmlTest:
         try:
             docFromDb = parseString(outStr.getvalue())
         except:
-            print "Problem parsing: '" + outStr.getvalue() + "'";
+            strErr = "Problem parsing: '" + outStr.getvalue() + "'"
+            self.log.warning(strErr)
         
         self.aFindChanges.reset()
         ddls = self.aFindChanges.diffTables(docAfter, docFromDb)
         
         if len(ddls) > 0:
             print "They are different"
-            for ddl in ddls:
-                print ddl
-                
             print "Got:"
             print outStr.getvalue()
-            print "Expected:"
-            print docAfter.toxml()
-
+            self.log.warning("Downloaded:\n" + outStr.getvalue())
+            self.log.warning("Expected:\n" + docAfter.toxml())
+            for ddl in ddls:
+                self.log.warning(ddl)
+        else:
+            self.log.info("Passed download check")
+        
         outStr.close()
         self.aFindChanges.reset()
 
         ddls = self.aFindChanges.diffTables(docAfter, empty)
         self.execSome(con, ddls, bExec, "(%s) %s: after->empty" % (self.strDbms, testFilename))
         self.aFindChanges.reset()
-            
+        
     def execSome(self, con, ddls, bExec, strContext):
         bPrintAll = False
         for nIndex, ret in enumerate(ddls):
             if bExec:
                 cursor = con.cursor()
                 try:
-                    if self.log.isEnabledFor('DEBUG'):
-                        self.log.debug('%s SQL: "%s"' % (strContext, ret[1]))
+                    self.log.info('%s SQL: "%s"' % (strContext, ret[1]))
                     
                     cursor.execute(ret[1])
                 except Exception, e:

@@ -27,6 +27,7 @@
     <ddl>ALTER TABLE table1 MODIFY table1_id integer NOT NULL</ddl>
 </ddls>
 <ddls dbms="firebird">
-    <!-- todo -->
+    <ddl>DROP GENERATOR table1_table1_id_seq</ddl>
+    <ddl>DROP TRIGGER AI_table1_id</ddl>
 </ddls>
 </test>

@@ -7,7 +7,7 @@
     <schema>
         <table name="table1">
             <columns>
-                <column name="table1_id" type="integer" null="no" autoincrement="true" key="1"/>
+                <column name="table1_id" type="integer" null="no" autoincrement="yes" key="1"/>
                 <column name="col2" type="integer"/>
             </columns>
         </table>

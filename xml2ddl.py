@@ -158,7 +158,7 @@ class Xml2Ddl:
         if col.hasAttribute('default'):
             strRet += ' DEFAULT ' + col.getAttribute('default')
         
-        if col.hasAttribute('autoincrement'):
+        if col.hasAttribute('autoincrement') and col.getAttribute('autoincrement').lower() == "yes":
             strRet += self.addAutoIncrement(col, strPreDdl, strPostDdl)
 
         return strRet

@@ -1,0 +1,28 @@
+<test title="Drop Auto Increment">
+<before>
+    <schema>
+        <table name="table3">
+            <columns>
+                <column name="id" type="integer" null="no" autoincrement="yes" key="1"/>
+            </columns>
+        </table>
+    </schema>
+</before>
+<after>
+    <schema>
+        <table name="table3">
+            <columns>
+                <column name="id" type="integer" null="no" key="1"/>
+            </columns>
+        </table>
+    </schema>
+</after>
+<ddls dbms="postgres,postgres7">
+    <ddl>DROP SEQUENCE table3_table1_id_seq</ddl>
+    <ddl>ALTER table1 ALTER id TYPE integer NOT NULL</ddl>
+</ddls>
+<ddls dbms="mysql" fails="true">
+</ddls>
+<ddls dbms="firebird" fails="true">
+</ddls>
+</test>

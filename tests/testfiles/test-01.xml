@@ -1,3 +1,4 @@
+<?xml version="1.0"?>
 <test title="Create table with various types">
 <before>
     <schema>
