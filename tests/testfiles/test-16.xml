@@ -7,7 +7,7 @@
 			<column name="col2" type="integer"/>
 		</columns>
         <indexes>
-            <index columns="col1"/>
+            <index name="table1Col1" columns="col1"/> <!-- there's a bug here where the      column doesn't get changed unless there's an index name -->
             <index name="col1col2" columns="col1,col2"/>
         </indexes>
 	</table>

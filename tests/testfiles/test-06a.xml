@@ -1,0 +1,30 @@
+<test title="Add change defaults">
+<before>
+	<schema>
+	<table name="table1">
+		<columns>
+			<column name="col1" type="decimal" size="20" default="0"/>
+			<column name="col2" type="integer"/>
+		</columns>
+	</table>
+	</schema>
+</before>
+<after>
+	<schema>
+	<table name="table1">
+		<columns>
+			<column name="col1" type="decimal" size="20" default="2"/>
+			<column name="col2" type="integer" default="3"/>
+		</columns>
+	</table>
+	</schema>
+</after>
+<ddls>
+	<ddl>ALTER TABLE table1 ALTER col1 DEFAULT 2</ddl>
+	<ddl>ALTER TABLE table1 ALTER col2 DEFAULT 3</ddl>
+</ddls>
+<ddls dbms="mysql">
+	<ddl>ALTER TABLE table1 MODIFY col1 DEFAULT 2</ddl>
+	<ddl>ALTER TABLE table1 MODIFY col2 DEFAULT 3</ddl>
+</ddls>
+</test>

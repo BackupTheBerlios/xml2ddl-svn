@@ -78,6 +78,9 @@ class Xml2Ddl:
         if col.hasAttribute('null') and col.getAttribute('null') == 'no':
             strRet += ' NOT NULL'
         
+        if col.hasAttribute('default'):
+            strRet += ' DEFAULT ' + col.getAttribute('default')
+        
         return strRet
         
     def getColType(self, col):

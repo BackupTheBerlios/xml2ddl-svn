@@ -16,6 +16,8 @@ class FindChanges:
         self.reset()
         
     def reset(self):
+        self.strTableName = None
+        self.diffs = []
         self.params = {
             'drop_constraints_on_col_rename' : False,
             'rename_keyword' : 'RENAME', # or ALTER
@@ -61,20 +63,41 @@ class FindChanges:
         else:
             strRet = '%s%s' % (strType, strNull)
 
-        if col.getAttribute('default'):
-            strRet += ' DEFAULT ' + col.getAttribute('default')
-        
         return strRet
 
     def changeCol(self, strTableName, old, new):
+        self.changeColType(strTableName, old, new)
+        
+        self.changeColDefaults(strTableName, old, new)
+        
+        self.changeColComments(strTableName, old, new)
+
+    def changeColType(self, strTableName, old, new):
         strOldColType = self.retColTypeEtc(old)
         strNewColType = self.retColTypeEtc(new)
         
+        # TODO: I think this is wrong if change name and type at the same time.
         if strNewColType != strOldColType:
-            self.changeColType(strTableName, old.getAttribute('name'), strNewColType)
+            self.doChangeColType(strTableName, old.getAttribute('name'), strNewColType)
         elif new.getAttribute('name') != old.getAttribute('name'):
             self.renameColumn(strTableName, old, new)
-        
+
+    def changeColDefaults(self, strTableName, old, new):
+        strOldDefault = old.getAttribute('default')
+        strNewDefault = new.getAttribute('default')
+        if strNewDefault != strOldDefault:
+            info = {
+                'table_name' : strTableName,
+                'column_name' : new.getAttribute('name'),
+                'change_type_keyword' : self.params['change_type_keyword'],
+                'new_default' : strNewDefault,
+            }
+            
+            self.diffs.append(
+                ('Change Default', 
+                'ALTER TABLE %(table_name)s %(change_type_keyword)s %(column_name)s DEFAULT %(new_default)s' % info))
+
+    def changeColComments(self, strTableName, old, new):
         # Check for difference in comments.
         strNewComment = safeGet(new, 'desc')
         strOldComment = safeGet(old, 'desc')
@@ -155,7 +178,7 @@ class FindChanges:
         if strColumnName != None:
             self._dropRelatedConstraints(strTable, strColumnName)
         else:
-            table = self.findTable(self.old_xml, strTable)
+            table = self.findTable(self.old_xml.getElementsByTagName('table'), strTable)
             columns = table.getElementsByTagName('column')
             for column in columns:
                 self._dropRelatedConstraints(strTable, column.getAttribute('name'))
@@ -202,7 +225,7 @@ class FindChanges:
         return ('Drop key constraint', 
             'ALTER TABLE %s DROP CONSTRAINT pk_%s' % (strTable, strTable))
     
-    def changeColType(self, strTableName, strColumnName, strNewColType):
+    def doChangeColType(self, strTableName, strColumnName, strNewColType):
         info = {
             'table_name' : strTableName,
             'column_name' : strColumnName,
@@ -227,7 +250,9 @@ class FindChanges:
                 'ALTER TABLE %(table_name)s %(change_type_keyword)s %(column_name)s %(TYPE)s%(column_type)s' % info))
             
 
-    def newCol(self, strTableName, new, after):
+    def newCol(self, strTableName, new, nAfter):
+        """ nAfter not used yet """
+        
         info = { 
             'table_name' : strTableName,
             'column_name' : new.getAttribute('name'),
@@ -249,11 +274,27 @@ class FindChanges:
         self.diffs.append(('Dropped Column', strAlter))
         
 
-    def diffTables(self, tbl_old, tbl_new):
+    def diffTable(self, strTableName, tbl_old, tbl_new):
+        """ strTableName is there just to be consistant with the other diff... """
+        self.strTableName = tbl_new.getAttribute('name')
+        
         self.diffColumns(tbl_old, tbl_new)
         self.diffRelations(tbl_old, tbl_new)
         self.diffIndexes(tbl_old, tbl_new)
         self.diffTableComment(tbl_old, tbl_new)
+
+    def diffTableComment(self, tbl_old, tbl_new):
+        strNewComment = safeGet(tbl_new, 'desc')
+        strOldComment = safeGet(tbl_old, 'desc')
+
+        if self.params['can_change_table_comment'] == False:
+            return
+            
+        if strOldComment != strNewComment and strNewComment:
+            aCreate = xml2ddl.Xml2Ddl()
+            aCreate.setDbms(self.dbmsType)
+            aCreate.addTableComment(self.strTableName, strNewComment)
+            self.diffs.extend(aCreate.dmls)
 
     def diffColumns(self, old, new):
         self.diffSomething(old, new, 'column', self.renameColumn,  self.changeCol, self.newCol, self.deletedCol, self.findColumn)
@@ -301,8 +342,8 @@ class FindChanges:
             
         return None
         
-    def findTable(self, xml, strTableName):
-        for tbl in xml.getElementsByTagName('table'):
+    def findTable(self, tables, strTableName):
+        for tbl in tables:
             strCurTableName = tbl.getAttribute('name')
             if strCurTableName == strTableName:
                 return tbl
@@ -398,7 +439,7 @@ class FindChanges:
             
         return None
         
-    def createTable(self, xml):
+    def createTable(self, strTableName, xml, nIndex):
         aCreate = xml2ddl.Xml2Ddl()
         aCreate.setDbms(self.dbmsType)
         aCreate.params['drop-tables'] = False
@@ -406,90 +447,45 @@ class FindChanges:
         aCreate.createTable(xml)
         self.diffs.extend(aCreate.dmls)
 
-    def dropTable(self, xml):
+    def dropTable(self, strTableName, xml):
         """ TODO: May need to kill some related constraints which I haven't coded yet. """
         
-        strTableName = xml.getAttribute('name')
+        self.strTableName = xml.getAttribute('name')
         strCascade = ''
         if self.params['drop_table_has_cascade']:
             strCascade = ' CASCADE'
         else:
-            self.dropRelatedConstraints(strTableName)
+            self.dropRelatedConstraints(self.strTableName)
 
         self.diffs.append(
-            ('Drop Table', 'DROP TABLE %s%s' % (strTableName, strCascade)))
+            ('Drop Table', 'DROP TABLE %s%s' % (self.strTableName, strCascade)))
         
-
-    def renameTable(self, tblOldXml, tblNewXml):
+    def renameTable(self, strTableName, tblOldXml, tblNewXml):
         strTableOld = tblOldXml.getAttribute('name')
         strTableNew = tblNewXml.getAttribute('name')
         
         self.diffs.append(('Rename Table',
             'ALTER TABLE %s RENAME TO %s' % (strTableOld, strTableNew)) )
 
-    def diffTableComment(self, tbl_old, tbl_new):
-        strNewComment = safeGet(tbl_new, 'desc')
-        strOldComment = safeGet(tbl_old, 'desc')
-
-        if self.params['can_change_table_comment'] == False:
-            return
-            
-        if strOldComment != strNewComment and strNewComment:
-            aCreate = xml2ddl.Xml2Ddl()
-            aCreate.setDbms(self.dbmsType)
-            aCreate.addTableComment(self.strTableName, strNewComment)
-            self.diffs.extend(aCreate.dmls)
-
     def diffFiles(self, strOldFilename, strNewFilename):
         self.old_xml = xml2ddl.readMergeDict(strOldFilename) # parse an XML file by name
         self.new_xml = xml2ddl.readMergeDict(strNewFilename)
         
-        self.diffDocuments(self.old_xml, self.new_xml)
+        self.diffTables(self.old_xml, self.new_xml)
 
         self.old_xml.unlink()
         self.new_xml.unlink()
         
         return self.diffs
 
-    def diffDocuments(self, old_xml, new_xml):
+    def diffTables(self, old_xml, new_xml):
         self.old_xml = old_xml
         self.new_xml = new_xml
         
-        self.diffs = []
+        self.diffSomething(old_xml, new_xml, 'table', self.renameTable,  self.diffTable, self.createTable, self.dropTable, self.findTable)
         
-        tbl_news = self.new_xml.getElementsByTagName('table')
-        
-        for tbl_new in tbl_news:
-                
-            self.strTableName = tbl_new.getAttribute('name')
-            
-            tbl_old = self.findTable(self.old_xml, self.strTableName)
-            
-            #print tbl_old.getAttribute('name'), '=', self.strTableName
-            if not tbl_old:
-                if tbl_new.hasAttribute('oldname'):
-                    strOldName = tbl_new.getAttribute('oldname')
-                    tbl_old = self.findTable(self.old_xml, strOldName)
-                
-                if tbl_old:
-                    self.renameTable(tbl_old, tbl_new)
-                else:
-                    self.createTable(tbl_new)
-            else:
-                self.diffTables(tbl_old, tbl_new)
-        
-        # Scan for missing tables.
-        tbl_olds = self.old_xml.getElementsByTagName('table')
-        for tbl_old in tbl_olds:
-            self.strTableName = tbl_old.getAttribute('name')
-            
-            tbl_new = self.findTable(self.new_xml, self.strTableName)
-            
-            if not tbl_new:
-                self.dropTable(tbl_old)
-
         return self.diffs
-
+        
 def safeGet(dom, strKey, default = None):
     if dom.hasAttribute(strKey):
         return dom.getAttribute(strKey)
