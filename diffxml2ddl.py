@@ -33,7 +33,7 @@ class FindChanges:
         self.params = {
             'drop_constraints_on_col_rename' : False,
             'no_alter_column_type' : False,
-            'drop_table_has_cascade' : True,
+            'drop_table_has_cascade' : False, # test
             'can_change_table_comment' : True,
         }
     
@@ -42,11 +42,10 @@ class FindChanges:
         self.reset()
         
         self.dbmsType = dbmsType.lower()
+        
         self.xml2ddl.setDbms(self.dbmsType)
         self.ddli = createDdlInterface(self.dbmsType)
         
-        if self.dbmsType not in ['postgres', 'postgres7', 'mysql', 'oracle', 'firebird']:
-            print "Unknown dbms %s" % (dbmsType)
         if self.dbmsType == 'firebird':
             self.params['drop_constraints_on_col_rename'] = True
             self.params['drop_table_has_cascade'] = False
@@ -76,8 +75,23 @@ class FindChanges:
         self.changeColComments(strTableName, old, new)
 
     def changeColType(self, strTableName, old, new):
+        oldDefault = None
+        if 'default' in old:
+            oldDefault = old.get('default')
+            del old['default']
+
+        newDefault = None
+        if 'default' in new:
+            newDefault = new.get('default')
+            del new['default']
         strOldColType = self.ddli.retColTypeEtc(old)
         strNewColType = self.ddli.retColTypeEtc(new)
+        
+        if oldDefault:
+            old['default'] = oldDefault
+
+        if newDefault:
+            new['default'] = newDefault
         
         if self.normalizedColType(strNewColType) != self.normalizedColType(strOldColType):
             self.ddli.doChangeColType(strTableName, old.get('name'), strNewColType, self.diffs)
@@ -92,8 +106,6 @@ class FindChanges:
         strColTypeEtc = strColTypeEtc.replace('integer', 'int')
         strColTypeEtc = strColTypeEtc.replace('numeric', 'decimal')
         strColTypeEtc = strColTypeEtc.replace('double precision', 'float' )
-        strColTypeEtc = strColTypeEtc.replace('timestamp without time zone', 'timestamp')
-        
         return strColTypeEtc
     
     def changeColDefaults(self, strTableName, old, new):
@@ -201,7 +213,7 @@ class FindChanges:
                         fk = safeGet(relation, 'fk', strCurColName)
                         
                         if len(strCurColName) > 0 and fk == strColumnName:
-                            relationLst.append(self.dropRelation(table.getAttribute('name'), strCurColName))
+                            relationLst.append(self.dropRelation(table.getAttribute('name'), relation))
         
         for relation in relationLst:
             self.diffs.append(relation)
@@ -361,11 +373,11 @@ class FindChanges:
         return None
         
     def diffRelations(self, old_xml, new_xml):
-        self.diffSomething(old_xml, new_xml, 'relation', self.renameRelation, self.changeRelation, self.insertRelation, self.myDropRelation, self.findRelation, self.getRelationName)
+        self.diffSomething(old_xml, new_xml, 'relation', self.renameRelation, self.changeRelation, self.insertRelation, self.dropRelation, self.findRelation, self.getRelationName)
 
     def renameRelation(self, strTableName, old, new):
         # TODO put in ddlinterface
-        self.myDropRelation(strTableName, old)
+        self.dropRelation(strTableName, old)
         self.insertRelation(strTableName, new, -1)
     
     def changeRelation(self, strTableName, old, new):
@@ -391,7 +403,7 @@ class FindChanges:
             strFkNew = strColumnNew
         
         if strColumnOld != strColumnNew or strTableOld != strTableNew or strFkOld != strFkNew or strDelActionOld != strDelActionNew or strUpdateActionOld != strUpdateActionNew:
-            self.myDropRelation(strTableName, old)
+            self.dropRelation(strTableName, old)
             self.insertRelation(strTableName, new, 0)
     
     def insertRelation(self, strTableName, old, nIndex):
@@ -403,7 +415,7 @@ class FindChanges:
         strColumn = old.getAttribute('column')
         self.ddli.addRelation(strTableName, strRelationName, strColumn, strFkTable, strFk, strOnDelete, strOnUpdate, self.diffs)
 
-    def myDropRelation(self, strTableName, old):
+    def dropRelation(self, strTableName, old):
         strRelationName = self.xml2ddl.getRelationName(old)
         self.ddli.dropRelation(strTableName, strRelationName, self.diffs)
 
@@ -443,25 +455,26 @@ class FindChanges:
         
         self.ddli.renameTable(strTableOld, strTableNew, self.diffs)
 
+    # View stuff
     def renameView(self, ignore, old, new):
         attribs = attribsToDict(new)
-        strDefinition = new.firstChild.nodeValue.strip()
+        strDefinition = new.firstChild.nodeValue.rstrip()
         
         self.ddli.renameView(old.getAttribute('name'), new.getAttribute('name'), strDefinition, attribs, self.diffs)
         
     def diffView(self, ignore, oldView, newView):
-        strOldContents = oldView.firstChild.nodeValue.strip()
-        strNewContents = newView.firstChild.nodeValue.strip()
+        strOldContents = oldView.firstChild.nodeValue.rstrip()
+        strNewContents = newView.firstChild.nodeValue.rstrip()
         
         if strOldContents != strNewContents:
             attribs = attribsToDict(newView)
-            strDefinition = newView.firstChild.nodeValue.strip()
+            strDefinition = newView.firstChild.nodeValue.rstrip()
             
             self.ddli.updateView(newView.getAttribute('name'), strDefinition, attribs, self.diffs)
         
     def createView(self, ignore, new, nIndex):
         attribs = attribsToDict(new)
-        strDefinition = new.firstChild.nodeValue.strip()
+        strDefinition = new.firstChild.nodeValue.rstrip()
         
         self.ddli.addView(new.getAttribute('name'), strDefinition, attribs, self.diffs)
         
@@ -479,6 +492,49 @@ class FindChanges:
         
     def getViewName(self, node):
         return node.getAttribute('name')
+
+    # function stuff
+    def renameFunction(self, ignore, old, new):
+        attribs = attribsToDict(new)
+        strDefinition = new.firstChild.nodeValue.strip()
+        
+        self.ddli.renameFunction(old.getAttribute('name'), new.getAttribute('name'), strDefinition, attribs, self.diffs)
+        
+    def diffFunction(self, ignore, oldFunction, newFunction):
+        strOldContents = oldFunction.firstChild.nodeValue.strip()
+        strNewContents = newFunction.firstChild.nodeValue.strip()
+        
+        if strOldContents != strNewContents:
+            attribs = attribsToDict(newFunction)
+            strDefinition = newFunction.firstChild.nodeValue.strip()
+            
+            self.ddli.updateFunction(newFunction.getAttribute('name'), 
+                newFunction.getAttribute('arguments'), newFunction.getAttribute('returns'), strDefinition, attribs, self.diffs)
+        
+    def createFunction(self, ignore, new, nIndex):
+        attribs = attribsToDict(new)
+        strDefinition = new.firstChild.nodeValue.strip()
+        
+        # strNewFunctionName, argumentList, strReturn, strContents, attribs, diffs
+        argumentList = [arg.strip() for arg in new.getAttribute('arguments').split(',')]
+        
+        self.ddli.addFunction(new.getAttribute('name'), argumentList, new.getAttribute('returns'), strDefinition.strip(), attribs, self.diffs)
+        
+    def dropFunction(self, ignore, view):
+        self.ddli.dropFunction(view.getAttribute('name'), view.getAttribute('arguments'), self.diffs)
+        
+    def findFunction(self, views, strFunctionName):
+        strFunctionName = strFunctionName.lower()
+        for view in views:
+            strCurFunctionName = view.getAttribute('name').lower()
+            if strCurFunctionName == strFunctionName:
+                return view
+            
+        return None
+        
+    def getFunctionName(self, node):
+        return node.getAttribute('name')
+
 
     def diffFiles(self, strOldFilename, strNewFilename):
         self.old_xml = xml2ddl.readMergeDict(strOldFilename) # parse an XML file by name
@@ -511,8 +567,51 @@ class FindChanges:
 
         self.diffSomething(old_xml, new_xml, 'view', self.renameView,  self.diffView, self.createView, self.dropView, self.findView, self.getViewName)
 
+        self.diffSomething(old_xml, new_xml, 'function', self.renameFunction,  self.diffFunction, self.createFunction, self.dropFunction, self.findFunction, self.getFunctionName)
+
+        self.sortDiffs()
         return self.diffs
 
+    def sortDiffs(self):
+        self.diffs.sort(self.ddlSorter)
+    
+    def ddlSorter(self, a, b):
+        orderDict = {
+            'Create Table'                  : 0,
+            'Drop Table'                    : 0,
+            'Rename Table'                  : 0,
+            'Add Table Comment'             : 0,
+            'Add Column'                    : 0,
+            'Drop Column'                   : 0,
+            'Rename column'                 : 0,
+            'Add view'                      : 0,
+            'Drop view'                     : -99,
+            'Add Column comment'            : 0,
+            'Add key constraint'            : 0,
+            'Drop key constraint'           : 0,
+            'Add Index'                     : 0,
+            'Drop Index'                    : -99,
+            'Add Relation'                  : 0,
+            'Drop Relation'                 : -99,
+            'Add Autoincrement Generator'   : 0,
+            'Add Autoincrement Trigger'     : 0,
+            'Add Autoincrement'             : 0,
+            'Drop Autoincrement Trigger'    : 0,
+            'Drop Autoincrement'            : -99,
+            'Change Col Type'               : -9, # Change col type needs to be before change default
+            'Change Default'                : -5,
+            'Add for change type'           : -4,
+            'Copy the data over for change type'  : -3,
+            'Drop the old column for change type' : -2,
+            'Rename column for change type' : -1,
+            'Drop function'                 : 0,
+        }
+        
+        if a and b:
+            return orderDict[a[0]] - orderDict[b[0]]
+        
+        return 0
+    
 def safeGet(dom, strKey, default = None):
     if dom.hasAttribute(strKey):
         return dom.getAttribute(strKey)

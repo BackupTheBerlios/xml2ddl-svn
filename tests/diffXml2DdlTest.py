@@ -27,6 +27,10 @@ def doOne(strDbms, testFilename, docBefore, docAfter, docDdl, bFails):
     ret = aFindChanges.diffTables(docBefore, docAfter)
     
     docDdlList = docDdl.getElementsByTagName('ddl')
+    expected = []
+    got = []
+    info = []
+    
     for nIndex, ddlGood in enumerate(docDdlList):
         strGood = cleanString(ddlGood.firstChild.nodeValue)
         
@@ -34,25 +38,32 @@ def doOne(strDbms, testFilename, docBefore, docAfter, docDdl, bFails):
             strRet = cleanString(ret[nIndex][1])
             if strGood != strRet:
                 if not bFails:
-                    strMess = "%s (%s): Expected '%s' need to add\n\t<ddl>%s</ddl>" % (testFilename, strDbms, strGood, strRet)
-                    log.critical(strMess)
+                    expected.append("    %s" % (strGood))
+                    got.append("    <ddl>%s</ddl> <!-- %s -->" % (ret[nIndex][1], ret[nIndex][0], ))
             else:
                 if log.isEnabledFor('INFO'):
-                    strMess = "%s (%s): passed '%s'"  % (testFilename, strDbms, strRet)
-                    log.info(strMess)
+                    info.append('%s'  % (strRet))
                     
                 nPassed += 1
         elif not bFails:
-            strMess = "%s (%s): Expected '%s' got nothing instead"  % (testFilename, strDbms, strGood)
-            log.critical(strMess)
+            expected.append("    Expected '%s' got nothing instead"  % (strGood))
             
     if ret and docDdlList and len(ret) > len(docDdlList):
         for retItem in ret[len(docDdlList):]:
             if not bFails:
-                strMess = "%s (%s): Need to add from rule %s\n\t<ddl>%s</ddl>" % (testFilename, strDbms, retItem[0], retItem[1])
-                log.critical(strMess)
+                got.append("  <ddl>%s</ddl>" % (retItem[1]))
     
+    if len(got) > 0:
+        strMess = '%s (%s)' % (testFilename, strDbms)
+        log.critical(strMess)
+        log.critical("Expected:")
+        log.critical('\n'.join(expected))
+        log.critical("Got:")
+        log.critical('\n'.join(['    <ddl>%s</ddl>' % (ddl[1]) for ddl in ret]))
 
+    if len(info) > 0:
+        log.info('\n'.join(info))
+    
 def doTests():
     for testFilename in glob.glob('testfiles/test*.xml'):
         doc = parse(testFilename)

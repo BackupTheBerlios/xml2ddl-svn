@@ -16,9 +16,6 @@
     <schema>
     </schema>
 </after>
-<ddls dbms="postgres,postgres7,mysql">
-    <ddl>DROP TABLE table1 CASCADE</ddl>
-</ddls>
 <ddls>
     <ddl>DROP TABLE table1</ddl>
 </ddls>

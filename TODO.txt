@@ -18,8 +18,6 @@ Things That Need to be Done
   + Enumerations should have value="1" name="Name" desc="Description" default="true"
   + where name is mandatory, value is assumed name if value missing. Default changes the columns default.
 
-- Views - todo
-
 - Check constraints - todo
 
 - Unique constraint - todo
@@ -34,8 +32,10 @@ Things That Need to be Done
   + Non portable data types (like varchar2)
   + Un-indexed tables
 
-- Relations should be called fks=""? instead of fk="" or maybe foreignkeys="" + columns="" instead of column=""?
+- Allow some alias name for columns. Like column and columns for relations
 
-- Ordering of columns to match ordering in XML
+- Order the DDLs by dependancies.
+
+- Ordering of table columns to match ordering in XML
 
 

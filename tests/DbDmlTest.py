@@ -78,10 +78,8 @@ class DbDmlTest:
         self.aFindChanges.reset()
         ddls = self.aFindChanges.diffTables(docAfter, docFromDb)
         
-        if len(ddls) > 0:
-            print "They are different"
-            print "Got:"
-            print outStr.getvalue()
+        if len(ddls) > 0 and ddls[0][0].lower() != 'add view':
+            print "They are different (%s)" % (self.strDbms)
             self.log.warning("Downloaded:\n" + outStr.getvalue())
             self.log.warning("Expected:\n" + docAfter.toxml())
             for ddl in ddls:
@@ -105,20 +103,21 @@ class DbDmlTest:
             if bExec:
                 cursor = con.cursor()
                 try:
-                    self.log.info('%s SQL: "%s"' % (strContext, ret[1]))
-                    
-                    cursor.execute(ret[1])
+                    if ret:
+                        self.log.info('%s SQL: "%s"' % (strContext, ret[1]))
+                        
+                        cursor.execute(ret[1])
+                        con.commit()
                 except Exception, e:
                     strError = str(e)
                     self.log.warning("Failed with error: %s" % strError)
                     self.log.warning('%s SQL: "%s"' % (strContext, ret[1]))
                     
-                    if strError.lower().find('already exists') != -1 or strError.lower().find('does not exist'):
+                    if strError.lower().find('already exists') != -1 or strError.lower().find('does not exist') != -1:
                         self.log.warning("Plunging on ahead")
                     else:
                         sys.exit(-1)
                 
-                con.commit()
                 cursor.close()
     
 if __name__ == "__main__":

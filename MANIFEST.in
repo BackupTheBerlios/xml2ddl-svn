@@ -2,6 +2,7 @@ include xml2ddl.py
 include diffxml2ddl.py
 include xml2html.py
 include downloadXml.py
+include ddlInterface.py
 include CHANGELOG.txt
 include TODO.txt
 include *.css

@@ -76,7 +76,7 @@ class PgDownloader:
     def getTables(self, tableList):
         """ Returns the list of tables as a array of strings """
         
-        strQuery =  "SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES where TABLE_SCHEMA not in ('pg_catalog', 'information_schema') and TABLE_NAME NOT LIKE 'pg_%' AND TABLE_TYPE = 'BASE TABLE'"
+        strQuery = "SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES where TABLE_SCHEMA not in ('pg_catalog', 'information_schema') and TABLE_NAME NOT LIKE 'pg_%' AND TABLE_TYPE = 'BASE TABLE'"
         self.cursor.execute(strQuery)
         rows = self.cursor.fetchall()
         if rows:
@@ -266,7 +266,45 @@ class PgDownloader:
             return rows[0][0]
         
         return []
+
+    def getFunctions(self):
+        """ Returns functions """
+        strQuery = """SELECT SPECIFIC_NAME
+        FROM INFORMATION_SCHEMA.ROUTINES 
+        WHERE SPECIFIC_SCHEMA not in ('pg_catalog', 'information_schema')
+        AND ROUTINE_NAME not in ('_get_parser_from_curcfg', 'ts_debug', 'pg_file_length', 'pg_file_rename')
+        AND external_language != 'C' """
+        self.cursor.execute(strQuery)
+        rows = self.cursor.fetchall()
+        if rows:
+            return [x[0] for x in rows]
         
+        return []
+
+    def getFunctionDefinition(self, strSpecifiName):
+        """ Returns (routineName, parameters, return, language, definition) """
+        
+        strQuery = "SELECT ROUTINE_NAME, ROUTINE_DEFINITION, DATA_TYPE, EXTERNAL_LANGUAGE from INFORMATION_SCHEMA.ROUTINES WHERE SPECIFIC_NAME = %s"
+        self.cursor.execute(strQuery, [strSpecifiName])
+        rows = self.cursor.fetchall()
+        if not rows:
+            return (None, None, None, None)
+        
+        
+        strRoutineName, strDefinition, retType, strLanguage = rows[0]
+
+        strQuery = "SELECT PARAMETER_MODE, DATA_TYPE, PARAMETER_NAME from INFORMATION_SCHEMA.PARAMETERS WHERE SPECIFIC_NAME = %s ORDER BY ORDINAL_POSITION"
+        self.cursor.execute(strQuery, [strSpecifiName])
+        params = []
+        for row in self.cursor.fetchall():
+            paramMode, dataType, paramName = row
+            strParam = dataType
+            if paramName:
+                strParam += ' ' + paramName
+            params.append(strParam)
+        
+        return (strRoutineName, params, retType, strLanguage, strDefinition)
+
 class MySqlDownloader:
     def __init__(self):
         self.strDbms = 'mysql'
@@ -465,6 +503,31 @@ class MySqlDownloader:
         
         return []
         
+    def getFunctions(self):
+        """ Returns functions """
+        strQuery = "SHOW FUNCTION STATUS"
+        self.cursor.execute(strQuery)
+        rows = self.cursor.fetchall()
+        if rows:
+            return [x[1] for x in rows]
+        
+        return []
+
+    def getFunctionDefinition(self, strSpecifiName):
+        """ Returns (routineName, parameters, return, language, definition) """
+        
+        strQuery = "SHOW CREATE FUNCTION `%s`" % (strSpecifiName)
+        self.cursor.execute(strQuery)
+        rows = self.cursor.fetchall()
+        if not rows:
+            return (None, None, None, None)
+        
+        
+        strCreate = rows[0][2]
+        strParams = ''
+        strReturns = ''
+        strLanguage = ''
+        return (strSpecifiName, strParams, strReturns, strLanguage, strCreate)
     
 class FbDownloader:
     def __init__(self):
@@ -492,7 +555,7 @@ class FbDownloader:
     def getTables(self, tableList):
         """ Returns the list of tables as a array of strings """
         
-        strQuery =  "SELECT RDB$RELATION_NAME FROM RDB$RELATIONS WHERE RDB$SYSTEM_FLAG=0;"
+        strQuery =  "SELECT RDB$RELATION_NAME FROM RDB$RELATIONS WHERE RDB$SYSTEM_FLAG=0 AND RDB$VIEW_SOURCE IS NULL;"
         self.cursor.execute(strQuery)
         return [x[0].strip() for x in self.cursor.fetchall() ]
     
@@ -696,6 +759,20 @@ class FbDownloader:
         
         return (None, None)
 
+    def getViews(self):
+        strQuery =  "SELECT RDB$VIEW_NAME FROM RDB$VIEW_RELATIONS"
+        self.cursor.execute(strQuery)
+        return [x[0].strip() for x in self.cursor.fetchall() ]
+
+    def getViewDefinition(self, strViewName):
+        strQuery = "SELECT RDB$RELATION_NAME, RDB$VIEW_SOURCE FROM RDB$RELATIONS WHERE RDB$RELATION_NAME = UPPER(?)"
+        self.cursor.execute(strQuery, [strViewName])
+        rows = self.cursor.fetchall()
+        if rows:
+            ret = rows[0][1].strip()
+            return ret
+        
+        return ''
 
 class DownloadXml:
     def __init__(self, downloader):
@@ -758,7 +835,9 @@ class DownloadXml:
             self.dumpTable(curTable, of)
             
         self.getViews(of)
-        
+
+        self.getFunctions(of)
+
         of.write('</schema>\n')
 
     def getViews(self, of):
@@ -775,7 +854,25 @@ class DownloadXml:
         of.write('  <view %s>\n' % (self.doAttribs(info, ['name'])))
         of.write('    %s\n' % (info['definition']))
         of.write('  </view>\n')
-        
+
+    def getFunctions(self, of):
+        mangledNames = self.db.getFunctions()
+        for mangledName in mangledNames:
+            strFuncName, params, strReturn, strLanguage, definition = self.db.getFunctionDefinition(mangledName)
+            info = {
+                'name'       : strFuncName,
+                'definition' : definition,
+                'arguments'  : ', '.join(params),
+                'returns'    : strReturn,
+                'language'   : strLanguage,
+            }
+            self.dumpFunction(info, of)
+    
+    def dumpFunction(self, info, of):
+        of.write('  <function %s>\n' % (self.doAttribs(info, ['name', 'arguments', 'returns', 'language'])))
+        of.write('%s\n' % (info['definition']))
+        of.write('  </function>\n')
+
     def dumpTable(self, info, of):
         of.write('  <table %s>\n' % (self.doAttribs(info, ['name', 'desc'])))
         for col in info['columns']:

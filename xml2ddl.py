@@ -55,11 +55,10 @@ class Xml2Ddl:
         }
 
     def setDbms(self, dbms):
-        self.ddlInterface = createDdlInterface(dbms)
         self._setDefaults()
         
+        self.ddlInterface = createDdlInterface(dbms)
         self.dbmsType = dbms.lower()
-            #print 'FireBird: ',len(self.params['keywords'])
 
 
     def retColDefs(self, doc, strPreDdl, strPostDdl):
@@ -75,12 +74,6 @@ class Xml2Ddl:
         strColName = col.getAttribute('name')
         
         strRet = self.ddlInterface.quoteName(strColName) + ' ' + self.ddlInterface.retColTypeEtc(attribsToDict(col))
-        
-        if col.hasAttribute('default'):
-            strRet += ' DEFAULT ' + col.getAttribute('default')
-        elif self.dbmsType == 'mysql' and col.getAttribute('type') == 'timestamp':
-            # MySQL silently sets the default to CURRENT_TIMESTAMP
-            strRet += ' DEFAULT null'
         
         if col.hasAttribute('autoincrement') and col.getAttribute('autoincrement').lower() == "yes":
             strTableName = col.parentNode.parentNode.getAttribute('name')

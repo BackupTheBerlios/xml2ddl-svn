@@ -23,9 +23,6 @@
     </schema>
 </after>
 <ddls>
-    <ddl>CREATE OR REPLACE VIEW myview AS SELECT table1.id, table1.col2 FROM table1;</ddl>
-</ddls>
-<ddls dbms="mysql">
-    <ddl>CREATE OR REPLACE VIEW myview AS select `test`.`table1`.`id` AS `id`,`test`.`table1`.`col2` AS `col2` from `test`.`table1`</ddl>
+    <ddl>CREATE VIEW myview AS SELECT table1.id, table1.col2 FROM table1;</ddl>
 </ddls>
 </test>

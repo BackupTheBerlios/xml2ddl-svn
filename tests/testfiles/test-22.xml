@@ -27,10 +27,6 @@
 </after>
 <ddls>
     <ddl>DROP VIEW myview</ddl>
-    <ddl>CREATE OR REPLACE VIEW newview AS SELECT table1.id, table1.col2 FROM table1;</ddl>
-</ddls>
-<ddls dbms="mysql">
-    <ddl>DROP VIEW myview</ddl>
-    <ddl>CREATE OR REPLACE VIEW newview AS SELECT `test`.`table1`.`id` AS `id`, `test`.`table1`.`col2` AS `col2` from `test`.`table1`;</ddl>
+    <ddl>CREATE VIEW newview AS SELECT table1.id, table1.col2 FROM table1;</ddl>
 </ddls>
 </test>

@@ -21,16 +21,16 @@
 </before>
 <after>
     <schema>
-        <table name="table2">
-            <columns>
-                <column name="table2_id" type="integer"/>
-                <column name="table1_id" type="integer"/>
-            </columns>
-        </table>
         <table name="table1">
             <columns>
                 <column name="table1_id" type="integer" key="1" null="no"/>
                 <column name="col2" type="integer"/>
+            </columns>
+        </table>
+        <table name="table2">
+            <columns>
+                <column name="table2_id" type="integer"/>
+                <column name="table1_id" type="integer"/>
             </columns>
         </table>
     </schema>

@@ -32,7 +32,7 @@
         </table>
         <table name="table1">
             <columns>
-                <column name="table1_id" type="integer" null="no" default="0"/>
+                <column name="table1_id" type="integer" key="1" null="no" default="0"/>
                 <column name="col2" type="integer"/>
             </columns>
         </table>
@@ -42,16 +42,17 @@
     <ddl>ALTER TABLE table2 DROP CONSTRAINT fk_table1_id</ddl>
 	<ddl>ALTER TABLE table2 ADD CONSTRAINT fk_table1_id FOREIGN KEY (table1_id) REFERENCES table1(table1_id) ON DELETE SET NULL ON UPDATE SET NULL</ddl>
 </ddls>
-<ddls dbms="mysql" fails="true">
+<ddls dbms="mysql" fails="true"> 
+    <!-- Appears the MySQL guys forgot Drop Constraint -->
     <ddl>ALTER TABLE table2 DROP CONSTRAINT fk_table1_id</ddl>
-	<ddl>ALTER TABLE table2 ADD CONSTRAINT fk_table1_id FOREIGN KEY (table1_id) REFERENCES table1(table1_id) ON DELETE SETNULL ON UPDATE SETNULL</ddl>
+	<ddl>ALTER TABLE table2 ADD CONSTRAINT fk_table1_id FOREIGN KEY (table1_id) REFERENCES table1(table1_id) ON DELETE SET NULL ON UPDATE SET NULL</ddl>
 </ddls>
-<ddls dbms="firebird">
     <!-- Failed with error: (-104, 'isc_dsql_prepare: Dynamic SQL Error. SQL error code = -104. Token unknown - line 2, char 29. DEFAULT. ')
 (firebird) testfiles\test-17c.xml: empty->before SQL: "CREATE TABLE table1 (
 	table1_id integer NOT NULL DEFAULT 0,
 	col2 integer,
 	CONSTRAINT pk_table1 PRIMARY KEY (table1_id))" -->
+<ddls dbms="firebird" fails="true">
 	<ddl>ALTER TABLE table2 DROP CONSTRAINT fk_table1_id</ddl>
 	<ddl>ALTER TABLE table2 ADD CONSTRAINT fk_table1_id FOREIGN KEY (table1_id) REFERENCES table1(table1_id) ON DELETE SET NULL ON UPDATE SET NULL</ddl>
 </ddls>

@@ -27,13 +27,14 @@ class DdlCommonInterface:
             'drop_constraints_on_col_rename' : False,
             'rename_keyword' : 'RENAME', # or ALTER
             'no_alter_column_type' : False,
-            'drop_table_has_cascade' : True,
+            'drop_table_has_cascade' : False, # Test
             'no_alter_default' : False,
             'change_type_keyword' : 'ALTER',
             'TYPE' : 'TYPE ',
             'can_change_table_comment' : True,
             'no_rename_col' : False,
-            'drop_index'    : 'DROP INDEX %(index_name)s'
+            'drop_index'    : 'DROP INDEX %(index_name)s',
+            'default_keyword' : 'DEFAULT',
         }
 
     # Tables
@@ -60,7 +61,7 @@ class DdlCommonInterface:
             'table' : tableName,
             'desc' : self.quoteString(desc),
         }
-        ddls.append(('Table Comment',
+        ddls.append(('Add Table Comment',
             self.params['table_desc'] % info ))
     
     # Columns
@@ -85,7 +86,7 @@ class DdlCommonInterface:
         
         strAlter = 'ALTER TABLE %(table_name)s DROP %(column_name)s' % info
 
-        diffs.append(('Dropped Column', strAlter))
+        diffs.append(('Drop Column', strAlter))
         
     def renameColumn(self, strTableName, strOldName, strNewName, strNewColType, diffs):
         info = {
@@ -114,7 +115,7 @@ class DdlCommonInterface:
             'desc' :  self.quoteString(strDesc),
             'type' : strColType + ' ',
         }
-        ddls.append(('Column comment',
+        ddls.append(('Add Column comment',
             self.params['column_desc'] % info ))
 
     def changeColumnComment(self, strTableName, strColumnName, strDesc, strColType, ddls):
@@ -127,11 +128,10 @@ class DdlCommonInterface:
             'pk_constraint' : self.quoteName('pk_%s' % (strTableName)),
             'keys'          : ', '.join(keylist),
         }
-        diffs.append( ('Create primary keys',
+        diffs.append( ('Add key constraint',
             'ALTER TABLE %(table_name)s ADD CONSTRAINT %(pk_constraint)s PRIMARY KEY (%(keys)s)' % info))
 
     def dropKeyConstraint(self, strTable, strConstraintName, diffs):
-        # Note, apparently wasn't used
         info = {
             'table_name' : strTable,
             'constraint_name' : strConstraintName,
@@ -189,7 +189,7 @@ class DdlCommonInterface:
                 action = 'SET NULL'
             info['onupdate'] = ' ON UPDATE ' + action
             
-        diffs.append(('relation', 
+        diffs.append(('Add Relation', 
             'ALTER TABLE %(tablename)s ADD CONSTRAINT %(constraint)s FOREIGN KEY (%(thiscolumn)s) REFERENCES %(othertable)s(%(fk)s)%(ondelete)s%(onupdate)s' % info))
 
     def dropRelation(self, strTableName, strRelationName, diffs):
@@ -200,7 +200,6 @@ class DdlCommonInterface:
         
         diffs += [
             ('Drop Relation', 'ALTER TABLE %(tablename)s DROP CONSTRAINT %(constraintname)s' % info)]
-
 
     # Autoincrement
     def addAutoIncrement(self, strTableName, strColName, strDefault, strPreDdl, strPostDdl):
@@ -215,9 +214,9 @@ class DdlCommonInterface:
             return ' AUTO_INCREMENT'
     
         if self.dbmsType == 'firebird':
-            strPreDdl.append(('autoincrement generator',
+            strPreDdl.append(('Add Autoincrement Generator',
                 'CREATE GENERATOR %(seq_name)s' % info))
-            strPostDdl.append(('autoincrement trigger',
+            strPostDdl.append(('Add Autoincrement Trigger',
                 """CREATE TRIGGER %(ai_trigger)s FOR %(table_name)s
                 BEFORE INSERT AS
                 BEGIN
@@ -225,7 +224,7 @@ class DdlCommonInterface:
                 END""" % info))
             return ''
         
-        strPreDdl.append(('autoincrement', 
+        strPreDdl.append(('Add Autoincrement', 
             'CREATE SEQUENCE %(seq_name)s' % info))
             
         if strDefault:
@@ -269,21 +268,20 @@ class DdlCommonInterface:
             'table_name' : self.quoteName(strTableName),
             'column_name' : self.quoteName(col.get('name')),
             'change_type_keyword' : 'ALTER',
-            'new_default' : 'null', # FIX TODO Null, 0 or ''
-            'default_keyword' : 'SET DEFAULT',
+            'default_keyword' : 'DROP DEFAULT',
             'column_type' : self.retColTypeEtc(col),
             'TYPE' : self.params['TYPE'],
         }
-            
+        
         if self.params['no_alter_default']:
             # Firebird
             diffs.append(
-                ('Drop Default', 
+                ('Change Default', 
                 'ALTER TABLE %(table_name)s %(change_type_keyword)s %(column_name)s %(TYPE)s%(column_type)s' % info))
         else:
             diffs.append(
-                ('Drop Default', 
-                'ALTER TABLE %(table_name)s %(change_type_keyword)s %(column_name)s %(default_keyword)s %(new_default)s' % info))
+                ('Change Default', 
+                'ALTER TABLE %(table_name)s %(change_type_keyword)s %(column_name)s %(default_keyword)s' % info))
 
     def changeColDefault(self, strTableName, strColumnName, strNewDefault, strColType, diffs):
         info = {
@@ -300,7 +298,7 @@ class DdlCommonInterface:
             # Firebird
             diffs.append(
                 ('Change Default', 
-                'ALTER TABLE %(table_name)s %(change_type_keyword)s %(column_name)s %(TYPE)s%(column_type)s DEFAULT %(new_default)s' % info))
+                'ALTER TABLE %(table_name)s %(change_type_keyword)s %(column_name)s %(TYPE)s%(column_type)s' % info))
         else:
             diffs.append(
                 ('Change Default', 
@@ -328,7 +326,7 @@ class DdlCommonInterface:
                 'ALTER TABLE %(table_name)s RENAME tmp_%(column_name)s TO %(column_name)s' % info) )
         else:
             diffs.append(
-                ('Modify column', 
+                ('Change Col Type', 
                 'ALTER TABLE %(table_name)s %(change_type_keyword)s %(column_name)s %(TYPE)s%(column_type)s' % info))
 
     def renameView(self, strOldViewName, strNewViewName, newDefinition, newAttribs, diffs):
@@ -339,39 +337,80 @@ class DdlCommonInterface:
         info = {
             'viewname' : self.quoteName(strOldViewName),
         }
-        diffs.append( (
-            'Drop view',
-            'DROP VIEW %(viewname)s' % info ))
+        diffs.append(('Drop view',
+            'DROP VIEW %(viewname)s' % info )
+        )
     
     def addView(self, strNewViewName, strContents, attribs, diffs):
         info = {
             'viewname' : self.quoteName(strNewViewName),
             'contents' : strContents,
         }
-        diffs.append( (
-            'Drop view',
-            'CREATE OR REPLACE VIEW %(viewname)s AS %(contents)s' % info ))
+        diffs.append(('Add view',  # OR REPLACE 
+            'CREATE VIEW %(viewname)s AS %(contents)s' % info )
+        )
     
     def updateView(self, strViewName, strContents, attribs, diffs):
         self.addView(strViewName, strContents, attribs, diffs)
-        
+
+    # Function stuff
+    def renameFunction(self, strOldFunctionName, strNewFunctionName, newDefinition, newAttribs, diffs):
+        self.dropFunction(strOldFunctionName, newAttribs['params'], diffs)
+        self.addFunction(strNewFunctionName, newDefinition, newAttribs, diffs)
+    
+    def dropFunction(self, strOldFunctionName, strParams, diffs):
+        paramList = strParams.split(',')
+        info = {
+            'functionname' : self.quoteName(strOldFunctionName),
+            'params'       : ', '.join(paramList),
+        }
+        diffs.append(('Drop function',
+            'DROP FUNCTION %(functionname)s(%(params)s);' % info )
+        )
+    
+    def addFunction(self, strNewFunctionName, argumentList, strReturn, strContents, attribs, diffs):
+        info = {
+            'functionname' : self.quoteName(strNewFunctionName),
+            'arguments'  : ', '.join(argumentList),
+            'returns'  : strReturn,
+            'contents' : strContents.replace("'", "''"),
+        }
+        if 'language' not in attribs:
+            info['language'] = ' LANGUAGE plpgsql'
+        else:
+            info['language'] = ' LANGUAGE %s' % (attribs['language'])
+
+        diffs.append(('Add view',  # OR REPLACE 
+            "CREATE FUNCTION %(functionname)s(%(arguments)s) RETURNS %(returns)s AS '\n%(contents)s'%(language)s" % info )
+        )
+    
+    def updateFunction(self, strNewFunctionName, argumentList, strReturn, strContents, attribs, diffs):
+        self.addFunction(strNewFunctionName, argumentList, strReturn, strContents, attribs, diffs)
+
     def retColTypeEtc(self, col):
         strNull = ''
         if 'null' in col:
             strVal = col.get('null')
             if re.compile('not|no', re.IGNORECASE).search(strVal):
                 strNull = ' NOT NULL'
-        
+
+        strDefault = ''
+        if 'default' in col:
+            strDefault = ' ' + self.params['default_keyword'] + ' ' + col.get('default')
+        elif self.dbmsType == 'mysql' and col.get('type') == 'timestamp':
+            # MySQL silently sets the default to CURRENT_TIMESTAMP
+            strRet += ' DEFAULT null'
+
         strType = col.get('type', None)
         strSize = col.get('size', None)
         strPrec = col.get('precision', None)
         
         if strPrec:
-            strRet = '%s(%s, %s)%s' % (strType, strSize, strPrec, strNull)
+            strRet = '%s(%s, %s)%s%s' % (strType, strSize, strPrec, strDefault, strNull)
         elif strSize:
-            strRet = '%s(%s)%s' % (strType, strSize, strNull)
+            strRet = '%s(%s)%s%s' % (strType, strSize, strDefault, strNull)
         else:
-            strRet = '%s%s' % (strType, strNull)
+            strRet = '%s%s%s' % (strType, strDefault, strNull)
 
         return strRet
 
@@ -421,6 +460,35 @@ class DdlPostgres(DdlCommonInterface):
             OFF OLD ON ONLY OR ORDER OUTER OVERLAPS PRIMARY REFERENCES RIGHT SELECT SESSION_USER SIMILAR SOME TABLE 
             THEN TO TRAILING TRUE UNION UNIQUE USER USING VERBOSE WHEN WHERE""".split()
         
+    def addFunction(self, strNewFunctionName, argumentList, strReturn, strContents, attribs, diffs):
+        newArgs = []
+        declares = []
+        for nIndex, arg in enumerate(argumentList):
+            oneArg = arg.strip().split()
+            newArgs.append(oneArg[-1])
+            declares.append('  %s ALIAS FOR $%d;' % (oneArg[0], nIndex + 1))
+        
+        if len(declares) > 0:
+            match = re.compile('(\s*declare)(.*)', re.IGNORECASE | re.MULTILINE | re.DOTALL).match(strContents)
+            if match:
+                strContents = match.group(1) + '\n' + '\n'.join(declares) + match.group(2)
+            else:
+                strContents = 'DECLARE\n' + '\n'.join(declares) + "\n" + strContents
+            
+        info = {
+            'functionname' : self.quoteName(strNewFunctionName),
+            'arguments'  : ', '.join(newArgs),
+            'returns'  : strReturn,
+            'contents' : strContents.replace("'", "''"),
+        }
+        if 'language' not in attribs:
+            info['language'] = ' LANGUAGE plpgsql'
+        else:
+            info['language'] = ' LANGUAGE %s' % (attribs['language'])
+
+        diffs.append(('Add view',  # OR REPLACE 
+            "CREATE FUNCTION %(functionname)s(%(arguments)s) RETURNS %(returns)s AS '\n%(contents)s'%(language)s" % info )
+        )
 
 class DdlMySql(DdlCommonInterface):
     def __init__(self):
@@ -457,6 +525,39 @@ class DdlMySql(DdlCommonInterface):
             TINYINT TINYTEXT TO TRAILING TRUE UNDO UNION UNIQUE UNLOCK UNSIGNED UPDATE USAGE USE USER_RESOURCES USING
             UTC_DATE UTC_TIME UTC_TIMESTAMP VALUES VARBINARY VARCHAR VARCHARACTER VARYING WHEN WHERE WHILE WITH
             WRITE XOR YEAR_MONTH ZEROFILL""".split() 
+            
+    def dropKeyConstraint(self, strTable, strConstraintName, diffs):
+        """ Can't drop constraints """
+        pass
+
+    def dropRelation(self, strTableName, strRelationName, diffs):
+        """ Can't drop relations """
+        pass
+        
+    def addFunction(self, strNewFunctionName, argumentList, strReturn, strContents, attribs, diffs):
+        argumentList = [ '%s' % arg for arg in argumentList ]
+        info = {
+            'functionname' : self.quoteName(strNewFunctionName),
+            'arguments'  : ', '.join(argumentList),
+            'returns'  : strReturn,
+            'contents' : strContents.replace("'", "''"),
+            'language' : '',
+        }
+        if 'language' in attribs:
+            info['language'] = ' LANGUAGE %s' % (attribs['language'])
+
+        diffs.append(('Add view',  # OR REPLACE 
+            "CREATE FUNCTION %(functionname)s(%(arguments)s) RETURNS %(returns)s %(language)s\n%(contents)s" % info )
+        )
+
+    def dropFunction(self, strOldFunctionName, strParams, diffs):
+        paramList = strParams.split(',')
+        info = {
+            'functionname' : self.quoteName(strOldFunctionName),
+        }
+        diffs.append(('Drop function',
+            'DROP FUNCTION %(functionname)s;' % info )
+        )
 
 class DdlFirebird(DdlCommonInterface):
     def __init__(self):
@@ -468,6 +569,7 @@ class DdlFirebird(DdlCommonInterface):
         self.params['drop_constraints_on_col_rename'] = True
         self.params['drop_table_has_cascade'] = False
         self.params['no_alter_default'] = True
+        self.params['default_keyword'] = 'DEFAULT'
         
         self.params['keywords'] = """
             ACTION ACTIVE ADD ADMIN AFTER ALL ALTER AND ANY AS ASC ASCENDING AT AUTO AUTODDL AVG BASED BASENAME BASE_NAME 
@@ -490,7 +592,9 @@ class DdlFirebird(DdlCommonInterface):
             STATIC STATISTICS SUB_TYPE SUM SUSPEND TABLE TERMINATOR THEN TIME TIMESTAMP TO TRANSACTION TRANSLATE TRANSLATION 
             TRIGGER TRIM TYPE UNCOMMITTED UNION UNIQUE UPDATE UPPER USER USING VALUE VALUES VARCHAR VARIABLE VARYING VERSION 
             VIEW WAIT WEEKDAY WHEN WHENEVER WHERE WHILE WITH WORK WRITE YEAR YEARDAY""".split()
-        
+        # Note you need to remove the constraints like:
+        # alter table table1 drop constraint pk_table1;
+        # before dropping the table (what a pain)
 
 def attribsToDict(node):
     dict = {}
@@ -501,6 +605,9 @@ def attribsToDict(node):
     return dict
 
 def createDdlInterface(strDbms):
+    if strDbms.lower() not in ['postgres', 'postgres7', 'mysql', 'oracle', 'firebird']:
+        print "Unknown dbms %s" % (dbmsType)
+    
     if strDbms.startswith('postgres'):
         return DdlPostgres(strDbms)
     elif strDbms.startswith('mysql'):

@@ -21,32 +21,32 @@
 </after>
 <ddls>
     <ddl>ALTER TABLE table1 ALTER col1 TYPE decimal(10)</ddl>
-    <ddl>ALTER TABLE table1 ALTER col1 SET DEFAULT 2</ddl>
     <ddl>ALTER TABLE table1 ALTER col2 TYPE decimal(15)</ddl>
+    <ddl>ALTER TABLE table1 ALTER col1 SET DEFAULT 2</ddl>
     <ddl>ALTER TABLE table1 ALTER col2 SET DEFAULT 3</ddl>
 </ddls>
 <ddls dbms="firebird" fails="true">
     <ddl>ALTER TABLE table1 ALTER col1 TYPE decimal(10)</ddl>
-    <ddl>ALTER TABLE table1 ALTER col1 SET DEFAULT 2</ddl>
     <ddl>ALTER TABLE table1 ALTER col2 TYPE decimal(15)</ddl>
+    <ddl>ALTER TABLE table1 ALTER col1 SET DEFAULT 2</ddl>
     <ddl>ALTER TABLE table1 ALTER col2 SET DEFAULT 3</ddl>
 </ddls>
 <ddls dbms="mysql">
-    <ddl>ALTER TABLE table1 MODIFY col1 decimal(10)</ddl>
-    <ddl>ALTER TABLE table1 ALTER col1 SET DEFAULT 2</ddl>
-    <ddl>ALTER TABLE table1 MODIFY col2 decimal(15)</ddl>
-    <ddl>ALTER TABLE table1 ALTER col2 SET DEFAULT 3</ddl>
+    <ddl>ALTER TABLE table1 MODIFY col1 decimal(10)</ddl> <!-- Change Col Type -->
+    <ddl>ALTER TABLE table1 MODIFY col2 decimal(15)</ddl> <!-- Change Col Type -->
+    <ddl>ALTER TABLE table1 ALTER col1 SET DEFAULT 2</ddl> <!-- Change Default -->
+    <ddl>ALTER TABLE table1 ALTER col2 SET DEFAULT 3</ddl> <!-- Change Default -->
 </ddls>
 <ddls dbms="postgres7">
-    <ddl>ALTER TABLE table1 ADD tmp_col1 decimal(10)</ddl>
-    <ddl>UPDATE table1 SET tmp_col1 = col1</ddl>
-    <ddl>ALTER TABLE table1 DROP col1</ddl>
-    <ddl>ALTER TABLE table1 RENAME tmp_col1 TO col1</ddl>
     <ddl>ALTER TABLE table1 ALTER col1 SET DEFAULT 2</ddl>
-    <ddl>ALTER TABLE table1 ADD tmp_col2 decimal(15)</ddl>
-    <ddl>UPDATE table1 SET tmp_col2 = col2</ddl>
-    <ddl>ALTER TABLE table1 DROP col2</ddl>
-    <ddl>ALTER TABLE table1 RENAME tmp_col2 TO col2</ddl>
     <ddl>ALTER TABLE table1 ALTER col2 SET DEFAULT 3</ddl>
+    <ddl>ALTER TABLE table1 ADD tmp_col1 decimal(10)</ddl>
+    <ddl>ALTER TABLE table1 ADD tmp_col2 decimal(15)</ddl>
+    <ddl>UPDATE table1 SET tmp_col1 = col1</ddl>
+    <ddl>UPDATE table1 SET tmp_col2 = col2</ddl>
+    <ddl>ALTER TABLE table1 DROP col1</ddl>
+    <ddl>ALTER TABLE table1 DROP col2</ddl>
+    <ddl>ALTER TABLE table1 RENAME tmp_col1 TO col1</ddl>
+    <ddl>ALTER TABLE table1 RENAME tmp_col2 TO col2</ddl>
 </ddls>
 </test>
