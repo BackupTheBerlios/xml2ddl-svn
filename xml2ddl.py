@@ -179,7 +179,7 @@ class Xml2Ddl:
         strTableName = self.ddlInterface.quoteName(doc.getAttribute('name'))
         
         if self.params['drop-tables']:
-            self.ddlInterface.dropTable(strTableName, '', self.ddls)
+            self.ddlInterface.dropTable(strTableName, ' CASCADE', self.ddls)
         
         strPreDdl = []
         strPostDdl = []
@@ -205,7 +205,7 @@ class Xml2Ddl:
         self.ddls += strPostDdl
 
         if doc.hasAttribute('desc'):
-            self.addTableComment(strTableName, doc.getAttribute('desc'))
+            self.ddlInterface.addTableComment(strTableName, doc.getAttribute('desc'), self.ddls)
             
         self.addColumnComments(doc)
         self.addIndexes(doc)
