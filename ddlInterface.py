@@ -16,11 +16,6 @@ class DdlCommonInterface:
     def __init__(self, strDbms):
         self.dbmsType = strDbms
         self.params = {
-            'drop-tables' : True,
-            'output_primary_keys' : True,
-            'output_references' : True,
-            'output_indexes' : True,
-            'add_dataset' : True,
             'table_desc' : "COMMENT ON TABLE %(table)s IS %(desc)s",
             'column_desc' : "COMMENT ON COLUMN %(table)s.%(column)s IS %(desc)s",
             'unquoted_id' : re.compile(r'^[A-Za-z][A-Za-z0-9_]+$'),
@@ -41,6 +36,57 @@ class DdlCommonInterface:
             'drop_index'    : 'DROP INDEX %(index_name)s'
         }
 
+    def dropTable(self, strTableName, strCascade, diffs):
+        info = {
+            'table_name' : self.quoteName(strTableName),
+            'cascade'    : strCascade,
+        }
+        
+        diffs.append(
+            ('Drop Table', 'DROP TABLE %(table_name)s%(cascade)s' % info))
+
+    def addColumn(self, strTableName, strColName, strColType, nAfter, diffs):
+        """ nAfter not used yet """
+        
+        info = { 
+            'table_name' : self.quoteName(strTableName),
+            'column_name' : self.quoteName(strColName),
+            'column_type' : strColType
+        }
+        
+        strAlter = 'ALTER TABLE %(table_name)s ADD %(column_name)s %(column_type)s' % info
+
+        diffs.append(('Add Column', strAlter))
+        
+    def dropCol(self, strTableName, strColName, diffs):
+        info = { 
+            'table_name' : self.quoteName(strTableName),
+            'column_name' : self.quoteName(strColName),
+        }
+        
+        strAlter = 'ALTER TABLE %(table_name)s DROP %(column_name)s' % info
+
+        diffs.append(('Dropped Column', strAlter))
+        
+    def renameColumn(self, strTableName, strOldName, strNewName, strNewColType, diffs):
+        info = {
+            'table_name'   : self.quoteName(strTableName),
+            'old_col_name' : self.quoteName(strOldName),
+            'new_col_name' : self.quoteName(strNewName),
+            'rename'       : self.params['rename_keyword'],
+            'column_type'  : strNewColType,
+        }
+        
+        if self.params['no_rename_col']:
+            # MySQL is like this
+            diffs.append(
+                ('Rename column',
+                'ALTER TABLE %(table_name)s CHANGE %(old_col_name)s %(new_col_name)s %(column_type)s' % info))
+        else:
+            diffs.append(
+                ('Rename column',
+                'ALTER TABLE %(table_name)s %(rename)s %(old_col_name)s TO %(new_col_name)s' % info))
+
     def addTableComment(self, tableName, desc, ddls):
         """ TODO: Fix the desc for special characters """
         info = {
@@ -60,6 +106,24 @@ class DdlCommonInterface:
         ddls.append(('Column comment',
             self.params['column_desc'] % info ))
 
+    def addKeyConstraint(self, strTableName, keylist, diffs):
+        info = {
+            'table_name'    : self.quoteName(strTableName), 
+            'pk_constraint' : self.quoteName('pk_%s' % (strTableName)),
+            'keys'          : ', '.join(keylist),
+        }
+        diffs.append( ('Create primary keys',
+            'ALTER TABLE %(table_name)s ADD CONSTRAINT %(pk_constraint)s PRIMARY KEY (%(keys)s)' % info))
+
+    def dropKeyConstraint(self, strTable, strConstraintName, diffs):
+        # Note, apparently wasn't used
+        info = {
+            'table_name' : strTable,
+            'constraint_name' : strConstraintName,
+        }
+        diffs.append(('Drop key constraint', 
+            'ALTER TABLE %(table_name)s DROP CONSTRAINT %(constraint_name)s' % info))
+    
     def addIndex(self, strTableName, strIndexName, cols, ddls):
         cols = [self.quoteName(col) for col in cols]
         
@@ -74,7 +138,7 @@ class DdlCommonInterface:
         diffs += [(
             'Drop Index', self.params['drop_index'] % info)]
 
-    def insertRelation(self, strTableName, strRelationName, strColumn, strFkTable, strFk, strOnDelete, strOnUpdate, diffs):
+    def addRelation(self, strTableName, strRelationName, strColumn, strFkTable, strFk, strOnDelete, strOnUpdate, diffs):
         info = {
             'tablename'  : self.quoteName(strTableName),
             'thiscolumn' : self.quoteName(strColumn),
@@ -331,6 +395,7 @@ class DdlFirebird(DdlCommonInterface):
         self.params['drop_constraints_on_col_rename'] = True
         self.params['drop_table_has_cascade'] = False
         self.params['no_alter_default'] = True
+        
         self.params['keywords'] = """
             ACTION ACTIVE ADD ADMIN AFTER ALL ALTER AND ANY AS ASC ASCENDING AT AUTO AUTODDL AVG BASED BASENAME BASE_NAME 
             BEFORE BEGIN BETWEEN BLOB BLOBEDIT BUFFER BY CACHE CASCADE CAST CHAR CHARACTER CHARACTER_LENGTH CHAR_LENGTH

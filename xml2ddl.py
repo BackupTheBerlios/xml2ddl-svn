@@ -52,14 +52,6 @@ class Xml2Ddl:
             'output_references' : True,
             'output_indexes' : True,
             'add_dataset' : True,
-            'table_desc' : "COMMENT ON TABLE %(table)s IS %(desc)s",
-            'column_desc' : "COMMENT ON COLUMN %(table)s.%(column)s IS %(desc)s",
-            'unquoted_id' : re.compile(r'^[A-Za-z][A-Za-z0-9_]+$'),
-            'max_id_len' : { 'default' : 256 },
-            'has_auto_increment' : False,
-            'keywords' : [ 'NULL', 'SELECT', 'FROM' ],
-            'quote_l' : '"',
-            'quote_r' : '"',
         }
 
     def setDbms(self, dbms):
@@ -131,9 +123,15 @@ class Xml2Ddl:
         strTableName = doc.getAttribute('name')
         
         for relation in relations:
-            self.addRelation(strTableName, relation)
+            self.ddlInterface.addRelation(strTableName, 
+                self.getRelationName(relation), 
+                relation.getAttribute('column'), 
+                relation.getAttribute('table'),
+                relation.getAttribute('fk'),
+                relation.getAttribute('ondelete'),
+                relation.getAttribute('onupdate'),
+                self.ddls)
         
-
     def getRelationName(self, relation):
         strConstraintName = relation.getAttribute('name')
         if len(strConstraintName) == 0:
