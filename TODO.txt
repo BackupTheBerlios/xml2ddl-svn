@@ -26,3 +26,10 @@ Things That Need to be Done
   + Non portable data types (like varchar2)
   + Un-indexed tables
 
+- Relations should be called fks=""? instead of fk="" or maybe foreignkeys="" + columns="" instead of column=""?
+
+- Relations need to support changes to ondelete="" (action), onupdate="" (action)
+
+- Ordering of columns to match ordering in XML
+
+

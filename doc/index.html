@@ -10,8 +10,8 @@
 <link rel="stylesheet" href="default.css" type="text/css" />
 </head>
 <body>
-<div class="document" id="xml-to-ddl">
 <h1 class="title">XML To DDL</h1>
+<div class="document" id="xml-to-ddl">
 <p>''Bringing some sanity to database maintenance.''</p>
 <div class="contents topic" id="table-of-contents">
 <p class="topic-title first"><a name="table-of-contents">Table of Contents</a></p>
@@ -21,18 +21,22 @@
 <li><a class="reference" href="#differencing-example" id="id3" name="id3">Differencing Example</a></li>
 <li><a class="reference" href="#using-a-dictionary" id="id4" name="id4">Using a dictionary</a></li>
 <li><a class="reference" href="#outputting-html-documentation" id="id5" name="id5">Outputting HTML Documentation</a></li>
-<li><a class="reference" href="#advantages" id="id6" name="id6">Advantages</a></li>
-<li><a class="reference" href="#to-do" id="id7" name="id7">To do</a></li>
+<li><a class="reference" href="#annotated-xml" id="id6" name="id6">Annotated XML</a></li>
+<li><a class="reference" href="#advantages" id="id7" name="id7">Advantages</a></li>
+<li><a class="reference" href="#to-do" id="id8" name="id8">To do</a></li>
+<li><a class="reference" href="#similar-work" id="id9" name="id9">Similar Work</a></li>
 </ul>
 </div>
 <div class="section" id="introduction">
 <h1><a class="toc-backref" href="#id1" name="introduction">Introduction</a></h1>
 <p><tt class="literal"><span class="pre">XML</span> <span class="pre">to</span> <span class="pre">DDL</span></tt> is a set of python programs to convert an XML representation of a database into a 
-set of <a class="reference" href="http://http://en.wikipedia.org/wiki/Data_Definition_Language">DDL</a> (Data Definition Language) statements.</p>
+set of SQL (or <a class="reference" href="http://http://en.wikipedia.org/wiki/Data_Definition_Language">DDL</a>: Data Definition Language) statements.</p>
 <p>In addition <tt class="literal"><span class="pre">XML</span> <span class="pre">to</span> <span class="pre">DDL</span></tt> can examine the difference between two XML files and output a sequence of ALTER statements that
 will update the database to conform to the new schema.</p>
 <p>Finallly, <tt class="literal"><span class="pre">XML</span> <span class="pre">to</span> <span class="pre">DDL</span></tt> can generate HTML documentation of your schema.</p>
 <p>You can find more information and download files at the <a class="reference" href="http://developer.berlios.de/projects/xml2ddl/">Berlios page</a></p>
+<p>And you can find documentation through the many <a class="reference" href="http://xml2ddl.berlios.de/testdetails.html">test cases</a>.</p>
+<p>You can add comments or help in the <a class="reference" href="http://openfacts.berlios.de/index-en.phtml?title=XML%20to%20DDL">wiki pages</a>.</p>
 </div>
 <div class="section" id="simple-example">
 <h1><a class="toc-backref" href="#id2" name="simple-example">Simple Example</a></h1>
@@ -128,7 +132,7 @@ ALTER TABLE students RENAME tmp_student_name TO student_name;
 ALTER TABLE students DROP email;
 COMMENT ON TABLE students IS 'List of students with their full names';
 </pre>
-<p>You can find a complete list of examples here: 
+<p>You can find a <em>complete</em> list of examples here: 
 <a class="reference" href="http://xml2ddl.berlios.de/testdetails.html">http://xml2ddl.berlios.de/testdetails.html</a></p>
 </div>
 <div class="section" id="using-a-dictionary">
@@ -198,8 +202,292 @@ Another, it <tt class="literal"><span class="pre">deprecated</span></tt> which i
 python xml2html.py --file schema.html schema.xml
 </pre>
 </div>
+<div class="section" id="annotated-xml">
+<h1><a class="toc-backref" href="#id6" name="annotated-xml">Annotated XML</a></h1>
+<p>The following is a list of the tags and attributes that xml2ddl accepts. 
+The attributes enclosed in [square brackets] are optional.</p>
+<pre class="literal-block">
+&lt;schema&gt;
+    &lt;include/&gt;
+    ...
+    
+    &lt;dictionary&gt;
+        &lt;dict/&gt;
+        ...
+    &lt;/dictionary&gt;
+    ...
+    
+    &lt;table&gt;
+        &lt;columns&gt;
+            &lt;column/&gt;
+            ...
+        &lt;/columns&gt;
+        &lt;indexes&gt;
+            &lt;index/&gt;
+            ...
+        &lt;/indexes&gt;
+        &lt;relations&gt;
+            &lt;relation/&gt;
+            ...
+        &lt;/relations&gt;
+        &lt;contraints&gt;
+            &lt;contraint/&gt;
+            ...
+        &lt;/contraints&gt;
+        &lt;triggers&gt;
+            &lt;trigger&gt;
+                ..
+            &lt;/trigger&gt;
+            ...
+        &lt;/triggers&gt;
+    &lt;/table&gt;
+    ...
+    
+    &lt;function&gt;
+        -- function contents.
+    &lt;/function&gt;
+    ...
+    
+    &lt;view&gt;
+        -- view contents
+    &lt;/view&gt;
+    ...
+    
+&lt;/schema&gt;
+</pre>
+<p>Here are the details of each of the XML tags.</p>
+<pre class="literal-block">
+&lt;schema [name=&quot;1&quot;] 
+        [dotshema=&quot;2&quot;]&gt;
+</pre>
+<p>Not all databases have schemas, but you still need the tag.</p>
+<ol class="arabic simple">
+<li>The name of the schema to use.</li>
+<li>&quot;yes&quot; or &quot;no&quot;. Indicates whether the table names will require the schema name before (i.e. &quot;schema.table&quot;) 
+<strong>- Not supported</strong></li>
+</ol>
+<pre class="literal-block">
+&lt;include href=&quot;1&quot;/&gt;
+</pre>
+<p>You can use includes to break a large XML schema into smaller pieces.</p>
+<ol class="arabic simple">
+<li>Is the filename of the XML to include.</li>
+</ol>
+<pre class="literal-block">
+&lt;dictionary name=&quot;1&quot;&gt;
+    &lt;dict class=&quot;2&quot; 3=&quot;4&quot;/&gt;
+&lt;/dictionary&gt;
+</pre>
+<p>The dictionary is a general system for adding attributes.</p>
+<ol class="arabic simple">
+<li>Here you place the name of the <em>tag</em> you want to apply this to. 
+Typically, it should be applied to &quot;column&quot; but it could be &quot;table&quot;, &quot;index&quot;, etc.</li>
+<li>The classname you've given this.</li>
+<li>The attribute name to add.</li>
+<li>The value of the attribute to add.</li>
+</ol>
+<pre class="literal-block">
+&lt;table name=&quot;1&quot; 
+      [fullname=&quot;2&quot;] 
+      [desc=&quot;3&quot;]
+      [inherits=&quot;4&quot;&gt;
+</pre>
+<p>Create a table definition. 
+The order may be important since xml2ddl isn't too careful about creating contraints before the table exists.</p>
+<ol class="arabic simple">
+<li>The name of the database table</li>
+<li>The full name of the table, usually just the table name with spaces instead of underscores, for example. 
+This is purely for documentation purposes.</li>
+<li>A long description of the table. The description is stored in the database if possible.</li>
+<li>The idea is to specify another table which this table will inherit columns from.
+It would possibly inherit the indexes, triggers, and constraints too.
+For databases that don't support the features it will repeat the values.
+<strong>- Not supported</strong></li>
+</ol>
+<pre class="literal-block">
+&lt;columns&gt;
+    &lt;column name=&quot;1&quot; 
+           [fullname=&quot;2&quot;] 
+           [desc=&quot;3&quot;] 
+            type=&quot;4&quot; 
+           [size=&quot;5&quot;] 
+           [precision=&quot;6&quot;] 
+           [null=&quot;7&quot;] 
+           [unique=&quot;8&quot;]
+           [key=&quot;9&quot;] 
+           [default=&quot;10&quot;]
+           [autoincrement=&quot;11&quot;]
+           [deprecated=&quot;12&quot;]/&gt;
+&lt;/columns&gt;
+</pre>
+<p>The &lt;columns&gt; tag gives an order list of attributes. 
+Currently, xml2ddl doesn't reorder the columns if you move things around.</p>
+<ol class="arabic simple">
+<li>Name of the column (aka attribute, aka field). 
+Note I chose the name <cite>column</cite> instead of <cite>attribute</cite> because I felt it would be easier for beginners to grasp.</li>
+<li>Fullname used only for documentation. Typically, it the same as <cite>name</cite> but with spaces and any hungarian notation removed.</li>
+<li>Long description of the attribute.</li>
+<li>The type of the column, should probably stick with the SQL99 types, if possible.</li>
+<li>The size of the column, used for varchar() and the like.</li>
+<li>The precision of the numeric value, must be used in conjuction with <cite>size</cite>. 
+<tt class="literal"><span class="pre">type=&quot;numeric&quot;</span> <span class="pre">size=&quot;10&quot;</span> <span class="pre">precision=&quot;2&quot;</span></tt> would produce <tt class="literal"><span class="pre">decimal(10,</span> <span class="pre">2)</span></tt>.</li>
+<li>&quot;yes&quot; or &quot;no&quot; or &quot;not&quot;. <tt class="literal"><span class="pre">no</span></tt> or <tt class="literal"><span class="pre">not</span></tt> expands to <tt class="literal"><span class="pre">NOT</span> <span class="pre">NULL</span></tt>. The default is <tt class="literal"><span class="pre">NULL</span></tt> if nothing is specified.</li>
+<li>If &quot;yes&quot; then the column will have a unique constraint added to it.
+The name of the constraint will be <tt class="literal"><span class="pre">unique_&lt;colname&gt;</span></tt>. <strong>- Not supported</strong></li>
+<li>A number from 1 to <em>N</em>. Indicates that this column will participate in being a primary key.
+Every table <em>should</em> have a primary key, but it isn't enforced.</li>
+</ol>
+<p>[10] Default value, if any. If none used, it typically defaults to NULL.</p>
+<dl>
+<dt>[11] If set to &quot;yes&quot; will try and make this column autoincrement if NULL is passed to in in an insert.</dt>
+<dd>On some systems I'll create a sequence and a trigger or default value.
+Typically, you will need to put in <tt class="literal"><span class="pre">null=&quot;no&quot;</span></tt> and <tt class="literal"><span class="pre">key=&quot;1&quot;</span></tt> as well.</dd>
+<dt>[12] Value &quot;yes&quot; if used. Means that the column is deprecated and shouldn't be used (but it still exists in the database).</dt>
+<dd>This is used purely for documentation purposes.</dd>
+</dl>
+<pre class="literal-block">
+&lt;relations&gt;
+    &lt;relation [name=&quot;1&quot;] 
+               column=&quot;2&quot; 
+               table=&quot;3&quot; 
+              [fk=&quot;4&quot;] 
+              [ondelete=&quot;5&quot;] 
+              [onupdate=&quot;6&quot;]/&gt;
+&lt;/relations&gt;
+</pre>
+<p>Relations is an unordered list of foreign key contraints to other tables and columns.
+For DBMS that don't support this, the relations would be used only for documentation purposes.</p>
+<ol class="arabic simple">
+<li>The name of the constraint, defaults to <tt class="literal"><span class="pre">fk_&lt;column&gt;</span></tt> if not provided.</li>
+<li>The list of columns of this table that forms part of the relation separated by commas.
+Note I may either change the name to <tt class="literal"><span class="pre">columns</span></tt> or just support both <tt class="literal"><span class="pre">column</span></tt> and <tt class="literal"><span class="pre">columns</span></tt>.</li>
+<li>The name of the other table that forms part of the relation.</li>
+<li>The name of the other columns that form part of the relation, separated by commas.
+If no name is given it defaults to the same name(s) as given in column.</li>
+<li>If used should pass <tt class="literal"><span class="pre">cascade</span></tt> or <tt class="literal"><span class="pre">setnull</span></tt>.</li>
+<li>If used should pass <tt class="literal"><span class="pre">cascade</span></tt> or <tt class="literal"><span class="pre">setnull</span></tt>.</li>
+</ol>
+<pre class="literal-block">
+&lt;indexes&gt;
+    &lt;index [name=&quot;1&quot;] 
+            columns=&quot;2&quot; 
+           [unique=&quot;3&quot;]
+           [using=&quot;4&quot;]
+           [where=&quot;5&quot;]/&gt;
+&lt;/indexes&gt;
+</pre>
+<p>Index are an unorder list of indexes on a table (i.e. the order of the &lt;index/&gt; tags does not matter).</p>
+<ol class="arabic simple">
+<li>The name of the index. Defaults to <tt class="literal"><span class="pre">idx_&lt;table&gt;&lt;columns&gt;</span></tt> where the columns are separeted by underscores.</li>
+<li>List of columns that form part of the index separated by commas.</li>
+<li>If set to &quot;yes&quot; then it creates a unique index. <strong>- Not supported</strong></li>
+<li>Type of index to create. <strong>- Not supported</strong></li>
+<li>Where clause. <strong>- Not supported</strong></li>
+</ol>
+<pre class="literal-block">
+&lt;constraints&gt;
+    &lt;constraint [name=&quot;1&quot;] 
+                [longname=&quot;2&quot;]
+                [desc=&quot;3&quot;]
+                 columns=&quot;4&quot; 
+                [unique=&quot;5&quot;] 
+                [check=&quot;6&quot;]/&gt;
+&lt;/constraints&gt;
+</pre>
+<p>The &lt;constraints&gt; tag lists an unorder list of contraint rules, if the database supports it. <strong>- Not supported</strong></p>
+<ol class="arabic simple">
+<li>The name of the constraint. 
+Defaults to <tt class="literal"><span class="pre">con_&lt;table&gt;&lt;columns&gt;</span></tt> where the columns are separeted by underscores.
+<strong>- Not supported</strong></li>
+<li>The long name of the constraint if any (for documentation only)</li>
+<li>The description of the constraint, for documentation.</li>
+<li>List of columns that form part of the constaint separated by commas <strong>- Not supported</strong></li>
+<li>If <tt class="literal"><span class="pre">yes</span></tt> means it's a unique constraint <strong>- Not supported</strong></li>
+<li>If set, it's a check constraint <strong>- Not supported</strong></li>
+</ol>
+<pre class="literal-block">
+&lt;triggers&gt;
+    &lt;trigger  name=&quot;1&quot;
+             [longname=&quot;2&quot;]
+             [desc=&quot;3&quot;]
+              timing=&quot;4&quot; 
+              events=&quot;5&quot;
+             [fire=&quot;6&quot;]
+             [function=&quot;7&quot;]&gt;
+        8
+    &lt;/trigger&gt;
+&lt;/triggers&gt;
+</pre>
+<p><strong>- Not supported</strong>
+The &lt;triggers&gt; tag lists an unorder list of triggers for the table, if the database supports it.</p>
+<ol class="arabic simple">
+<li>The name of the trigger, required.</li>
+<li>The long name of the trigger, if any (for documentation only)</li>
+<li>The description of the trigger for documentation purposes.</li>
+<li>The timing of the trigger, one of 'before' | 'after'</li>
+<li>The events that causes the trigger. One of 'insert', 'update', or 'delete'. 
+Multiple events can be specified by separating with commas.</li>
+<li>Specifies whether the trigger fires 'once' or 'per-row'.</li>
+<li>The name of an existing function to call on the trigger event, if the database supports this.</li>
+<li>The body of the trigger. Can't have used <tt class="literal"><span class="pre">function</span></tt> as well, it's one or the other.</li>
+</ol>
+<pre class="literal-block">
+&lt;dataset [only=&quot;1&quot;]&gt;
+    &lt;val 2=&quot;3&quot;/&gt;
+&lt;/dataset&gt;
+</pre>
+<p>A dataset is a set of data that should be in the table.
+Useful, when you need to store a small set of values in the table.</p>
+<ol class="arabic simple">
+<li>If set to true, the program will clean out the table before inserting the values.</li>
+<li>The left hand side of the equals is the name of the column to store this data value</li>
+<li>The right hand side of the equals is the value to store in this data cell.
+For example, <tt class="literal"><span class="pre">&lt;val</span> <span class="pre">id=&quot;1&quot;</span> <span class="pre">name=&quot;Bob&quot;/&gt;</span></tt> creates <tt class="literal"><span class="pre">INSERT</span> <span class="pre">INTO</span> <span class="pre">table</span> <span class="pre">(id,</span> <span class="pre">name)</span> <span class="pre">VALUES</span> <span class="pre">(1,</span> <span class="pre">'Bob')</span></tt></li>
+</ol>
+<pre class="literal-block">
+&lt;view name=&quot;1&quot; [fullname=&quot;2&quot;] [desc=&quot;3&quot;] [columns=&quot;4&quot;]&gt;
+    5
+&lt;/view&gt;
+</pre>
+<p><strong>- Not supported</strong>
+Create a view to the table.</p>
+<ol class="arabic simple">
+<li>Name of the view to be stored in the database.</li>
+<li>Typically, this is the name with spaces added.</li>
+<li>A full description of the view.</li>
+<li>You can optionally specify the column names, but most DBMS can infer them from the select statement.</li>
+<li>The contents of the view.</li>
+</ol>
+<pre class="literal-block">
+&lt;function name=&quot;1&quot; 
+         [fullname=&quot;2&quot;] 
+         [desc=&quot;3&quot;] 
+         [arguments=&quot;4&quot;] 
+         [returns=&quot;5&quot;] 
+         [language=&quot;6&quot;] 
+         [dbms=&quot;7&quot;] 
+         [volatile=&quot;8&quot;]&gt;
+    (9)
+&lt;/function&gt;
+</pre>
+<p><strong>- Not supported</strong>
+You can specify the body of a stored procedure or function.</p>
+<ol class="arabic simple">
+<li>Name of the function or procedure to be stored in the database.</li>
+<li>Typically, this is the name with spaces added.</li>
+<li>A full description of the function.</li>
+<li>Comma separeted list of arguments. If no arguments, void is assumed.</li>
+<li>If <tt class="literal"><span class="pre">returns</span></tt> is not there or empty it's considered a procedure.</li>
+<li>Language is assumed &quot;SQL&quot; or &quot;PL/SQL&quot; if not specified.</li>
+<li>Because the code is likely to change depending on the database system used you could specify
+the same function multiple times, one for each type of DBMS.
+If not ther all dbms systems are assumed.</li>
+<li>Can be &quot;yes&quot;, &quot;no&quot;, or &quot;stable&quot;. This is an execution hint for PostgreSQL.</li>
+<li>The contents of the function or procedure.</li>
+</ol>
+</div>
 <div class="section" id="advantages">
-<h1><a class="toc-backref" href="#id6" name="advantages">Advantages</a></h1>
+<h1><a class="toc-backref" href="#id7" name="advantages">Advantages</a></h1>
 <p>Storing the schema in this form has some advantages:</p>
 <ol class="arabic simple">
 <li>All the information about a table is stored together in one place. 
@@ -230,20 +518,28 @@ Another example is to change a status code (ex. 1, 2, or 3) into an enumeration 
 </ol>
 </div>
 <div class="section" id="to-do">
-<h1><a class="toc-backref" href="#id7" name="to-do">To do</a></h1>
+<h1><a class="toc-backref" href="#id8" name="to-do">To do</a></h1>
 <p>Here are the major directions I see <tt class="literal"><span class="pre">XML</span> <span class="pre">to</span> <span class="pre">DDL</span></tt> going:</p>
 <ul class="simple">
 <li>Support for more databases (currently I've written code only for PostgreSQL, Firebird, and MySQL).</li>
-<li>Build the XML schema from an existing database.</li>
-<li>Support comparing differences from the database as well as another XML file.</li>
-<li>More test cases.</li>
-<li>Support for database specific features</li>
+<li>Build the XML schema from an existing database. Some work on this for PostgreSQL is in the subversion repository.</li>
+<li>Support comparing differences from the database as well as another XML file.  This is a bit different since the 
+database may be more up-to-date, but the XML probably has more information (like fullname).</li>
+<li>Support for some database specific features.</li>
+<li>Hooks for developers to put in their own code on certain events.</li>
+<li>Support for check contraints, triggers, views and stored procedures.</li>
 </ul>
+</div>
+<div class="section" id="similar-work">
+<h1><a class="toc-backref" href="#id9" name="similar-work">Similar Work</a></h1>
+<p>I've been pointed to another project which looks similar calle <a class="reference" href="http://erw.dsi.unimi.it/">ERW</a> 
+A quick look shows that it tries to work at a higher level than my XML does (i.e. more abstract).
+It also generates code for PHP and produces nicer documentation.</p>
 </div>
 </div>
 <hr class="footer" />
 <div class="footer">
-Generated on: 2004-09-15.
+Generated on: 2004-09-23.
 Generated by <a class="reference" href="http://docutils.sourceforge.net/">Docutils</a> from <a class="reference" href="http://docutils.sourceforge.net/rst.html">reStructuredText</a> source.
 </div>
 </body>

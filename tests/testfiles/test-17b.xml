@@ -1,4 +1,4 @@
-<test title="Drop a relation">
+<test title="Create a relation with on delete">
 <before>
     <schema>
         <table name="table1">
@@ -12,9 +12,6 @@
                 <column name="table2_id" type="integer"/>
                 <column name="table1_id" type="integer"/>
             </columns>
-            <relations>
-                <relation column="table1_id" table="table1"/>
-            </relations>
         </table>
     </schema>
 </before>
@@ -31,13 +28,17 @@
                 <column name="table2_id" type="integer"/>
                 <column name="table1_id" type="integer"/>
             </columns>
+            <relations>
+                <relation name="fk_table1_id" column="table1_id" table="table1" fk="table1_id" ondelete="cascade" onupdate="cascade"/>
+            </relations>
         </table>
     </schema>
 </after>
 <ddls>
-    <ddl>ALTER TABLE table2 DROP CONSTRAINT fk_table1_id</ddl>
+    <ddl>ALTER TABLE table2 ADD CONSTRAINT fk_table1_id FOREIGN KEY (table1_id) REFERENCES table1(table1_id) ON DELETE CASCADE ON UPDATE CASCADE</ddl>
 </ddls>
-<ddls dbms="mysql" fails="true">
-    <ddl>ALTER TABLE table2 DROP CONSTRAINT fk_table1_id</ddl>
+<ddls dbms="firebird" fails="true">
+    <!-- TABLE1 is in use error? -->
+    <ddl>ALTER TABLE table2 ADD CONSTRAINT fk_table1_id FOREIGN KEY (table1_id) REFERENCES table1(table1_id)</ddl>
 </ddls>
 </test>

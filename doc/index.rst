@@ -196,6 +196,359 @@ Here's how to output the HTML document::
 
     python xml2html.py --file schema.html schema.xml
     
+Annotated XML
+=============
+
+The following is a list of the tags and attributes that xml2ddl accepts. 
+The attributes enclosed in [square brackets] are optional.
+
+::
+
+    <schema>
+        <include/>
+        ...
+        
+        <dictionary>
+            <dict/>
+            ...
+        </dictionary>
+        ...
+        
+        <table>
+            <columns>
+                <column/>
+                ...
+            </columns>
+            <indexes>
+                <index/>
+                ...
+            </indexes>
+            <relations>
+                <relation/>
+                ...
+            </relations>
+            <contraints>
+                <contraint/>
+                ...
+            </contraints>
+            <triggers>
+                <trigger>
+                    ..
+                </trigger>
+                ...
+            </triggers>
+        </table>
+        ...
+        
+        <function>
+            -- function contents.
+        </function>
+        ...
+        
+        <view>
+            -- view contents
+        </view>
+        ...
+        
+    </schema>
+
+Here are the details of each of the XML tags.
+
+::
+
+    <schema [name="1"] 
+            [dotshema="2"]>
+
+Not all databases have schemas, but you still need the tag.
+
+(1) The name of the schema to use. 
+
+(2) "yes" or "no". Indicates whether the table names will require the schema name before (i.e. "schema.table") 
+    |Not supported|
+
+::
+    
+    <include href="1"/>
+    
+You can use includes to break a large XML schema into smaller pieces.
+
+(1) Is the filename of the XML to include.
+
+::
+
+    <dictionary name="1">
+        <dict class="2" 3="4"/>
+    </dictionary>
+
+The dictionary is a general system for adding attributes.
+
+(1) Here you place the name of the *tag* you want to apply this to. 
+    Typically, it should be applied to "column" but it could be "table", "index", etc.
+       
+(2) The classname you've given this.
+
+(3) The attribute name to add.
+
+(4) The value of the attribute to add.
+
+::
+
+    <table name="1" 
+          [fullname="2"] 
+          [desc="3"]
+          [inherits="4">
+
+Create a table definition. 
+The order may be important since xml2ddl isn't too careful about creating contraints before the table exists.
+
+(1) The name of the database table
+
+(2) The full name of the table, usually just the table name with spaces instead of underscores, for example. 
+    This is purely for documentation purposes.
+
+(3) A long description of the table. The description is stored in the database if possible.
+
+(4) The idea is to specify another table which this table will inherit columns from.
+    It would possibly inherit the indexes, triggers, and constraints too.
+    For databases that don't support the features it will repeat the values.
+    |Not supported|
+    
+::
+
+    <columns>
+        <column name="1" 
+               [fullname="2"] 
+               [desc="3"] 
+                type="4" 
+               [size="5"] 
+               [precision="6"] 
+               [null="7"] 
+               [unique="8"]
+               [key="9"] 
+               [default="10"]
+               [autoincrement="11"]
+               [deprecated="12"]/>
+    </columns>
+
+The <columns> tag gives an order list of attributes. 
+Currently, xml2ddl doesn't reorder the columns if you move things around.
+
+(1) Name of the column (aka attribute, aka field). 
+    Note I chose the name `column` instead of `attribute` because I felt it would be easier for beginners to grasp.
+    
+(2) Fullname used only for documentation. Typically, it the same as `name` but with spaces and any hungarian notation removed.
+
+(3) Long description of the attribute.
+
+(4) The type of the column, should probably stick with the SQL99 types, if possible.
+
+(5) The size of the column, used for varchar() and the like. 
+
+(6) The precision of the numeric value, must be used in conjuction with `size`. 
+    ``type="numeric" size="10" precision="2"`` would produce ``decimal(10, 2)``.
+     
+(7) "yes" or "no" or "not". ``no`` or ``not`` expands to ``NOT NULL``. The default is ``NULL`` if nothing is specified.
+
+(8) If "yes" then the column will have a unique constraint added to it.
+    The name of the constraint will be ``unique_<colname>``. |Not supported|
+
+(9) A number from 1 to *N*. Indicates that this column will participate in being a primary key.
+    Every table *should* have a primary key, but it isn't enforced.
+    
+[10] Default value, if any. If none used, it typically defaults to NULL.
+
+[11] If set to "yes" will try and make this column autoincrement if NULL is passed to in in an insert.
+     On some systems I'll create a sequence and a trigger or default value.
+     Typically, you will need to put in ``null="no"`` and ``key="1"`` as well.
+
+[12] Value "yes" if used. Means that the column is deprecated and shouldn't be used (but it still exists in the database).
+     This is used purely for documentation purposes.
+
+::
+
+    <relations>
+        <relation [name="1"] 
+                   column="2" 
+                   table="3" 
+                  [fk="4"] 
+                  [ondelete="5"] 
+                  [onupdate="6"]/>
+    </relations>
+
+Relations is an unordered list of foreign key contraints to other tables and columns.
+For DBMS that don't support this, the relations would be used only for documentation purposes.
+
+(1) The name of the constraint, defaults to ``fk_<column>`` if not provided.
+
+(2) The list of columns of this table that forms part of the relation separated by commas.
+    Note I may either change the name to ``columns`` or just support both ``column`` and ``columns``.
+
+(3) The name of the other table that forms part of the relation.
+
+(4) The name of the other columns that form part of the relation, separated by commas.
+    If no name is given it defaults to the same name(s) as given in column.
+
+(5) If used should pass ``cascade`` or ``setnull``.
+
+(6) If used should pass ``cascade`` or ``setnull``.
+
+::
+
+    <indexes>
+        <index [name="1"] 
+                columns="2" 
+               [unique="3"]
+               [using="4"]
+               [where="5"]/>
+    </indexes>
+
+Index are an unorder list of indexes on a table (i.e. the order of the <index/> tags does not matter).
+
+(1) The name of the index. Defaults to ``idx_<table><columns>`` where the columns are separeted by underscores.
+
+(2) List of columns that form part of the index separated by commas.
+
+(3) If set to "yes" then it creates a unique index. |Not supported|
+
+(4) Type of index to create. |Not supported|
+
+(5) Where clause. |Not supported|
+
+::
+
+    <constraints>
+        <constraint [name="1"] 
+                    [longname="2"]
+                    [desc="3"]
+                     columns="4" 
+                    [unique="5"] 
+                    [check="6"]/>
+    </constraints>
+
+The <constraints> tag lists an unorder list of contraint rules, if the database supports it. |Not supported|
+
+(1) The name of the constraint. 
+    Defaults to ``con_<table><columns>`` where the columns are separeted by underscores.
+    |Not supported|
+
+(2) The long name of the constraint if any (for documentation only)
+
+(3) The description of the constraint, for documentation.
+
+(4) List of columns that form part of the constaint separated by commas |Not supported|
+
+(5) If ``yes`` means it's a unique constraint |Not supported|
+
+(6) If set, it's a check constraint |Not supported|
+
+::
+
+    <triggers>
+        <trigger  name="1"
+                 [longname="2"]
+                 [desc="3"]
+                  timing="4" 
+                  events="5"
+                 [fire="6"]
+                 [function="7"]>
+            8
+        </trigger>
+    </triggers>
+
+|Not supported|
+The <triggers> tag lists an unorder list of triggers for the table, if the database supports it.
+
+(1) The name of the trigger, required.
+
+(2) The long name of the trigger, if any (for documentation only)
+
+(3) The description of the trigger for documentation purposes.
+
+(4) The timing of the trigger, one of 'before' | 'after'
+
+(5) The events that causes the trigger. One of 'insert', 'update', or 'delete'. 
+    Multiple events can be specified by separating with commas.
+
+(6) Specifies whether the trigger fires 'once' or 'per-row'.
+
+(7) The name of an existing function to call on the trigger event, if the database supports this.
+
+(8) The body of the trigger. Can't have used ``function`` as well, it's one or the other.
+
+::
+
+    <dataset [only="1"]>
+        <val 2="3"/>
+    </dataset>
+
+A dataset is a set of data that should be in the table.
+Useful, when you need to store a small set of values in the table.
+
+(1) If set to true, the program will clean out the table before inserting the values.
+
+(2) The left hand side of the equals is the name of the column to store this data value
+
+(3) The right hand side of the equals is the value to store in this data cell.
+    For example, ``<val id="1" name="Bob"/>`` creates ``INSERT INTO table (id, name) VALUES (1, 'Bob')``
+
+
+::
+
+    <view name="1" [fullname="2"] [desc="3"] [columns="4"]>
+        5
+    </view>
+
+|Not supported|
+Create a view to the table.
+
+(1) Name of the view to be stored in the database.
+
+(2) Typically, this is the name with spaces added.
+
+(3) A full description of the view.
+
+(4) You can optionally specify the column names, but most DBMS can infer them from the select statement.
+
+(5) The contents of the view.
+
+
+::
+
+    <function name="1" 
+             [fullname="2"] 
+             [desc="3"] 
+             [arguments="4"] 
+             [returns="5"] 
+             [language="6"] 
+             [dbms="7"] 
+             [volatile="8"]>
+        (9)
+    </function>
+
+|Not supported|
+You can specify the body of a stored procedure or function.
+
+(1) Name of the function or procedure to be stored in the database.
+
+(2) Typically, this is the name with spaces added.
+
+(3) A full description of the function.
+
+(4) Comma separeted list of arguments. If no arguments, void is assumed.
+
+(5) If ``returns`` is not there or empty it's considered a procedure.
+
+(6) Language is assumed "SQL" or "PL/SQL" if not specified.
+
+(7) Because the code is likely to change depending on the database system used you could specify
+    the same function multiple times, one for each type of DBMS.
+    If not ther all dbms systems are assumed.
+
+(8) Can be "yes", "no", or "stable". This is an execution hint for PostgreSQL.
+
+(9) The contents of the function or procedure.
+
+
 Advantages
 ==========
 
@@ -247,8 +600,17 @@ Here are the major directions I see |xml2ddl| going:
 * Build the XML schema from an existing database. Some work on this for PostgreSQL is in the subversion repository.
 * Support comparing differences from the database as well as another XML file.  This is a bit different since the 
   database may be more up-to-date, but the XML probably has more information (like fullname).
-* Support for database specific features.
-* Support for check contraints, triggers, and stored procedures.
+* Support for some database specific features.
+* Hooks for developers to put in their own code on certain events.
+* Support for check contraints, triggers, views and stored procedures.
+
+Similar Work
+============
+
+I've been pointed to another project which looks similar calle `ERW <http://erw.dsi.unimi.it/>`_ 
+A quick look shows that it tries to work at a higher level than my XML does (i.e. more abstract).
+It also generates code for PHP and produces nicer documentation.
+
 
 .. _PostgreSQL: http://www.postgresql.com/
 .. _Firebird: http://firebird.sourceforge.net/
@@ -258,3 +620,5 @@ Here are the major directions I see |xml2ddl| going:
 .. _CVS: https://www.cvshome.org/
 
 .. |xml2ddl| replace:: ``XML to DDL``
+
+.. |Not supported| replace:: **- Not supported**

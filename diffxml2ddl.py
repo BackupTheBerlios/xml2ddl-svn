@@ -2,6 +2,13 @@ import re, os
 import xml2ddl
 from xml.dom.minidom import parse, parseString
 
+__author__ = "Scott Kirkwood (scott_kirkwood at berlios.com)"
+__keywords__ = ['XML', 'DML', 'SQL', 'Databases', 'Agile DB', 'ALTER', 'CREATE TABLE', 'GPL']
+__licence__ = "GNU Public License (GPL)"
+__longdescr__ = ""
+__url__ = 'http://xml2dml.berlios.de'
+__version__ = "$Revision: 0.2 $"
+
 """
 TODO:
     - DESC
@@ -155,7 +162,6 @@ class FindChanges:
                 ('Rename column',
                 'ALTER TABLE %(table_name)s CHANGE %(old_col_name)s %(new_col_name)s %(column_type)s' % info))
         else:
-            # I think Firebird it's ALTER COLUMN instead of RENAME COLUMN
             self.diffs.append(
                 ('Rename column',
                 'ALTER TABLE %(table_name)s %(rename)s %(old_col_name)s TO %(new_col_name)s' % info))
@@ -185,9 +191,11 @@ class FindChanges:
                         fk = safeGet(relation, 'fk', strCurColName)
                         
                         if fk == strColumnName:
-                            self.addRelation(table.getAttribute('name'), strCurColName, strTable, fk)
+                            self.addRelation(table.getAttribute('name'), relation)
 
     def addKeyConstraint(self, tableDoc):
+        """ The Primary Key constraint is always called pk_<tablename> and can't be changed """
+        
         strTableName = tableDoc.getAttribute('name')
         columns = tableDoc.getElementsByTagName('column')
         keys = []
@@ -203,19 +211,28 @@ class FindChanges:
         self.diffs.append( ('Create primary keys',
             'ALTER TABLE %(table_name)s ADD CONSTRAINT %(pk_constraint)s PRIMARY KEY (%(keys)s)' % info))
 
-    def addRelation(self, strTable, strColumn, strRelatedTable, strRelatedColumn):
-        """ Todo Missing multicolumn relations """
+    def dropKeyConstraint(self, strTable, col):
+        # Note, apparently wasn't used
         info = {
-            'table_name'  : self.xml2ddl.quoteName(strTable), 
-            'column_name' : self.xml2ddl.quoteName(strColumn), 
-            'constraint_name' : self.xml2ddl.quoteName('fk_%s_%s' % (strTable, strColumn)),
-            'related_table' : strRelatedTable, 
-            'related_column' : strRelatedColumn,
+            'table_name' : strTable,
+            'constraint_name' : 'pk_%s_%s' % (strTable, col.getAttribute('name')),
         }
-        self.diffs.append( ('Create relation ',
-                'ALTER TABLE %(table_name)s ADD CONSTRAINT %(constraint_name)s FOREIGN KEY (%(column_name)s) REFERENCES %(related_table)s(%(related_column)s)' % info))
-
+        return ('Drop key constraint', 
+            'ALTER TABLE %(table_name)s DROP CONSTRAINT %(constraint_name)s' % info)
+    
+    def addRelation(self, strTable, relation):
+        self.xml2ddl.reset()
+        self.xml2ddl.addRelation(strTable, relation)
+        self.diffs.extend(self.xml2ddl.ddls)
         
+    def dropRelation(self, strTable, strColumnName):
+        info = {
+            'table_name' : strTable,
+            'constraint_name' : 'fk_%s_%s' % (strTable, strColumnName),
+        }
+        return ('Drop relation constraint', 
+            'ALTER TABLE %(table_name)s DROP CONSTRAINT %(constraint_name)s' % info)
+    
     def dropRelatedConstraints(self, strTable, strColumnName = None):
         if strColumnName != None:
             self._dropRelatedConstraints(strTable, strColumnName)
@@ -239,7 +256,7 @@ class FindChanges:
                     strCurColName = col.getAttribute('name')
                     if strCurColName == strColumnName:
                         if col.hasAttribute('key'):
-                            pkList.append(self.dropKeyConstraint(strTable))
+                            pkList.append(self.dropKeyConstraint(strTable, col))
                             break
             else:
                 relations = table.getElementsByTagName('relation')
@@ -259,22 +276,6 @@ class FindChanges:
         for pk in pkList:
             self.diffs.append(pk)
         
-    def dropRelation(self, strTable, strColumnName):
-        info = {
-            'table_name' : strTable,
-            'constraint_name' : 'fk_%s_%s' % (strTable, strColumnName),
-        }
-        return ('Drop relation constraint', 
-            'ALTER TABLE %(table_name)s DROP CONSTRAINT %(constraint_name)s' % info)
-    
-    def dropKeyConstraint(self, strTable):
-        info = {
-            'table_name' : strTable,
-            'constraint_name' : 'pk_%s_%s' % (strTable, strColumnName),
-        }
-        return ('Drop key constraint', 
-            'ALTER TABLE %(table_name)s DROP CONSTRAINT %(constraint_name)s' % info)
-    
     def doChangeColType(self, strTableName, strColumnName, strNewColType):
         info = {
             'table_name' : strTableName,
@@ -313,7 +314,7 @@ class FindChanges:
 
         self.diffs.append(('Add Column', strAlter))
 
-    def deletedCol(self, strTableName, oldCol):
+    def dropCol(self, strTableName, oldCol):
         info = { 
             'table_name' : self.xml2ddl.quoteName(strTableName),
             'column_name' : self.xml2ddl.quoteName(oldCol.getAttribute('name')),
@@ -346,7 +347,7 @@ class FindChanges:
             self.diffs.extend(self.xml2ddl.ddls)
 
     def diffColumns(self, old, new):
-        self.diffSomething(old, new, 'column', self.renameColumn,  self.changeCol, self.addColumn, self.deletedCol, self.findColumn)
+        self.diffSomething(old, new, 'column', self.renameColumn,  self.changeCol, self.addColumn, self.dropCol, self.findColumn)
 
     def diffSomething(self, old, new, strTag, renameFunc, changeFunc, addFunc, deleteFunc, findSomething):
         newCols = new.getElementsByTagName(strTag)
@@ -444,10 +445,10 @@ class FindChanges:
         return None
         
     def diffRelations(self, old_xml, new_xml):
-        self.diffSomething(old_xml, new_xml, 'relation', self.renameRelation, self.changeRelation, self.insertRelation, self.deleteRelation, self.findRelation)
+        self.diffSomething(old_xml, new_xml, 'relation', self.renameRelation, self.changeRelation, self.insertRelation, self.dropRelation, self.findRelation)
 
     def renameRelation(self, strTableName, old, new):
-        self.deleteRelation(strTableName, old)
+        self.dropRelation(strTableName, old)
         self.insertRelation(strTableName, new, -1)
     
     def changeRelation(self, strTableName, old, new):
@@ -460,14 +461,20 @@ class FindChanges:
         strFkOld = old.getAttribute('fk')
         strFkNew = old.getAttribute('fk')
         
+        strDelActionOld = old.getAttribute('ondelete')
+        strDelActionNew = new.getAttribute('ondelete')
+
+        strUpdateActionOld = old.getAttribute('onupdate')
+        strUpdateActionNew = old.getAttribute('onupdate')
+        
         if len(strFkOld) == 0:
             strFkOld = strColumnOld
         
         if len(strFkNew) == 0:
             strFkNew = strColumnNew
         
-        if strColumnOld != strColumnNew or strTableOld != strTableNew or strFkOld != strFkNew:
-            self.deleteRelation(strTableName, old)
+        if strColumnOld != strColumnNew or strTableOld != strTableNew or strFkOld != strFkNew or strDelActionOld != strDelActionNew or strUpdateActionOld != strUpdateActionNew:
+            self.dropRelation(strTableName, old)
             self.insertRelation(strTableName, new, 0)
     
     def insertRelation(self, strTableName, new, nRelation):
@@ -476,16 +483,17 @@ class FindChanges:
         self.xml2ddl.addRelation(self.strTableName, new)
         self.diffs.extend(self.xml2ddl.ddls)
 
-    def deleteRelation(self, strTableName, old):
+    def dropRelation(self, strTableName, old):
         self.xml2ddl.reset()
         strRelationName = self.xml2ddl.getRelationName(old)
 
         info = {
+            'tablename': self.xml2ddl.quoteName(strTableName),
             'constraintname' : strRelationName,
         }
         
         self.diffs += [
-            ('Drop Relation', 'DROP CONSTRAINT %(constraintname)s' % info)]
+            ('Drop Relation', 'ALTER TABLE %(tablename)s DROP CONSTRAINT %(constraintname)s' % info)]
 
     def findRelation(self, relations, strRelationName):
         for relation in relations:

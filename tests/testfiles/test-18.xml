@@ -21,7 +21,10 @@
         CONSTRAINT pk_table1 PRIMARY KEY (table1_id))</ddl>
 </ddls>
 <ddls dbms="mysql">
-    <ddl>CREATE TABLE table1 ( table1_id integer NOT NULL AUTO_INCREMENT, col2 integer, CONSTRAINT pk_table1 PRIMARY KEY (table1_id))</ddl>
+    <ddl>CREATE TABLE table1 ( 
+        table1_id integer NOT NULL AUTO_INCREMENT, 
+        col2 integer, 
+        CONSTRAINT pk_table1 PRIMARY KEY (table1_id))</ddl>
 </ddls>
 <ddls dbms="firebird">
     <ddl>CREATE GENERATOR table1_table1_id_seq</ddl>

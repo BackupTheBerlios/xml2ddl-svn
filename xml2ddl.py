@@ -9,26 +9,25 @@ __keywords__ = ['XML', 'DML', 'SQL', 'Databases', 'Agile DB', 'ALTER', 'CREATE T
 __licence__ = "GNU Public License (GPL)"
 __longdescr__ = ""
 __url__ = 'http://xml2dml.berlios.de'
-__version__ = "$Revision: 0.1 $"
+__version__ = "$Revision: 0.2 $"
 
 """
 Supports:
     - Primary keys and primary keys on multiple columns.
     - Foreign key relations (constraint)
-        - todo: on delete cascade
         - todo: multiple fk constraints
+    - Indexes
     - Check constraint - not done...
-    - UNIQUE constraint
+    - UNIQUE constraint - not done...
+    - Autoincrement or the nearest equivalent depending on the database
     
 Notes:
-    - I explicitly set the constraint names instead of using the defaults for things like PRIMARY KEY
+    - I explicitly set the constraint and index names instead of using the defaults for things like PRIMARY KEY
       etc.  This makes it easier to perform modifications when needed. There is no way to 
-      specify the constraint names in the XML (at the moment)
-    - 
+      specify the constraint names in the XML (at least the moment)
 
 TODO:
     - encrypted flag?
-    - autoincrement flag
 
 http://weblogs.asp.net/jamauss/articles/DatabaseNamingConventions.aspx
 
@@ -66,8 +65,8 @@ class Xml2Ddl:
         
         self.dbmsType = dbms.lower()
         if self.dbmsType == 'firebird':
-            self.params['table_desc'] = "UPDATE RDB$RELATIONS SET RDB$DESCRIPTION = '%(desc)s'\n\tWHERE RDB$RELATION_NAME = upper('%(table)s')"
-            self.params['column_desc'] = "UPDATE RDB$RELATION_FIELDS SET RDB$DESCRIPTION = '%(desc)s'\n\tWHERE RDB$RELATION_NAME = upper('%(table)s') AND RDB$FIELD_NAME = upper('%(column)s')"
+            self.params['table_desc'] = "UPDATE RDB$RELATIONS SET RDB$DESCRIPTION = %(desc)s\n\tWHERE RDB$RELATION_NAME = upper('%(table)s')"
+            self.params['column_desc'] = "UPDATE RDB$RELATION_FIELDS SET RDB$DESCRIPTION = %(desc)s\n\tWHERE RDB$RELATION_NAME = upper('%(table)s') AND RDB$FIELD_NAME = upper('%(column)s')"
             self.params['max_id_len'] = { 'default' : 256 }
             self.params['keywords'] = """
                 ACTION ACTIVE ADD ADMIN AFTER ALL ALTER AND ANY AS ASC ASCENDING AT AUTO AUTODDL AVG BASED BASENAME BASE_NAME 
@@ -93,8 +92,8 @@ class Xml2Ddl:
             
             #print 'FireBird: ',len(self.params['keywords'])
         elif self.dbmsType == 'mysql':
-            self.params['table_desc'] = "ALTER TABLE %(table)s COMMENT '%(desc)s'"
-            self.params['column_desc'] = "ALTER TABLE %(table)s MODIFY %(column)s %(type)sCOMMENT '%(desc)s'"
+            self.params['table_desc'] = "ALTER TABLE %(table)s COMMENT %(desc)s"
+            self.params['column_desc'] = "ALTER TABLE %(table)s MODIFY %(column)s %(type)sCOMMENT %(desc)s"
             self.params['quote_l'] = '`'
             self.params['quote_r'] = '`'
             self.params['max_id_len'] = { 'default' : 64 }
@@ -232,19 +231,33 @@ class Xml2Ddl:
         
 
     def addRelation(self, strTableName, relation):
-        strThisColName = relation.getAttribute('column')
-        strOtherTable = relation.getAttribute('table')
-
+        info = {
+            'tablename'  : self.quoteName(strTableName),
+            'thiscolumn' : self.quoteName(relation.getAttribute('column')),
+            'othertable' : self.quoteName(relation.getAttribute('table')),
+            'constraint' : self.quoteName(self.getRelationName(relation)),
+            'ondelete' : '',
+            'onupdate' : '',
+        }
         if relation.hasAttribute('fk'):
-            strFk = relation.getAttribute('fk')
+            info['fk'] = relation.getAttribute('fk')
         else:
-            strFk = strThisColName
+            info['fk'] = info['thiscolumn']
         
-        strConstraintName = self.getRelationName(relation)
+        if relation.hasAttribute('ondelete'):
+            action = relation.getAttribute('ondelete').upper()
+            if action == 'SETNULL':
+                action = 'SET NULL'
+            info['ondelete'] = ' ON DELETE ' + action
         
+        if relation.hasAttribute('onupdate'):
+            action = relation.getAttribute('onupdate').upper()
+            if action == 'SETNULL':
+                action = 'SET NULL'
+            info['onupdate'] = ' ON UPDATE ' + action
+            
         self.ddls.append(('relation', 
-            'ALTER TABLE %s ADD CONSTRAINT %s FOREIGN KEY (%s) REFERENCES %s(%s)' % 
-                (self.quoteName(strTableName), self.quoteName(strConstraintName), self.quoteName(strThisColName), self.quoteName(strOtherTable), self.quoteName(strFk))) )
+            'ALTER TABLE %(tablename)s ADD CONSTRAINT %(constraint)s FOREIGN KEY (%(thiscolumn)s) REFERENCES %(othertable)s(%(fk)s)%(ondelete)s%(onupdate)s' % info))
 
     def getRelationName(self, relation):
         strConstraintName = relation.getAttribute('name')
@@ -280,7 +293,7 @@ class Xml2Ddl:
         cols = index.getAttribute("columns").split(',')
         cols = [ self.quoteName(col.strip()) for col in cols ] # Remove spaces
         
-        strIndexName = strTableName + '_'.join([col.title() for col in cols])
+        strIndexName = "idx_" + strTableName + '_'.join([col.title() for col in cols])
         
         return strIndexName
         
@@ -316,7 +329,7 @@ class Xml2Ddl:
                 strType = col2Type[strColName].lower()
                 if strType == 'varchar' or strType == 'char':
                     # TODO: do more types
-                    vals.append("'%s'" % (strColValue))
+                    vals.append("%s" % (self.quoteString(strColValue)))
                 else:
                     vals.append(strColValue)
             
@@ -337,13 +350,19 @@ class Xml2Ddl:
         self.ddls += strPreDdl
         
         keys = self.retKeys(doc)
+        strTableStuff = ''
         if len(keys) > 0:
             strPrimaryKeys = ',\n\tCONSTRAINT pk_%s PRIMARY KEY (%s)' % (strTableName, ',\n\t'.join(keys))
         else:
             strPrimaryKeys = '\n'
         
+        if self.dbmsType == 'mysql':
+            strTableStuff += ' ENGINE=InnoDB'
+        if doc.hasAttribute('desc') and self.dbmsType == 'mysql':
+            strTableStuff += " COMMENT=%s" % (self.quoteString(doc.getAttribute('desc')))
+        
         self.ddls.append(
-            ('Create Table', 'CREATE TABLE %s (\n\t%s%s)' % (strTableName, ',\n\t'.join(colDefs), strPrimaryKeys)))
+            ('Create Table', 'CREATE TABLE %s (\n\t%s%s)%s' % (strTableName, ',\n\t'.join(colDefs), strPrimaryKeys, strTableStuff)))
 
         self.ddls += strPostDdl
 
@@ -359,7 +378,7 @@ class Xml2Ddl:
         """ TODO: Fix the desc for special characters """
         info = {
             'table' : tableName,
-            'desc' : desc,
+            'desc' : self.quoteString(desc),
         }
         self.ddls.append(('Table Comment',
             self.params['table_desc'] % info ))
@@ -376,7 +395,7 @@ class Xml2Ddl:
         info = {
             'table' : strTableName,
             'column' : strColumnName,
-            'desc' :  strDesc,
+            'desc' :  self.quoteString(strDesc),
             'type' : self.getColType(col) + ' ',
         }
         self.ddls.append(('Column comment',
@@ -413,6 +432,9 @@ class Xml2Ddl:
         
         return strName
 
+    def quoteString(self, strStr):
+        return "'%s'" % (strStr.replace("'", "''"))
+    
 def readDict(dictionaryNode):
     dict = {}
     for adict in dictionaryNode.getElementsByTagName('dict'):

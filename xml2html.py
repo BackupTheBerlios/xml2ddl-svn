@@ -44,6 +44,7 @@ class Xml2Html:
     
     def outputTable(self, table):
         strTableName = table.getAttribute("name")
+        strFullName = table.getAttribute("fullname")
         strDesc = table.getAttribute("desc")
         
         self.lines += ['<h1>%s</h1>' % (strTableName) ]
