@@ -4,6 +4,7 @@
 
 import re, os
 from xml.dom.minidom import parse, parseString
+from ddlInterface import createDdlInterface
 
 __author__ = "Scott Kirkwood (scott_kirkwood at berlios.com)"
 __keywords__ = ['XML', 'DML', 'SQL', 'Databases', 'Agile DB', 'ALTER', 'CREATE TABLE', 'GPL']
@@ -36,12 +37,12 @@ http://weblogs.asp.net/jamauss/articles/DatabaseNamingConventions.aspx
 
 class Xml2Ddl:
     def __init__(self):
+        self.ddlinterface = None
         self._setDefaults()
         self.reset()
         
     def reset(self):
         self.ddls = []
-        
     
     def _setDefaults(self):
         self.dbmsType = 'postgres'
@@ -62,6 +63,7 @@ class Xml2Ddl:
         }
 
     def setDbms(self, dbms):
+        self.ddlInterface = createDdlInterface(dbms)
         self._setDefaults()
         
         self.dbmsType = dbms.lower()
@@ -95,8 +97,6 @@ class Xml2Ddl:
         elif self.dbmsType == 'mysql':
             self.params['table_desc'] = "ALTER TABLE %(table)s COMMENT %(desc)s"
             self.params['column_desc'] = "ALTER TABLE %(table)s MODIFY %(column)s %(type)sCOMMENT %(desc)s"
-            self.params['quote_l'] = '`'
-            self.params['quote_r'] = '`'
             self.params['max_id_len'] = { 'default' : 64 }
             self.params['has_auto_increment'] = True
 
@@ -151,7 +151,7 @@ class Xml2Ddl:
     def retColumnDefinition(self, col, strPreDdl, strPostDdl):
         strColName = col.getAttribute('name')
         
-        strRet = self.quoteName(strColName) + ' ' + self.getColType(col)
+        strRet = self.ddlInterface.quoteName(strColName) + ' ' + self.getColType(col)
         
         if col.hasAttribute('null') and re.compile('not|no', re.IGNORECASE).match(col.getAttribute('null')):
             strRet += ' NOT NULL'
@@ -243,10 +243,10 @@ class Xml2Ddl:
 
     def addRelation(self, strTableName, relation):
         info = {
-            'tablename'  : self.quoteName(strTableName),
-            'thiscolumn' : self.quoteName(relation.getAttribute('column')),
-            'othertable' : self.quoteName(relation.getAttribute('table')),
-            'constraint' : self.quoteName(self.getRelationName(relation)),
+            'tablename'  : self.ddlInterface.quoteName(strTableName),
+            'thiscolumn' : self.ddlInterface.quoteName(relation.getAttribute('column')),
+            'othertable' : self.ddlInterface.quoteName(relation.getAttribute('table')),
+            'constraint' : self.ddlInterface.quoteName(self.getRelationName(relation)),
             'ondelete' : '',
             'onupdate' : '',
         }
@@ -291,10 +291,10 @@ class Xml2Ddl:
         strIndexName = self.getIndexName(strTableName, index)
         cols = strColumns.split(',')
         cols = index.getAttribute("columns").split(',')
-        cols = [self.quoteName(col) for col in cols]
+        cols = [self.ddlInterface.quoteName(col) for col in cols]
         
         self.ddls.append(('Add Index',
-            'CREATE INDEX %s ON %s (%s)' % (self.quoteName(strIndexName), self.quoteName(strTableName), ', '.join(cols)) ))
+            'CREATE INDEX %s ON %s (%s)' % (self.ddlInterface.quoteName(strIndexName), self.ddlInterface.quoteName(strTableName), ', '.join(cols)) ))
     
     def getIndexName(self, strTableName, index):
         strIndexName = index.getAttribute("name")
@@ -302,7 +302,7 @@ class Xml2Ddl:
             return strIndexName
         
         cols = index.getAttribute("columns").split(',')
-        cols = [ self.quoteName(col.strip()) for col in cols ] # Remove spaces
+        cols = [ self.ddlInterface.quoteName(col.strip()) for col in cols ] # Remove spaces
         
         strIndexName = "idx_" + strTableName + '_'.join([col.strip() for col in cols])
         
@@ -340,15 +340,15 @@ class Xml2Ddl:
                 strType = col2Type[strColName].lower()
                 if strType == 'varchar' or strType == 'char':
                     # TODO: do more types
-                    vals.append("%s" % (self.quoteString(strColValue)))
+                    vals.append("%s" % (self.ddlInterface.quoteString(strColValue)))
                 else:
                     vals.append(strColValue)
             
             self.ddls.append(('dataset',
-                'INSERT INTO %s (%s) VALUES (%s)' % (self.quoteName(strTableName), ', '.join(cols), ', '.join(vals))))
+                'INSERT INTO %s (%s) VALUES (%s)' % (self.ddlInterface.quoteName(strTableName), ', '.join(cols), ', '.join(vals))))
         
     def createTable(self, doc):
-        strTableName = self.quoteName(doc.getAttribute('name'))
+        strTableName = self.ddlInterface.quoteName(doc.getAttribute('name'))
         
         if self.params['drop-tables']:
             self.ddls.append(
@@ -370,7 +370,7 @@ class Xml2Ddl:
         if self.dbmsType == 'mysql':
             strTableStuff += ' ENGINE=InnoDB'
         if doc.hasAttribute('desc') and self.dbmsType == 'mysql':
-            strTableStuff += " COMMENT=%s" % (self.quoteString(doc.getAttribute('desc')))
+            strTableStuff += " COMMENT=%s" % (self.ddlInterface.quoteString(doc.getAttribute('desc')))
         
         self.ddls.append(
             ('Create Table', 'CREATE TABLE %s (\n\t%s%s)%s' % (strTableName, ',\n\t'.join(colDefs), strPrimaryKeys, strTableStuff)))
@@ -389,7 +389,7 @@ class Xml2Ddl:
         """ TODO: Fix the desc for special characters """
         info = {
             'table' : tableName,
-            'desc' : self.quoteString(desc),
+            'desc' : self.ddlInterface.quoteString(desc),
         }
         self.ddls.append(('Table Comment',
             self.params['table_desc'] % info ))
@@ -406,7 +406,7 @@ class Xml2Ddl:
         info = {
             'table' : strTableName,
             'column' : strColumnName,
-            'desc' :  self.quoteString(strDesc),
+            'desc' :  self.ddlInterface.quoteString(strDesc),
             'type' : self.getColType(col) + ' ',
         }
         self.ddls.append(('Column comment',
@@ -424,27 +424,6 @@ class Xml2Ddl:
         xml.unlink()
         return self.ddls
 
-    def quoteName(self, strName):
-        bQuoteName = False
-        
-        if not self.params['unquoted_id'].match(strName):
-            bQuoteName = True
-
-        if strName.upper() in self.params['keywords']:
-            bQuoteName = True
-        
-        if not bQuoteName:
-            if strName[0] == '"' and strName[-1] == '"':
-                # Already quoted.
-                bQuoteName = False
-
-        if bQuoteName:
-            return self.params['quote_l'] + strName + self.params['quote_r']
-        
-        return strName
-
-    def quoteString(self, strStr):
-        return "'%s'" % (strStr.replace("'", "''"))
     
 def readDict(dictionaryNode):
     dict = {}

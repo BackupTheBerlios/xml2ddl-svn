@@ -2,6 +2,7 @@ import re, os
 import xml2ddl
 import copy
 from xml.dom.minidom import parse, parseString
+from ddlInterface import createDdlInterface
 
 __author__ = "Scott Kirkwood (scott_kirkwood at berlios.com)"
 __keywords__ = ['XML', 'DML', 'SQL', 'Databases', 'Agile DB', 'ALTER', 'CREATE TABLE', 'GPL']
@@ -45,6 +46,7 @@ class FindChanges:
     def setDbms(self, dbmsType):
         self._defaults()
         self.reset()
+        self.ddli = createDdlInterface(dbmsType)
         
         self.dbmsType = dbmsType.lower()
         self.xml2ddl.setDbms(self.dbmsType)
@@ -161,8 +163,8 @@ class FindChanges:
         strNewDefault = new.getAttribute('default')
         if strNewDefault != strOldDefault:
             info = {
-                'table_name' : self.xml2ddl.quoteName(strTableName),
-                'column_name' : self.xml2ddl.quoteName(new.getAttribute('name')),
+                'table_name' : self.ddli.quoteName(strTableName),
+                'column_name' : self.ddli.quoteName(new.getAttribute('name')),
                 'change_type_keyword' : 'ALTER',
                 'new_default' : strNewDefault,
                 'default_keyword' : 'SET DEFAULT',
@@ -182,8 +184,8 @@ class FindChanges:
 
     def dropDefault(self, strTableName, col):
         info = {
-            'table_name' : self.xml2ddl.quoteName(strTableName),
-            'column_name' : self.xml2ddl.quoteName(col.getAttribute('name')),
+            'table_name' : self.ddli.quoteName(strTableName),
+            'column_name' : self.ddli.quoteName(col.getAttribute('name')),
             'change_type_keyword' : 'ALTER',
             'new_default' : 'null', # FIX TODO Null, 0 or ''
             'default_keyword' : 'SET DEFAULT',
@@ -218,9 +220,9 @@ class FindChanges:
         strNewName = new.getAttribute('name')
         
         info = {
-            'table_name'   : self.xml2ddl.quoteName(strTable),
-            'old_col_name' : self.xml2ddl.quoteName(strOldName),
-            'new_col_name' : self.xml2ddl.quoteName(strNewName),
+            'table_name'   : self.ddli.quoteName(strTable),
+            'old_col_name' : self.ddli.quoteName(strOldName),
+            'new_col_name' : self.ddli.quoteName(strNewName),
             'rename'       : self.params['rename_keyword'],
             'column_type'  : self.retColTypeEtc(new), 
         }
@@ -276,8 +278,8 @@ class FindChanges:
                 keys.append(column.getAttribute('name'))
         
         info = {
-            'table_name'    : self.xml2ddl.quoteName(strTableName), 
-            'pk_constraint' : self.xml2ddl.quoteName('pk_%s' % (strTableName)),
+            'table_name'    : self.ddli.quoteName(strTableName), 
+            'pk_constraint' : self.ddli.quoteName('pk_%s' % (strTableName)),
             'keys'          : ', '.join(keys),
         }
         self.diffs.append( ('Create primary keys',
@@ -390,8 +392,8 @@ class FindChanges:
         """ nAfter not used yet """
         
         info = { 
-            'table_name' : self.xml2ddl.quoteName(strTableName),
-            'column_name' : self.xml2ddl.quoteName(new.getAttribute('name')),
+            'table_name' : self.ddli.quoteName(strTableName),
+            'column_name' : self.ddli.quoteName(new.getAttribute('name')),
             'column_type' : self.retColTypeEtc(new) 
         }
         
@@ -401,8 +403,8 @@ class FindChanges:
 
     def dropCol(self, strTableName, oldCol):
         info = { 
-            'table_name' : self.xml2ddl.quoteName(strTableName),
-            'column_name' : self.xml2ddl.quoteName(oldCol.getAttribute('name')),
+            'table_name' : self.ddli.quoteName(strTableName),
+            'column_name' : self.ddli.quoteName(oldCol.getAttribute('name')),
         }
         
         strAlter = 'ALTER TABLE %(table_name)s DROP %(column_name)s' % info
@@ -524,7 +526,7 @@ class FindChanges:
         self.xml2ddl.reset()
         strIndexName = self.xml2ddl.getIndexName(strTableName, old)
         info = { 
-            'index_name' : self.xml2ddl.quoteName(strIndexName),
+            'index_name' : self.ddli.quoteName(strIndexName),
             'table_name' : strTableName,
         }
         self.diffs += [(
@@ -586,7 +588,7 @@ class FindChanges:
         strRelationName = self.xml2ddl.getRelationName(old)
 
         info = {
-            'tablename': self.xml2ddl.quoteName(strTableName),
+            'tablename': self.ddli.quoteName(strTableName),
             'constraintname' : strRelationName,
         }
         
@@ -622,7 +624,7 @@ class FindChanges:
         self.dropRelatedSequences(self.strTableName)
         
         info = {
-            'table_name' : self.xml2ddl.quoteName(self.strTableName),
+            'table_name' : self.ddli.quoteName(self.strTableName),
             'cascade'    : strCascade,
         }
         
@@ -634,8 +636,8 @@ class FindChanges:
         strTableNew = tblNewXml.getAttribute('name')
         
         info = {
-            'table_name' : self.xml2ddl.quoteName(strTableOld), 
-            'new_table_name' : self.xml2ddl.quoteName(strTableNew),
+            'table_name' : self.ddli.quoteName(strTableOld), 
+            'new_table_name' : self.ddli.quoteName(strTableNew),
         }
         self.diffs.append(('Rename Table',
             'ALTER TABLE %(table_name)s RENAME TO %(new_table_name)s' % info) )

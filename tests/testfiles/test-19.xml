@@ -19,9 +19,12 @@
         </table>
     </schema>
 </after>
-<ddls dbms="postgres,postgres7,mysql">
+<ddls dbms="postgres,postgres7">
 	<ddl>DROP SEQUENCE table1_table1_id_seq</ddl>
 	<ddl>ALTER TABLE table1 ALTER table1_id SET DEFAULT null</ddl>
+</ddls>
+<ddls dbms="mysql">
+	<ddl>ALTER TABLE table1 MODIFY table1_id integer NOT NULL</ddl>
 </ddls>
 <ddls dbms="firebird">
     <!-- todo -->

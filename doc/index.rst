@@ -583,9 +583,10 @@ Useful, when you need to store a small set of values in the table.
 
     <view name="1" 
          [fullname="2"] 
-         [desc="3"] 
-         [columns="4"]>
-        (5)
+         [oldname="3"]
+         [desc="4"] 
+         [columns="5"]>
+        (6)
     </view>
 
 |Not supported|
@@ -595,12 +596,13 @@ Create a view to the table.
 
 (2) Typically, this is the name with spaces added.
 
-(3) A full description of the view.
+(3) Old view name which is required if you want to rename the view.
 
-(4) You can optionally specify the column names, but most DBMS can infer them from the select statement.
+(4) A full description of the view.
 
-(5) The contents of the view.
+(5) You can optionally specify the column names, but most DBMS can infer them from the select statement.
 
+(6) The contents of the view.
 
 ::
 
@@ -708,6 +710,10 @@ Similar Work
 I've been pointed to another project which looks similar calle `ERW <http://erw.dsi.unimi.it/>`_ 
 A quick look shows that it tries to work at a higher level than my XML does (i.e. more abstract).
 It also generates code for PHP and produces nicer documentation.
+
+Written in the Perl programming language is `SQL Fairy <http://sqlfairy.sourceforge.net/>`_.
+It seems to do a lot of what I'm doing but is even larger in scope.
+
 
 .. _PostgreSQL: http://www.postgresql.com/
 .. _Firebird: http://firebird.sourceforge.net/
