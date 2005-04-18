@@ -622,7 +622,47 @@ class DdlFirebird(DdlCommonInterface):
         diffs.append(('Drop function',
             'DROP PROCEDURE %(functionname)s' % info )
         )
-    
+
+class DdlOracle(DdlCommonInterface):
+    def __init__(self, strDbms):
+        DdlCommonInterface.__init__(self, strDbms)
+        
+        self.params['max_id_len'] = { 'default' : 63 }
+                
+        self.params['keywords'] = """
+            ALL AND ANY AS ASC AUTHORIZATION BETWEEN BINARY BOTH CASE CAST CHECK COLLATE COLUMN CONSTRAINT CREATE
+            CROSS CURRENT_DATE CURRENT_TIME CURRENT_TIMESTAMP CURRENT_USER DEFAULT DEFERRABLE DESC DISTINCT ELSE
+            END EXCEPT FALSE FOR FOREIGN FREEZE FROM FULL GRANT GROUP HAVING ILIKE IN INITIALLY INNER INTERSECT
+            INTO IS ISNULL JOIN LEADING LEFT LIKE LIMIT LOCALTIME LOCALTIMESTAMP NATURAL NEW NOT NOTNULL NULL 
+            OFF OLD ON ONLY OR ORDER OUTER OVERLAPS PRIMARY REFERENCES RIGHT SELECT SESSION_USER SIMILAR SOME TABLE 
+            THEN TO TRAILING TRUE UNION UNIQUE USER USING VERBOSE WHEN WHERE""".split()
+        
+    def addFunction(self, strNewFunctionName, argumentList, strReturn, strContents, attribs, diffs):
+        newArgs = []
+        declares = []
+        for nIndex, arg in enumerate(argumentList):
+            oneArg = arg.strip().split()
+            newArgs.append(oneArg[-1])
+            declares.append('    %s ALIAS FOR $%d;' % (oneArg[0], nIndex + 1))
+        
+        if len(declares) > 0:
+            match = re.compile('(\s*declare)(.*)', re.IGNORECASE | re.MULTILINE | re.DOTALL).match(strContents)
+            if match:
+                strContents = match.group(1) + '\n' + '\n'.join(declares) + match.group(2)
+            else:
+                strContents = 'DECLARE\n' + '\n'.join(declares) + "\n" + strContents
+            
+        info = {
+            'functionname' : self.quoteName(strNewFunctionName),
+            'arguments'  : ', '.join(newArgs),
+            'returns'  : strReturn,
+            'contents' : strContents.replace("'", "''"),
+        }
+        
+        diffs.append(('Add view',  # OR REPLACE 
+            "CREATE FUNCTION %(functionname)s(%(arguments)s) RETURNS %(returns)s AS '\n%(contents)s'%(language)s" % info )
+        )
+
 def attribsToDict(node):
     dict = {}
     attribs = node.attributes
@@ -641,6 +681,8 @@ def createDdlInterface(strDbms):
         return DdlMySql()
     elif strDbms.startswith('firebird'):
         return DdlFirebird()
+    elif strDbms.startswith('oracle'):
+        return DdlOracle(strDbms)
     else:
         assert(false)
         

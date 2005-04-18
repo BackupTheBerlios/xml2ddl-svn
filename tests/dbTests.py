@@ -5,7 +5,7 @@ import os
 if os.path.exists('my_conn.py'):
     from my_conn import conn_info
 else:
-    from connect_info import conn_info
+    from connection_info import conn_info
 
 import logging, logging.config
 
@@ -62,12 +62,28 @@ class DbTests:
         ddt = DbDmlTest.DbDmlTest(self.strDbms, self.testList, log)
         ddt.doTests(self.conn, bExec)
 
+    def oracleTests(self):
+        try:
+            import cx_Oracle
+        except:
+            print "Missing Oracle support through cx_Oracle"
+            return
+        
+        self.strDbms = 'oracle'
+        info = conn_info[self.strDbms]
+        self.conn = cx_Oracle.connect(
+            info['user'], info['pass'], info['dbname'])
+    
+        ddt = DbDmlTest.DbDmlTest(self.strDbms, self.testList, log)
+        ddt.doTests(self.conn, bExec)
+
 def doTests(testList = None):
     dbt = DbTests(testList)
     
-    dbt.pgTests()
-    dbt.mySqlTests()
+    #dbt.pgTests()
+    #dbt.mySqlTests()
     #~ dbt.fireBirdTests()
+    dbt.oracleTests()
     
 if __name__ == "__main__":
     import sys
