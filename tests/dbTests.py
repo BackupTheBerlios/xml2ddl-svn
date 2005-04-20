@@ -12,13 +12,11 @@ import logging, logging.config
 logging.config.fileConfig("xml2ddl.ini")
 log = logging.getLogger("xml2ddl")
 
-bExec = True
-
 class DbTests:
     def __init__(self, testList = None):
         self.testList = testList
         
-    def pgTests(self):
+    def pgTests(self, bExec = True):
         try:
             import psycopg
         except:
@@ -29,9 +27,9 @@ class DbTests:
         info = conn_info[self.strDbms]
         self.conn = psycopg.connect('dbname=%(dbname)s user=%(user)s password=%(pass)s' % info)
         ddt = DbDmlTest.DbDmlTest(self.strDbms, self.testList, log)
-        ddt.doTests(self.conn, bExec)
+        ddt.doTests(self.conn, bExec = bExec)
     
-    def mySqlTests(self):
+    def mySqlTests(self, bExec = True):
         try:
             import MySQLdb
         except:
@@ -41,9 +39,9 @@ class DbTests:
         self.strDbms = 'mysql'
         info = conn_info[self.strDbms]
     
-        self.conn = MySQLdb.connect(db=info['dbname'], user=info['user'], passwd=info['pass'])
+        self.conn = MySQLdb.connect(host=info['host'], db=info['dbname'], user=info['user'], passwd=info['pass'])
         ddt = DbDmlTest.DbDmlTest(self.strDbms, self.testList, log)
-        ddt.doTests(self.conn, bExec)
+        ddt.doTests(self.conn, bExec = bExec)
 
     def fireBirdTests(self):
         try:
@@ -60,9 +58,9 @@ class DbTests:
             password = info['pass'])
     
         ddt = DbDmlTest.DbDmlTest(self.strDbms, self.testList, log)
-        ddt.doTests(self.conn, bExec)
+        ddt.doTests(self.conn, bExec = bExec)
 
-    def oracleTests(self):
+    def oracleTests(self, bExec = True):
         try:
             import cx_Oracle
         except:
@@ -73,17 +71,16 @@ class DbTests:
         info = conn_info[self.strDbms]
         self.conn = cx_Oracle.connect(
             info['user'], info['pass'], info['dbname'])
-    
         ddt = DbDmlTest.DbDmlTest(self.strDbms, self.testList, log)
-        ddt.doTests(self.conn, bExec)
+        ddt.doTests(self.conn, bExec = bExec)
 
-def doTests(testList = None):
+def doTests(testList = None, bExec = True):
     dbt = DbTests(testList)
     
-    #dbt.pgTests()
-    #dbt.mySqlTests()
-    #~ dbt.fireBirdTests()
-    dbt.oracleTests()
+    #dbt.pgTests(bExec = bExec)
+    #dbt.mySqlTests(bExec = bExec)
+    #~ dbt.fireBirdTests(bExec = bExec)
+    dbt.oracleTests(bExec = bExec)
     
 if __name__ == "__main__":
     import sys

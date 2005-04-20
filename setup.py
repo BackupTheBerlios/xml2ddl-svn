@@ -28,7 +28,7 @@ XML to DDL requires no database to run (XML text in -> SQL text out) and current
     author_email='scott_kirkwood@users.berlios.de',
     url='http://xml2ddl.berlios.de/',
     download_url='http://developer.berlios.de/project/showfiles.php?group_id=2209&release_id=3368',
-    keywords=['XML', 'SQL', 'DDL', 'ALTER', 'Database', 'AgileDB', 'PostgreSQL', 'MySQL', 'Firebird', 'SQL99'],
+    keywords=['XML', 'SQL', 'DDL', 'ALTER', 'Database', 'AgileDB', 'PostgreSQL', 'MySQL', 'Firebird', 'Oracle', 'SQL99'],
     license='GNU GPL',
     platforms=['POSIX', 'Windows'],
     classifiers=[

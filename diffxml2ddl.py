@@ -1,4 +1,4 @@
-import re, os
+import re, os, sys
 import xml2ddl
 import copy
 from xml.dom.minidom import parse, parseString

@@ -12,6 +12,7 @@ logging.config.fileConfig("xml2ddl.ini")
 log = logging.getLogger("xml2ddl.diffXml2DdlTest")
 
 nPassed = 0
+nFailed = 0
 aFindChanges = diffxml2ddl.FindChanges()
 
 def cleanString(strString):
@@ -21,7 +22,7 @@ def cleanString(strString):
     return strString
 
 def doOne(strDbms, testFilename, docBefore, docAfter, docDdl, bFails):
-    global nPassed
+    global nPassed, nFailed
     
     aFindChanges.setDbms(strDbms)
     ret = aFindChanges.diffTables(docBefore, docAfter)
@@ -38,14 +39,19 @@ def doOne(strDbms, testFilename, docBefore, docAfter, docDdl, bFails):
             strRet = cleanString(ret[nIndex][1])
             if strGood != strRet:
                 if not bFails:
+                    nFailed += 1
                     expected.append("    %s" % (strGood))
                     got.append("    <ddl>%s</ddl> <!-- %s -->" % (ret[nIndex][1], ret[nIndex][0], ))
+                else:
+                    # this test is supposed to fail, probably to be fixed later (essentially the test is skipped)
+                    pass
             else:
                 if log.isEnabledFor('INFO'):
                     info.append('%s'  % (strRet))
                     
                 nPassed += 1
         elif not bFails:
+            nFailed += 1
             expected.append("    Expected '%s' got nothing instead"  % (strGood))
             
     if ret and docDdlList and len(ret) > len(docDdlList):
@@ -73,7 +79,7 @@ def doTests():
         docAfter = doc.getElementsByTagName('after')[0].firstChild.nextSibling
         handleDictionary(docAfter)
         
-        theList = ['postgres', 'postgres7', 'mysql', 'firebird']
+        theList = ['oracle', 'postgres', 'postgres7', 'mysql', 'firebird']
         docDdls = doc.getElementsByTagName('ddls')
         for docDdl in docDdls:
             if docDdl.hasAttribute('dbms'):
@@ -105,6 +111,10 @@ def doTests():
 
         doc.unlink()
 
-    print "Passed %d tests" % (nPassed,)
+    if nFailed:
+        print "Failed %d test(s), passed %d test(s)" % (nFailed, nPassed)
+    else:
+        print "Passed %d tests" % (nPassed,)
+    
 if __name__ == "__main__":
     doTests()

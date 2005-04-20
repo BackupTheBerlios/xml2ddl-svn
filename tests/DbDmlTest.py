@@ -3,7 +3,12 @@
 import sys
 
 sys.path += ['..']
-
+# Import Psyco if available
+try:
+    import psyco
+    psyco.full()
+except ImportError:
+    pass
 import diffxml2ddl
 import re, glob
 import os.path
@@ -27,7 +32,16 @@ class DbDmlTest:
         self.useTheTestXmls(con, bExec)
         
     def useTheTestXmls(self, con, bExec = True):
-        self.downLoader = downloadXml.createDownloader(self.strDbms, con)
+        options = {
+            'getfunctions' : False,
+            'getviews'     : False,
+            'getrelations' : False,
+            'getindexes'   : True,
+            'tables'       : ['table1', 'table2', 'table3', 'Table with spaces'],
+            'views'        : ['view1',  'view2'],
+            'functions'    : ['func1',  'func2'],
+        }
+        self.downLoader = downloadXml.createDownloader(self.strDbms, con, options = options)
         
         for testFilename in glob.glob('testfiles/test*.xml'):
             if self.testList != None and len(self.testList) > 0 and os.path.basename(testFilename) not in self.testList:
@@ -71,8 +85,8 @@ class DbDmlTest:
         docFromDb = None
         try:
             docFromDb = parseString(outStr.getvalue())
-        except:
-            strErr = "Problem parsing: '" + outStr.getvalue() + "'"
+        except Exception, e:
+            strErr = "Problem parsing: (%s)'" % (str(e),) + outStr.getvalue() + "'"
             self.log.warning(strErr)
         
         self.aFindChanges.reset()
@@ -109,7 +123,7 @@ class DbDmlTest:
                     if ret:
                         self.log.info('%s SQL: "%s"' % (strContext, ret[1]))
                         
-                        cursor.execute(ret[1])
+                        cursor.execute(str(ret[1]))
                         con.commit()
                 except Exception, e:
                     strError = str(e)
@@ -126,4 +140,4 @@ class DbDmlTest:
 if __name__ == "__main__":
     import dbTests
 
-    dbTests.doTests()
+    dbTests.doTests(bExec = False)

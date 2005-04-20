@@ -100,7 +100,7 @@ class Xml2Ddl:
         
         for relation in relations:
             self.ddlInterface.addRelation(strTableName, 
-                self.getRelationName(relation), 
+                getRelationName(relation), 
                 relation.getAttribute('column'), 
                 relation.getAttribute('table'),
                 relation.getAttribute('fk'),
