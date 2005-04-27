@@ -26,6 +26,20 @@
         col2 integer, 
         CONSTRAINT pk_table1 PRIMARY KEY (table1_id)) ENGINE=InnoDB</ddl>
 </ddls>
+<ddls dbms="oracle" fails="true">
+    <ddl>CREATE SEQUENCE table1_table1_id_seq</ddl>
+    <ddl>CREATE TABLE table1 (
+        table1_id integer NOT NULL,
+        col2 integer,
+        CONSTRAINT pk_table1 PRIMARY KEY (table1_id))</ddl>
+    <ddl>CREATE TRIGGER ai_table1_table1_id FOR table1
+        BEFORE INSERT AS
+        BEGIN
+            IF (:NEW.table1_id IS NULL) THEN
+              SELECT table1_table1_id_seq.NEXTVAL INTO :NEW.table1_id FROM DUAL;
+            END IF;
+       END</ddl>
+</ddls>
 <ddls dbms="firebird">
     <ddl>CREATE GENERATOR table1_table1_id_seq</ddl>
     <ddl>CREATE TABLE table1 (

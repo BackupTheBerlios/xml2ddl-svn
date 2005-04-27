@@ -241,8 +241,10 @@ class FbDownloader(DownloadCommon):
         
         return (None, None)
 
-    def getViews(self):
+    def getViews(self, viewList):
         strQuery =  "SELECT RDB$VIEW_NAME FROM RDB$VIEW_RELATIONS"
+        #TODO add viewList constraint
+
         self.cursor.execute(strQuery)
         return [x[0].strip() for x in self.cursor.fetchall() ]
 
@@ -256,8 +258,9 @@ class FbDownloader(DownloadCommon):
         
         return ''
 
-    def getFunctions(self):
+    def getFunctions(self, functionList):
         #strQuery = "SELECT RDB$FUNCTION_NAME FROM RDB$FUNCTIONS WHERE RDB$SYSTEM_FLAG = 0"
+        #TODO add functionList constraint
         strQuery = "SELECT RDB$PROCEDURE_NAME FROM RDB$PROCEDURES WHERE RDB$SYSTEM_FLAG = 0"
         self.cursor.execute(strQuery)
         rows = self.cursor.fetchall()

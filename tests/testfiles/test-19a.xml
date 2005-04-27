@@ -22,7 +22,9 @@
     <ddl>ALTER TABLE table1 DROP CONSTRAINT pk_table1</ddl>
     <ddl>DROP TABLE table1</ddl>
 </ddls>
-<ddls dbms="oracle">
+<ddls dbms="oracle" fails="true">
+    <ddl>DROP SEQUENCE table1_table1_id_seq</ddl>
+    <ddl>DROP TRIGGER ai_table1_table1_id</ddl>
     <ddl>ALTER TABLE table1 DROP CONSTRAINT pk_table1</ddl>
     <ddl>DROP TABLE table1</ddl>
 </ddls>

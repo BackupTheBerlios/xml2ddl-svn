@@ -173,7 +173,7 @@ class MySqlDownloader(DownloadCommon):
         
         return 'a'
         
-    def getViews(self):
+    def getViews(self, viewList):
         strQuery = "SHOW TABLES"
         self.cursor.execute(strQuery)
         rows = self.cursor.fetchall()

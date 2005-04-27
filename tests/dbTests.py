@@ -43,7 +43,7 @@ class DbTests:
         ddt = DbDmlTest.DbDmlTest(self.strDbms, self.testList, log)
         ddt.doTests(self.conn, bExec = bExec)
 
-    def fireBirdTests(self):
+    def fireBirdTests(self, bExec = True):
         try:
             import kinterbasdb
         except:
@@ -79,8 +79,8 @@ def doTests(testList = None, bExec = True):
     
     #dbt.pgTests(bExec = bExec)
     #dbt.mySqlTests(bExec = bExec)
-    #~ dbt.fireBirdTests(bExec = bExec)
-    dbt.oracleTests(bExec = bExec)
+    #dbt.fireBirdTests(bExec = bExec)
+    dbt.oracleTests(bExec = bExec) 
     
 if __name__ == "__main__":
     import sys

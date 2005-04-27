@@ -229,7 +229,17 @@ class OracleDownloader(DownloadCommon):
                 fkColList = self._getColumnsViaConstraintName(fk_constraint)
             else:
                 fkColList = []
-                
+            
+            #print "del type %s" % (chDelType)
+            if chDelType == 'NO ACTION':
+                chDelType = 'a'
+            elif chDelType == 'CASCADE':
+                chDelType = 'c'
+            elif chDelType == 'SET NULL':
+                chDelType = 'n'
+            elif chDelType == 'DEFAULT': # Check TODO
+                chDelType = 'd'
+            
             chUpdateType = ''
             ret.append((strConstraintName, colList, fk_table, fkColList, chUpdateType, chDelType))
         

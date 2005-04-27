@@ -98,6 +98,7 @@ class FindChanges:
             new['default'] = newDefault
         
         if self.normalizedColType(strNewColType) != self.normalizedColType(strOldColType):
+            #print "Different\n%s\n%s" % (self.normalizedColType(strNewColType), self.normalizedColType(strOldColType))
             self.ddli.doChangeColType(strTableName, old.get('name'), strNewColType, self.diffs)
 
     def normalizedColType(self, strColTypeEtc):
@@ -110,10 +111,12 @@ class FindChanges:
         strColTypeEtc = strColTypeEtc.replace('integer', 'int')
         strColTypeEtc = strColTypeEtc.replace('numeric', 'decimal')
         strColTypeEtc = strColTypeEtc.replace('double precision', 'float')
-        if strColTypeEtc == 'number':
+        if strColTypeEtc == 'number' or strColTypeEtc == 'decimal':
             strColTypeEtc = 'int'
         else:
             strColTypeEtc = strColTypeEtc.replace('number', 'decimal') # Oracle
+        strColTypeEtc = strColTypeEtc.replace('number ', 'int ')
+        strColTypeEtc = strColTypeEtc.replace('decimal ', 'int ')
         strColTypeEtc = strColTypeEtc.replace('varchar2', 'varchar') # Oracle
         return strColTypeEtc
     
@@ -390,20 +393,20 @@ class FindChanges:
         self.insertRelation(strTableName, new, -1)
     
     def changeRelation(self, strTableName, old, new):
-        strColumnOld = old.getAttribute('column')
-        strColumnNew = new.getAttribute('column')
+        strColumnOld = old.getAttribute('column').lower()
+        strColumnNew = new.getAttribute('column').lower()
         
-        strTableOld = old.getAttribute('table')
-        strTableNew = new.getAttribute('table')
+        strTableOld = old.getAttribute('table').lower()
+        strTableNew = new.getAttribute('table').lower()
         
-        strFkOld = old.getAttribute('fk')
-        strFkNew = old.getAttribute('fk')
+        strFkOld = old.getAttribute('fk').lower()
+        strFkNew = old.getAttribute('fk').lower()
         
-        strDelActionOld = old.getAttribute('ondelete')
-        strDelActionNew = new.getAttribute('ondelete')
+        strDelActionOld = old.getAttribute('ondelete').lower()
+        strDelActionNew = new.getAttribute('ondelete').lower()
 
-        strUpdateActionOld = old.getAttribute('onupdate')
-        strUpdateActionNew = old.getAttribute('onupdate')
+        strUpdateActionOld = old.getAttribute('onupdate').lower()
+        strUpdateActionNew = old.getAttribute('onupdate').lower()
         
         if len(strFkOld) == 0:
             strFkOld = strColumnOld
@@ -412,6 +415,7 @@ class FindChanges:
             strFkNew = strColumnNew
         
         if strColumnOld != strColumnNew or strTableOld != strTableNew or strFkOld != strFkNew or strDelActionOld != strDelActionNew or strUpdateActionOld != strUpdateActionNew:
+            #print "Col %s != %s or\nTable %s != %s, or\nFk %s != %s or\nDel %s != %s or\nUpdate %s != %s" % (strColumnOld, strColumnNew, strTableOld, strTableNew, strFkOld, strFkNew, strDelActionOld, strDelActionNew, strUpdateActionOld, strUpdateActionNew)
             self.dropRelation(strTableName, old)
             self.insertRelation(strTableName, new, 0)
     
@@ -429,11 +433,12 @@ class FindChanges:
         self.ddli.dropRelation(strTableName, strRelationName, self.diffs)
 
     def findRelation(self, relations, strRelationName):
+        strRelationName = strRelationName.lower()
         for relation in relations:
             strCurRelationName = getRelationName(relation)
-            if strCurRelationName == strRelationName:
+            if strCurRelationName.lower() == strRelationName:
                 return relation
-            
+        
         return None
         
     def createTable(self, strTableName, xml, nIndex):

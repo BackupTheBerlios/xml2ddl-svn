@@ -212,10 +212,15 @@ class PgDownloader(DownloadCommon):
         
         return (None, None)
 
-    def getViews(self):
+    def getViews(self, viewList):
         """ Returns the list of views as a array of strings """
         
-        strQuery =  "SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES where TABLE_SCHEMA not in ('pg_catalog', 'information_schema') and TABLE_NAME NOT LIKE 'pg_%' AND TABLE_TYPE = 'VIEW'"
+        strQuery =  """SELECT TABLE_NAME 
+        FROM INFORMATION_SCHEMA.TABLES 
+        WHERE TABLE_SCHEMA not in ('pg_catalog', 'information_schema') 
+        AND   TABLE_NAME NOT LIKE 'pg_%' AND 
+        TABLE_TYPE = 'VIEW'"""
+        #TODO add viewList constraint
         self.cursor.execute(strQuery)
         rows = self.cursor.fetchall()
         if rows:
@@ -232,8 +237,10 @@ class PgDownloader(DownloadCommon):
         
         return []
 
-    def getFunctions(self):
+    def getFunctions(self, functionList):
         """ Returns functions """
+        #TODO: Add function list constraint
+        
         strQuery = """SELECT SPECIFIC_NAME
         FROM INFORMATION_SCHEMA.ROUTINES 
         WHERE SPECIFIC_SCHEMA not in ('pg_catalog', 'information_schema')

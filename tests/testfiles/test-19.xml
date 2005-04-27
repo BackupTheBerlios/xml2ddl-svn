@@ -24,6 +24,11 @@
 	<ddl>ALTER TABLE table1 ALTER table1_id DROP DEFAULT</ddl>
 	<ddl>ALTER TABLE table1 ALTER table1_id SET DEFAULT 0</ddl>
 </ddls>
+<ddls dbms="oracle" fails="true">
+    <!-- todo -->
+    <ddl>DROP TRIGGER ai_table1_table1_id</ddl>
+	<ddl>DROP SEQUENCE table1_table1_id_seq</ddl>
+</ddls>
 <ddls dbms="firebird">
     <!-- todo -->
 </ddls>

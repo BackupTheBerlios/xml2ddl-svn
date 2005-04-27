@@ -273,9 +273,9 @@ if __name__ == "__main__":
     else:
         tables = None
     runOptions = {
-        'getfunctions' : False,
-        'getviews'     : False,
-        'getrelations' : False,
+        'getfunctions' : True,
+        'getviews'     : True,
+        'getrelations' : True,
         'getindexes'   : True,
         'tables'       : tables,
     }

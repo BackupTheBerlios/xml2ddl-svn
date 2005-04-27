@@ -33,13 +33,13 @@ class DbDmlTest:
         
     def useTheTestXmls(self, con, bExec = True):
         options = {
-            'getfunctions' : False,
-            'getviews'     : False,
-            'getrelations' : False,
+            'getfunctions' : True,
+            'getviews'     : True,
+            'getrelations' : True,
             'getindexes'   : True,
             'tables'       : ['table1', 'table2', 'table3', 'Table with spaces', 'new_table_name'],
-            'views'        : ['newview',  'view2'],
-            'functions'    : ['salestax',  'func2'],
+            'views'        : ['newview',  'oldview', 'view2'],
+            'functions'    : ['salestax',  'func2', 'subtotal'],
         }
         self.downLoader = downloadXml.createDownloader(self.strDbms, con, options = options)
         
