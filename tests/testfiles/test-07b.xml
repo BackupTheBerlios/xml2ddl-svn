@@ -37,6 +37,12 @@
     <ddl>ALTER TABLE table1 ALTER col1 SET DEFAULT 2</ddl> <!-- Change Default -->
     <ddl>ALTER TABLE table1 ALTER col2 SET DEFAULT 3</ddl> <!-- Change Default -->
 </ddls>
+<ddls dbms="oracle">
+    <ddl>ALTER TABLE table1 MODIFY col1 decimal(10)</ddl> <!-- Change Col Type -->
+    <ddl>ALTER TABLE table1 MODIFY col2 decimal(15)</ddl> <!-- Change Col Type -->
+    <ddl>ALTER TABLE table1 MODIFY col1 decimal(10) DEFAULT 2</ddl> <!-- Change Default -->
+    <ddl>ALTER TABLE table1 MODIFY col2 decimal(15) DEFAULT 3</ddl> <!-- Change Default -->
+</ddls>
 <ddls dbms="postgres7">
     <ddl>ALTER TABLE table1 ALTER col1 SET DEFAULT 2</ddl>
     <ddl>ALTER TABLE table1 ALTER col2 SET DEFAULT 3</ddl>

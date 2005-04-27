@@ -37,9 +37,9 @@ class DbDmlTest:
             'getviews'     : False,
             'getrelations' : False,
             'getindexes'   : True,
-            'tables'       : ['table1', 'table2', 'table3', 'Table with spaces'],
-            'views'        : ['view1',  'view2'],
-            'functions'    : ['func1',  'func2'],
+            'tables'       : ['table1', 'table2', 'table3', 'Table with spaces', 'new_table_name'],
+            'views'        : ['newview',  'view2'],
+            'functions'    : ['salestax',  'func2'],
         }
         self.downLoader = downloadXml.createDownloader(self.strDbms, con, options = options)
         

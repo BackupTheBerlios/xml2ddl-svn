@@ -8,6 +8,11 @@ class DdlCommonInterface:
         self.params = {
             'table_desc' : "COMMENT ON TABLE %(table)s IS %(desc)s",
             'column_desc' : "COMMENT ON COLUMN %(table)s.%(column)s IS %(desc)s",
+            'drop_default' : 'ALTER TABLE %(table_name)s ALTER %(column_name)s DROP DEFAULT',
+            'alter_default' : 'ALTER TABLE %(table_name)s ALTER %(column_name)s SET DEFAULT %(new_default)s',
+            'rename_column' : 'ALTER TABLE %(table_name)s RENAME %(old_col_name)s TO %(new_col_name)s',
+            'drop_column'   : 'ALTER TABLE %(table_name)s DROP %(column_name)s',
+            'add_relation'  : 'ALTER TABLE %(tablename)s ADD CONSTRAINT %(constraint)s FOREIGN KEY (%(thiscolumn)s) REFERENCES %(othertable)s(%(fk)s)%(ondelete)s%(onupdate)s',
             'unquoted_id' : re.compile(r'^[A-Za-z][A-Za-z0-9_]+$'),
             'max_id_len' : { 'default' : 256 },
             'has_auto_increment' : False,
@@ -25,6 +30,7 @@ class DdlCommonInterface:
             'no_rename_col' : False,
             'drop_index'    : 'DROP INDEX %(index_name)s',
             'default_keyword' : 'DEFAULT',
+            'set_default_keyword' : 'SET DEFAULT',
         }
 
     # Tables
@@ -68,35 +74,25 @@ class DdlCommonInterface:
 
         diffs.append(('Add Column', strAlter))
         
-    def dropCol(self, strTableName, strColName, diffs):
+    def dropColumn(self, strTableName, strColName, diffs):
         info = { 
             'table_name' : self.quoteName(strTableName),
             'column_name' : self.quoteName(strColName),
         }
         
-        strAlter = 'ALTER TABLE %(table_name)s DROP %(column_name)s' % info
-
-        diffs.append(('Drop Column', strAlter))
+        diffs.append(('Drop Column', self.params['drop_column'] % info))
         
     def renameColumn(self, strTableName, strOldName, strNewName, strNewColType, diffs):
         info = {
             'table_name'   : self.quoteName(strTableName),
             'old_col_name' : self.quoteName(strOldName),
             'new_col_name' : self.quoteName(strNewName),
-            'rename'       : self.params['rename_keyword'],
             'column_type'  : strNewColType,
         }
         
-        if self.params['no_rename_col']:
-            # MySQL is like this
-            diffs.append(
-                ('Rename column',
-                'ALTER TABLE %(table_name)s CHANGE %(old_col_name)s %(new_col_name)s %(column_type)s' % info))
-        else:
-            diffs.append(
-                ('Rename column',
-                'ALTER TABLE %(table_name)s %(rename)s %(old_col_name)s TO %(new_col_name)s' % info))
-
+        diffs.append(
+            ('Rename column', self.params['rename_column'] % info))
+        
 
     def addColumnComment(self, strTableName, strColumnName, strDesc, strColType, ddls):
         info = {
@@ -180,7 +176,7 @@ class DdlCommonInterface:
             info['onupdate'] = ' ON UPDATE ' + action
             
         diffs.append(('Add Relation', 
-            'ALTER TABLE %(tablename)s ADD CONSTRAINT %(constraint)s FOREIGN KEY (%(thiscolumn)s) REFERENCES %(othertable)s(%(fk)s)%(ondelete)s%(onupdate)s' % info))
+            self.params['add_relation'] % info))
 
     def dropRelation(self, strTableName, strRelationName, diffs):
         info = {
@@ -257,42 +253,23 @@ class DdlCommonInterface:
         info = {
             'table_name' : self.quoteName(strTableName),
             'column_name' : self.quoteName(col.get('name')),
-            'change_type_keyword' : 'ALTER',
-            'default_keyword' : 'DROP DEFAULT',
             'column_type' : self.retColTypeEtc(col),
-            'TYPE' : self.params['TYPE'],
         }
         
-        if self.params['no_alter_default']:
-            # Firebird
-            diffs.append(
-                ('Change Default', 
-                'ALTER TABLE %(table_name)s %(change_type_keyword)s %(column_name)s %(TYPE)s%(column_type)s' % info))
-        else:
-            diffs.append(
-                ('Change Default', 
-                'ALTER TABLE %(table_name)s %(change_type_keyword)s %(column_name)s %(default_keyword)s' % info))
+        diffs.append(
+            ('Drop Default', 
+            self.params['drop_default'] % info))
 
     def changeColDefault(self, strTableName, strColumnName, strNewDefault, strColType, diffs):
         info = {
             'table_name' : self.quoteName(strTableName),
             'column_name' : self.quoteName(strColumnName),
-            'change_type_keyword' : 'ALTER',
             'new_default' : strNewDefault,
-            'default_keyword' : 'SET DEFAULT',
             'column_type' : strColType,
-            'TYPE' : self.params['TYPE'],
         }
         
-        if self.params['no_alter_default']:
-            # Firebird
-            diffs.append(
-                ('Change Default', 
-                'ALTER TABLE %(table_name)s %(change_type_keyword)s %(column_name)s %(TYPE)s%(column_type)s' % info))
-        else:
-            diffs.append(
-                ('Change Default', 
-                'ALTER TABLE %(table_name)s %(change_type_keyword)s %(column_name)s %(default_keyword)s %(new_default)s' % info))
+        diffs.append(
+            ('Change Default', self.params['alter_default'] % info))
 
     # Column type
     def doChangeColType(self, strTableName, strColumnName, strNewColType, diffs):

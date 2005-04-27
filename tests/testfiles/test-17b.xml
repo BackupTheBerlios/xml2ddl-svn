@@ -42,6 +42,10 @@
 	<ddl>ALTER TABLE table2 ADD CONSTRAINT fk_table1_id FOREIGN KEY (table1_id) REFERENCES table1(table1_id) ON DELETE CASCADE ON UPDATE CASCADE</ddl>
 	<ddl>CREATE INDEX fk_table1_id ON table2 (table1_id)</ddl>
 </ddls>
+<ddls dbms="oracle">
+	<ddl>ALTER TABLE table2 ADD CONSTRAINT fk_table1_id FOREIGN KEY (table1_id) REFERENCES table1(table1_id) ON DELETE CASCADE</ddl>
+	<ddl>CREATE INDEX fk_table1_id ON table2 (table1_id)</ddl>
+</ddls>
 <ddls dbms="firebird" fails="true">
     <!-- TABLE1 is in use error? -->
     <ddl>ALTER TABLE table2 ADD CONSTRAINT fk_table1_id FOREIGN KEY (table1_id) REFERENCES table1(table1_id)</ddl>

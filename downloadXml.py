@@ -157,6 +157,8 @@ class DownloadXml:
 
     def dumpTable(self, info, of):
         of.write('  <table %s>\n' % (self.doAttribs(info, ['name', 'desc'])))
+        
+        # Would be nice to align the columns
         for col in info['columns']:
             of.write('    <column %s/>\n' % (self.doAttribs(col, ['name', 'type', 'size', 'precision', 'null', 'default', 'key', 'desc', 'autoincrement'])))
     
@@ -246,15 +248,19 @@ if __name__ == "__main__":
                   dest="strDbms", metavar="DBMS", default="oracle", #"postgres",
                   help="Dowload for which Database Managment System (postgres, mysql, or firebird)")
     parser.add_option("-d", "--dbname",
-                  dest="strDbName", metavar="DATABASE", default="crmdsv",#"simplifia",
+                  dest="strDbName", metavar="DATABASE", default="scott",#"simplifia",
                   help="Dowload for which named Database")
     parser.add_option("-u", "--user",
-                  dest="strUserName", metavar="USER", default="igon", #"postgres",
+                  dest="strUserName", metavar="USER", default="scott", #"postgres",
                   help="User to login with")
     parser.add_option("-p", "--pass",
-                  dest="strPassword", metavar="PASS", default="goroh", #"postgres",
+                  dest="strPassword", metavar="PASS", default="tiger", #"postgres",
                   help="Password for the user")
 
+    parser.add_option("-t", "--tables",
+                  dest="strTables", metavar="TABLES", default=None,
+                  help="Comma separated list of tables")
+                  
     (options, args) = parser.parse_args()
     info = {
         'dbname' : options.strDbName, 
@@ -262,11 +268,16 @@ if __name__ == "__main__":
         'pass'   : options.strPassword, 
     }
 
+    if options.strTables:
+        tables = options.strTables.split(',')
+    else:
+        tables = None
     runOptions = {
         'getfunctions' : False,
         'getviews'     : False,
         'getrelations' : False,
         'getindexes'   : True,
+        'tables'       : tables,
     }
     cd = createDownloader(options.strDbms, info = info, options = runOptions)
     cd.downloadSchema()

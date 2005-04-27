@@ -34,6 +34,10 @@
 	<ddl>ALTER TABLE table1 MODIFY col2 varchar(80)</ddl>
 	<ddl>ALTER TABLE table1 CHANGE col2 `col-newname` varchar(80)</ddl>
 </ddls>
+<ddls dbms="oracle">
+	<ddl>ALTER TABLE table1 MODIFY col2 varchar(80)</ddl>
+	<ddl>ALTER TABLE table1 RENAME COLUMN col2 TO "col-newname"</ddl>
+</ddls>
 <ddls dbms="firebird"  fails="true">
     <ddl>ALTER TABLE table1 ALTER col2 TO col-newname</ddl>
     <ddl>ALTER TABLE table1 ALTER col-newname TYPE varchar(80)</ddl>

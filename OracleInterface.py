@@ -32,7 +32,8 @@ class OracleDownloader(DownloadCommon):
         """ Returns the list of tables as a array of strings """
         
         if tableList and len(tableList) > 0:
-            inTables = "AND TABLE_NAME IN ('%s')" % ("' , '".join([name.upper() for name in tableList]))
+            # Note we are always case insensitive here
+            inTables = "AND upper(TABLE_NAME) IN ('%s')" % ("' , '".join([name.upper() for name in tableList]))
         else:
             inTables = ""
         strQuery = """SELECT TABLE_NAME FROM ALL_TABLES WHERE 
@@ -76,14 +77,23 @@ class OracleDownloader(DownloadCommon):
             else:
                 bNotNull = True
             
+            # TODO
             bAutoIncrement = False
+            
+            if numsize != None or numprec != None:
+                size = numsize
+            
+            if type == 'DATE' or type == 'TIMESTAMP':
+                size = None
+            elif type == 'FLOAT' and size == 126:
+                size = None
+            
             if default:
                 default = default.rstrip()
-                
-            if default == "nextval('%s')" % (getSeqName(strTable, name)):
-                default = ''
-                bAutoIncrement = True
-                
+            
+            #~ if name.upper() == name:
+                #~ name = name.lower()
+            
             ret.append((name, type, size, numprec, bNotNull, default, bAutoIncrement))
             
         return ret
@@ -118,7 +128,7 @@ class OracleDownloader(DownloadCommon):
         """
         
         #self._tableInfo("ALL_INDEXES")
-        strSql = """SELECT table_name, index_name, uniqueness, secondary, CLUSTERING_FACTOR
+        strSql = """SELECT index_name, uniqueness, clustering_factor
             FROM ALL_INDEXES
             WHERE table_name = :tablename
             """
@@ -131,13 +141,28 @@ class OracleDownloader(DownloadCommon):
         #self._tableInfo("ALL_IND_COLUMNS")
         
         for row in rows:
-            (strIndexName, strColumns, bIsUnique, bIsPrimary, bIsClustered) = row
+            (strIndexName, bIsUnique, bIsClustered) = row
             strSql = """SELECT column_name FROM ALL_IND_COLUMNS 
                 WHERE table_name = :tablename AND index_name = :indexname
                 ORDER BY COLUMN_POSITION """
             self.cursor.execute(strSql, { 'tablename' : strTableName, 'indexname' : strIndexName } )
             colrows = self.cursor.fetchall()
             colList = [col[0] for col in colrows]
+            
+            bIsPrimary = False
+            if bIsUnique == 'UNIQUE':
+                strSql = """select c.*
+                    from   all_constraints c, all_cons_columns cc
+                    where  c.table_name = :tablename
+                    and    cc.constraint_name = c.constraint_name
+                    and    c.constraint_type = 'P'
+                    and    cc.column_name in (:colnames)
+                    and    c.status = 'ENABLED'"""
+                self.cursor.execute(strSql, { 'tablename' : strTableName, 'colnames' : ','.join(colList) })
+                indexRows = self.cursor.fetchall()
+                if indexRows and len(indexRows) > 0:
+                    bIsPrimary = True
+
             ret.append((strIndexName, colList, bIsUnique, bIsPrimary, bIsClustered))
         
         return ret
@@ -309,7 +334,16 @@ class DdlOracle(DdlCommonInterface):
         DdlCommonInterface.__init__(self, strDbms)
         
         self.params['max_id_len'] = { 'default' : 63 }
-                
+        self.params['change_type_keyword'] = 'MODIFY'
+        self.params['TYPE'] = '' # Oracle doesn't use TYPE
+        self.params['no_alter_default'] = True
+        self.params['drop_default'] = 'ALTER TABLE %(table_name)s ALTER %(column_name)s %(column_type)s'
+        self.params['alter_default'] = 'ALTER TABLE %(table_name)s MODIFY %(column_name)s %(column_type)s'
+        self.params['rename_column'] = 'ALTER TABLE %(table_name)s RENAME COLUMN %(old_col_name)s TO %(new_col_name)s'
+        self.params['drop_column'] = 'ALTER TABLE %(table_name)s DROP COLUMN %(column_name)s'
+        self.params['add_relation'] = 'ALTER TABLE %(tablename)s ADD CONSTRAINT %(constraint)s FOREIGN KEY (%(thiscolumn)s) REFERENCES %(othertable)s(%(fk)s)%(ondelete)s'
+
+        #self.params['set_default_keyword'] = 'DEFAULT'  # Oracle uses DEFAULT instead of SET DEFAULT for ALTER ...
         self.params['keywords'] = """
             ALL AND ANY AS ASC AUTHORIZATION BETWEEN BINARY BOTH CASE CAST CHECK COLLATE COLUMN CONSTRAINT CREATE
             CROSS CURRENT_DATE CURRENT_TIME CURRENT_TIMESTAMP CURRENT_USER DEFAULT DEFERRABLE DESC DISTINCT ELSE

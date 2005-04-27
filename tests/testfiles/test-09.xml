@@ -21,4 +21,7 @@
 <ddls>
     <ddl>ALTER TABLE table1 DROP col2</ddl>
 </ddls>
+<ddls dbms="oracle">
+    <ddl>ALTER TABLE table1 DROP COLUMN col2</ddl>
+</ddls>
 </test>

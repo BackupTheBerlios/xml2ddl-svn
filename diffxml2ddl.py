@@ -109,7 +109,12 @@ class FindChanges:
         strColTypeEtc = strColTypeEtc.lower();
         strColTypeEtc = strColTypeEtc.replace('integer', 'int')
         strColTypeEtc = strColTypeEtc.replace('numeric', 'decimal')
-        strColTypeEtc = strColTypeEtc.replace('double precision', 'float' )
+        strColTypeEtc = strColTypeEtc.replace('double precision', 'float')
+        if strColTypeEtc == 'number':
+            strColTypeEtc = 'int'
+        else:
+            strColTypeEtc = strColTypeEtc.replace('number', 'decimal') # Oracle
+        strColTypeEtc = strColTypeEtc.replace('varchar2', 'varchar') # Oracle
         return strColTypeEtc
     
     def changeColDefaults(self, strTableName, old, new):
@@ -244,8 +249,8 @@ class FindChanges:
         
         self.ddli.addColumn(strTableName, getColName(new), self.ddli.retColTypeEtc(attribsToDict(new)), nAfter, self.diffs)
 
-    def dropCol(self, strTableName, oldCol):
-        self.ddli.dropCol(strTableName, getColName(oldCol), self.diffs)
+    def dropColumn(self, strTableName, oldCol):
+        self.ddli.dropColumn(strTableName, getColName(oldCol), self.diffs)
 
     def diffTable(self, strTableName, tbl_old, tbl_new):
         """ strTableName is there just to be consistant with the other diff... """
@@ -267,7 +272,7 @@ class FindChanges:
             self.ddli.addTableComment(self.strTableName, strNewComment, self.diffs)
 
     def diffColumns(self, old, new):
-        self.diffSomething(old, new, 'column', self.renameColumn,  self.changeCol, self.addColumn, self.dropCol, self.findColumn, getColName)
+        self.diffSomething(old, new, 'column', self.renameColumn,  self.changeCol, self.addColumn, self.dropColumn, self.findColumn, getColName)
 
     def diffSomething(self, old, new, strTag, renameFunc, changeFunc, addFunc, deleteFunc, findSomething, getName):
         newXs = new.getElementsByTagName(strTag)
@@ -606,6 +611,7 @@ class FindChanges:
             'Drop Autoincrement'                  : -99,
             'Change Col Type'                     : -9, # Change col type needs to be before change default
             'Change Default'                      : -5,
+            'Drop Default'                        : -5,
             'Add for change type'                 : -4,
             'Copy the data over for change type'  : -3,
             'Drop the old column for change type' : -2,

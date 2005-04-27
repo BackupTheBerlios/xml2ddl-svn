@@ -1,6 +1,5 @@
 conn_info = {
     'firebird' : {
-        
         'dbname' : 'mydb.db',
         'user'   : 'SYSDBA',
         'pass'   : 'masterkey',

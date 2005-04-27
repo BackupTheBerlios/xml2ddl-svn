@@ -255,6 +255,8 @@ class DdlMySql(DdlCommonInterface):
         self.params['TYPE'] = ''
         self.params['can_change_table_comment'] = False
         self.params['drop_index'] = 'DROP INDEX %(index_name)s ON %(table_name)s'
+        self.params['drop_default'] = 'ALTER TABLE %(table_name)s MODIFY %(column_name)s %(column_type)s'
+        self.params['rename_column'] = 'ALTER TABLE %(table_name)s CHANGE %(old_col_name)s %(new_col_name)s %(column_type)s'
         self.params['keywords'] = """
             ADD ALL ALTER ANALYZE AND AS ASC ASENSITIVE AUTO_INCREMENT BDB BEFORE BERKELEYDB BETWEEN BIGINT BINARY
             BLOB BOTH BY CALL CASCADE CASE CHANGE CHAR CHARACTER CHECK COLLATE COLUMN COLUMNS CONDITION CONNECTION

@@ -42,6 +42,10 @@
     <ddl>ALTER TABLE table2 DROP CONSTRAINT fk_table1_id</ddl>
 	<ddl>ALTER TABLE table2 ADD CONSTRAINT fk_table1_id FOREIGN KEY (table1_id) REFERENCES table1(table1_id) ON DELETE SET NULL ON UPDATE SET NULL</ddl>
 </ddls>
+<ddls dbms="oracle">
+    <ddl>ALTER TABLE table2 DROP CONSTRAINT fk_table1_id</ddl>
+	<ddl>ALTER TABLE table2 ADD CONSTRAINT fk_table1_id FOREIGN KEY (table1_id) REFERENCES table1(table1_id) ON DELETE SET NULL</ddl>
+</ddls>
 <ddls dbms="mysql" fails="true"> 
     <!-- Appears the MySQL guys forgot Drop Constraint -->
     <ddl>ALTER TABLE table2 DROP CONSTRAINT fk_table1_id</ddl>

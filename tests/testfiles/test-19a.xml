@@ -22,6 +22,10 @@
     <ddl>ALTER TABLE table1 DROP CONSTRAINT pk_table1</ddl>
     <ddl>DROP TABLE table1</ddl>
 </ddls>
+<ddls dbms="oracle">
+    <ddl>ALTER TABLE table1 DROP CONSTRAINT pk_table1</ddl>
+    <ddl>DROP TABLE table1</ddl>
+</ddls>
 <ddls dbms="firebird">
     <ddl>DROP GENERATOR table1_table1_id_seq</ddl>
     <ddl>ALTER TABLE table1 DROP CONSTRAINT pk_table1</ddl>
