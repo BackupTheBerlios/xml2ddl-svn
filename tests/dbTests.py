@@ -77,7 +77,7 @@ class DbTests:
 def doTests(testList = None, bExec = True):
     dbt = DbTests(testList)
     
-    #dbt.pgTests(bExec = bExec)
+    dbt.pgTests(bExec = bExec)
     #dbt.mySqlTests(bExec = bExec)
     #dbt.fireBirdTests(bExec = bExec)
     dbt.oracleTests(bExec = bExec) 

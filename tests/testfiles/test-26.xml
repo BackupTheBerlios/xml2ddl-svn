@@ -1,7 +1,7 @@
 <test title="Rename a function">
 <before>
     <schema>
-        <function name="sales_tax" oldname="sales_tax" arguments="subtotal float" returns="float">
+        <function name="newfunc" oldname="myfunc" arguments="subtotal float" returns="float">
 BEGIN
     RETURN subtotal * 0.06;
 END
@@ -10,7 +10,7 @@ END
 </before>
 <after>
     <schema>
-        <function name="salestax" oldname="sales_tax" arguments="subtotal float" returns="float">
+        <function name="newfunc" oldname="myfunc" arguments="subtotal float" returns="float">
 BEGIN
     RETURN subtotal * 0.06;
 END
@@ -18,8 +18,8 @@ END
     </schema>
 </after>
 <ddls dbms="postgres">
-    <ddl>DROP FUNCTION sales_tax(float)</ddl>
-    <ddl>CREATE FUNCTION salestax(float) RETURNS float AS '
+    <ddl>DROP FUNCTION myfunc(float)</ddl>
+    <ddl>CREATE FUNCTION newfunc(float) RETURNS float AS '
 DECLARE
     subtotal ALIAS FOR $1;
 BEGIN
@@ -27,15 +27,15 @@ BEGIN
 END' LANGUAGE plpgsql</ddl>
 </ddls>
 <ddls dbms="mysql">
-    <ddl>DROP FUNCTION sales_tax</ddl>
-    <ddl>CREATE FUNCTION salestax(subtotal float) RETURNS float 
+    <ddl>DROP FUNCTION myfunc</ddl>
+    <ddl>CREATE FUNCTION newfunc(subtotal float) RETURNS float 
 BEGIN
     RETURN subtotal * 0.06;
 END</ddl>
 </ddls>
 <ddls dbms="firebird">
-    <ddl>DROP PROCEDURE sales_tax</ddl>
-    <ddl>CREATE PROCEDURE salestax(subtotal float) RETURNS (ret float) AS 
+    <ddl>DROP PROCEDURE myfunc</ddl>
+    <ddl>CREATE PROCEDURE newfunc(subtotal float) RETURNS (ret float) AS 
 BEGIN
     RETURN subtotal * 0.06;
 END;</ddl>

@@ -260,7 +260,15 @@ if __name__ == "__main__":
     parser.add_option("-t", "--tables",
                   dest="strTables", metavar="TABLES", default=None,
                   help="Comma separated list of tables")
-                  
+
+    parser.add_option("-v", "--views",
+                  dest="strViews", metavar="VIEWS", default=None,
+                  help="Comma separated list of views")
+
+    parser.add_option("-f", "--funcs",
+                  dest="strFuncs", metavar="FUNCTIONS", default=None,
+                  help="Comma separated list of functions")
+
     (options, args) = parser.parse_args()
     info = {
         'dbname' : options.strDbName, 
@@ -272,12 +280,25 @@ if __name__ == "__main__":
         tables = options.strTables.split(',')
     else:
         tables = None
+        
+    if options.strViews:
+        views = options.strViews.split(',')
+    else:
+        views = None
+    
+    if options.strFuncs:
+        functions = options.strFuncs.split(',')
+    else:
+        functions = None
+
     runOptions = {
         'getfunctions' : True,
         'getviews'     : True,
         'getrelations' : True,
         'getindexes'   : True,
         'tables'       : tables,
+        'views'        : views,
+        'functions'    : functions,
     }
     cd = createDownloader(options.strDbms, info = info, options = runOptions)
     cd.downloadSchema()

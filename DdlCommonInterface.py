@@ -13,6 +13,9 @@ class DdlCommonInterface:
             'rename_column' : 'ALTER TABLE %(table_name)s RENAME %(old_col_name)s TO %(new_col_name)s',
             'drop_column'   : 'ALTER TABLE %(table_name)s DROP %(column_name)s',
             'add_relation'  : 'ALTER TABLE %(tablename)s ADD CONSTRAINT %(constraint)s FOREIGN KEY (%(thiscolumn)s) REFERENCES %(othertable)s(%(fk)s)%(ondelete)s%(onupdate)s',
+            'create_view'   : 'CREATE VIEW %(viewname)s AS %(contents)s',
+            'create_function' : "CREATE FUNCTION %(functionname)s(%(arguments)s) RETURNS %(returns)s AS '\n%(contents)s'%(language)s",
+            'drop_function' : 'DROP FUNCTION %(functionname)s(%(params)s)',
             'unquoted_id' : re.compile(r'^[A-Za-z][A-Za-z0-9_]+$'),
             'max_id_len' : { 'default' : 256 },
             'has_auto_increment' : False,
@@ -314,7 +317,7 @@ class DdlCommonInterface:
             'contents' : strContents,
         }
         diffs.append(('Add view',  # OR REPLACE 
-            'CREATE VIEW %(viewname)s AS %(contents)s' % info )
+            self.params['create_view'] % info )
         )
     
     def updateView(self, strViewName, strContents, attribs, diffs):
@@ -326,13 +329,16 @@ class DdlCommonInterface:
         self.addFunction(strNewFunctionName, newAttribs['arguments'].split(','), newAttribs['returns'], newDefinition, newAttribs, diffs)
     
     def dropFunction(self, strOldFunctionName, argumentList, diffs):
-        paramList = [arg.split()[-1] for arg in argumentList]
+        if argumentList:
+            paramList = [arg.split()[-1] for arg in argumentList]
+        else:
+            paramList = ''
         info = {
             'functionname' : self.quoteName(strOldFunctionName),
             'params'       : ', '.join(paramList),
         }
         diffs.append(('Drop function',
-            'DROP FUNCTION %(functionname)s(%(params)s)' % info )
+            self.params['drop_function'] % info )
         )
     
     def addFunction(self, strNewFunctionName, argumentList, strReturn, strContents, attribs, diffs):
@@ -347,9 +353,7 @@ class DdlCommonInterface:
         else:
             info['language'] = ' LANGUAGE %s' % (attribs['language'])
 
-        diffs.append(('Add view',  # OR REPLACE 
-            "CREATE FUNCTION %(functionname)s(%(arguments)s) RETURNS %(returns)s AS '\n%(contents)s'%(language)s" % info )
-        )
+        diffs.append(('Add function',  self.params['create_function'] % info))
     
     def updateFunction(self, strNewFunctionName, argumentList, strReturn, strContents, attribs, diffs):
         self.dropFunction(strNewFunctionName, argumentList, diffs)

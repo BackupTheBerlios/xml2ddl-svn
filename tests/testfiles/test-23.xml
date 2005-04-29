@@ -5,20 +5,20 @@
 </before>
 <after>
     <schema>
-        <function name="sales_tax" arguments="subtotal float" returns="float" dbms="firebird">
+        <function name="myfunc" arguments="subtotal float" returns="float" dbms="firebird">
 BEGIN
     ret = subtotal * 0.06;
 END
-  </function>
-        <function name="sales_tax" arguments="subtotal float" returns="float" dbms="postgres,mysql">
+    </function>
+    <function name="myfunc" arguments="subtotal float" returns="float" dbms="postgres,mysql,oracle">
 BEGIN
     RETURN subtotal * 0.06;
 END
-  </function>
+    </function>
     </schema>
 </after>
 <ddls dbms="postgres">
-    <ddl>CREATE FUNCTION sales_tax(float) RETURNS float AS '
+    <ddl>CREATE FUNCTION myfunc(float) RETURNS float AS '
 DECLARE
     subtotal ALIAS FOR $1;
 BEGIN
@@ -26,15 +26,21 @@ BEGIN
 END' LANGUAGE plpgsql</ddl>
 </ddls>
 <ddls dbms="mysql">
-    <ddl>CREATE FUNCTION sales_tax(subtotal float) RETURNS float 
+    <ddl>CREATE FUNCTION myfunc(subtotal float) RETURNS float 
 BEGIN
     RETURN subtotal * 0.06;
 END</ddl>
 </ddls>
 <ddls dbms="firebird">
-    <ddl>CREATE PROCEDURE sales_tax(subtotal float) RETURNS (ret float) AS 
+    <ddl>CREATE PROCEDURE myfunc(subtotal float) RETURNS (ret float) AS 
 BEGIN
     ret = subtotal * 0.06;
+END;</ddl>
+</ddls>
+<ddls dbms="oracle">
+    <ddl>CREATE FUNCTION myfunc(subtotal IN float) RETURN float AS
+BEGIN
+    RETURN subtotal * 0.06;
 END;</ddl>
 </ddls>
 </test>

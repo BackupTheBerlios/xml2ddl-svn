@@ -8,7 +8,7 @@
             </columns>
         </table>
         <view name="myview">
-            SELECT table1.id, table1.col2 FROM table1;
+            SELECT table1.id, table1.col2 FROM table1
         </view>
     </schema>
 </before>
@@ -21,12 +21,13 @@
             </columns>
         </table>
         <view name="newview" oldname="myview">
-            SELECT table1.id, table1.col2 FROM table1;
+            SELECT table1.id, table1.col2 FROM table1
         </view>
     </schema>
 </after>
 <ddls>
     <ddl>DROP VIEW myview</ddl>
-    <ddl>CREATE VIEW newview AS SELECT table1.id, table1.col2 FROM table1;</ddl>
+    <ddl>CREATE VIEW newview AS SELECT table1.id, table1.col2 FROM table1</ddl>
 </ddls>
+
 </test>

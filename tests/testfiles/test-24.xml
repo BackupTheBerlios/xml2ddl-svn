@@ -1,7 +1,7 @@
 <test title="Drop a function">
 <before>
     <schema>
-        <function name="sales_tax" arguments="subtotal float" returns="float">
+        <function name="myfunc" arguments="subtotal float" returns="float">
 BEGIN
     RETURN subtotal * 0.06;
 END;
@@ -13,12 +13,12 @@ END;
     </schema>
 </after>
 <ddls dbms="postgres">
-    <ddl>DROP FUNCTION sales_tax(float)</ddl>
+    <ddl>DROP FUNCTION myfunc(float)</ddl>
 </ddls>
 <ddls dbms="mysql">
-    <ddl>DROP FUNCTION sales_tax</ddl>
+    <ddl>DROP FUNCTION myfunc</ddl>
 </ddls>
 <ddls dbms="firebird">
-    <ddl>DROP PROCEDURE sales_tax</ddl>
+    <ddl>DROP PROCEDURE myfunc</ddl>
 </ddls>
 </test>

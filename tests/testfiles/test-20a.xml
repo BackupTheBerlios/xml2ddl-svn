@@ -8,7 +8,7 @@
             </columns>
         </table>
         <view name="myview">
-            SELECT table1.id, table1.col2 FROM table1;
+            SELECT table1.id, table1.col2 FROM table1
         </view>
     </schema>
 </before>

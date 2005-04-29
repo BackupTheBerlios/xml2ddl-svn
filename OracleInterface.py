@@ -38,7 +38,8 @@ class OracleDownloader(DownloadCommon):
             inTables = ""
         strQuery = """SELECT TABLE_NAME FROM ALL_TABLES WHERE 
             TABLE_NAME NOT IN ('DUAL')
-            AND OWNER NOT IN ('SYS', 'SYSTEM')
+            AND OWNER NOT IN ('SYS', 'SYSTEM', 'OLAPSYS', 'WKSYS', 'WMSYS', 'CTXSYS', 'DMSYS', 'MDSYS', 'EXFSYS', 'ORDSYS')
+            AND TABLE_NAME NOT LIKE 'BIN$%%' 
             %s
             ORDER BY TABLE_NAME
             """ % (inTables)
@@ -249,10 +250,16 @@ class OracleDownloader(DownloadCommon):
         """ Returns the list of views as a array of strings """
         
         if viewList and len(viewList) > 0:
-            inViews = "WHERE VIEW_NAME IN ('%s')" % ("','".join([name.upper() for name in viewList]))
+            inViews = "AND VIEW_NAME IN ('%s')" % ("','".join([name.upper() for name in viewList]))
         else:
             inViews = ""
-        strQuery = """SELECT VIEW_NAME FROM ALL_VIEWS %s ORDER BY VIEW_NAME""" % (inViews)
+        
+        strQuery = """SELECT VIEW_NAME 
+        FROM ALL_VIEWS
+        WHERE OWNER NOT IN ('SYS', 'SYSTEM', 'OLAPSYS', 'WKSYS', 'WMSYS', 'CTXSYS', 'DMSYS', 'MDSYS', 'EXFSYS', 'ORDSYS', 'WK_TEST', 'XDB')
+        %s
+        ORDER BY VIEW_NAME""" % (inViews)
+              
         self.cursor.execute(strQuery)
         rows = self.cursor.fetchall()
         if rows:
@@ -275,12 +282,12 @@ class OracleDownloader(DownloadCommon):
         if functionList and len(functionList) > 0:
             inFunctions = "AND OBJECT_NAME IN ('%s')" % ("','".join([name.upper() for name in functionList]))
         else:
-            inFunction = ""
+            inFunctions = ""
         
         strQuery = """SELECT OBJECT_NAME
         FROM ALL_OBJECTS
         WHERE OBJECT_TYPE in ('PROCEDURE', 'FUNCTION')
-        AND OWNER NOT IN ('SYS', 'SYSTEM')
+        AND   OWNER NOT IN ('SYS', 'SYSTEM', 'OLAPSYS', 'WKSYS', 'WMSYS', 'CTXSYS', 'DMSYS', 'MDSYS', 'EXFSYS', 'ORDSYS', 'WK_TEST', 'XDB')
         %s
         ORDER BY OBJECT_NAME""" % (inFunctions)
         
@@ -294,6 +301,8 @@ class OracleDownloader(DownloadCommon):
     def getFunctionDefinition(self, strSpecifiName):
         """ Returns (routineName, parameters, return, language, definition) """
         
+        strSpecifiName = strSpecifiName.upper()
+        
         strQuery = "select TEXT from all_source where name=:strSpecifiName ORDER BY LINE"
         self.cursor.execute(strQuery, { 'strSpecifiName' : strSpecifiName })
         rows = self.cursor.fetchall()
@@ -304,39 +313,44 @@ class OracleDownloader(DownloadCommon):
         for row in rows:
             lines.append(row[0])
         
+        
         strDefinition = ''.join(lines)
-
-        strQuery = """select PACKAGE_NAME, ARGUMENT_NAME, DATA_TYPE, SEQUENCE, IN_OUT
+        strDefinition = strDefinition.rstrip('; ') # Remove trailing ; on last line
+        
+        re_def = re.compile(r".+\s(AS|IS)\s", re.IGNORECASE | re.MULTILINE | re.DOTALL)
+        
+        strDefinition = re_def.sub('', strDefinition)
+        
+        strQuery = """select lower(ARGUMENT_NAME), lower(DATA_TYPE), SEQUENCE, IN_OUT
             FROM ALL_ARGUMENTS 
-            WHERE object_name = :strSpecifiName AND ARGUMENT_NAME is not null and position is not null"""
+            WHERE object_name = :strSpecifiName AND ARGUMENT_NAME is not null
+            AND IN_OUT IN ('IN', 'IN/OUT') 
+            ORDER BY POSITION"""
         self.cursor.execute(strQuery, { 'strSpecifiName' : strSpecifiName })
         rows = self.cursor.fetchall()
         parameters = [] 
         if rows: 
             for row in rows:
-                (PACKAGE_NAME, ARGUMENT_NAME, DATA_TYPE, SEQUENCE, IN_OUT) = row
+                (ARGUMENT_NAME, DATA_TYPE, SEQUENCE, IN_OUT) = row
                 if ARGUMENT_NAME:
-                    parameters.append(DATA_TYPE + " " + ARGUMENT_NAME)
+                    parameters.append(ARGUMENT_NAME + " " + DATA_TYPE)
                 else:
                     parameters.append(DATA_TYPE)
             
-        strQuery = """select ARGUMENT_NAME, DATA_TYPE 
+        strQuery = """select lower(DATA_TYPE)
             FROM ALL_ARGUMENTS
-            WHERE object_name = :strSpecifiName AND position is null"""
+            WHERE object_name = :strSpecifiName 
+            AND IN_OUT = 'OUT'"""
         self.cursor.execute(strQuery, { 'strSpecifiName' : strSpecifiName })
         rows = self.cursor.fetchall()
+        strReturn = None
         if rows:
             if len(rows) > 1:
                 print "More than one return statement?, please check code"
-                ARGUMENT_NAME, DATA_TYPE = rows[0]
-                if ARGUMENT_NAME:
-                    strReturn = DATA_TYPE + ' ' + ARGUMENT_NAME
-                else:
-                    strReturn = DATA_TYPE
-        else:
-            strReturn = None
-        
-        return (strSpecifiName, parameters, strReturn, 'PL/SQL', strDefinition)
+            else:
+                DATA_TYPE = rows[0][0]
+                strReturn = DATA_TYPE
+        return (strSpecifiName.lower(), parameters, strReturn, None, strDefinition)
 
 
 class DdlOracle(DdlCommonInterface):
@@ -352,7 +366,10 @@ class DdlOracle(DdlCommonInterface):
         self.params['rename_column'] = 'ALTER TABLE %(table_name)s RENAME COLUMN %(old_col_name)s TO %(new_col_name)s'
         self.params['drop_column'] = 'ALTER TABLE %(table_name)s DROP COLUMN %(column_name)s'
         self.params['add_relation'] = 'ALTER TABLE %(tablename)s ADD CONSTRAINT %(constraint)s FOREIGN KEY (%(thiscolumn)s) REFERENCES %(othertable)s(%(fk)s)%(ondelete)s'
-
+        self.params['create_view'] = 'CREATE VIEW %(viewname)s AS %(contents)s'
+        self.params['create_function'] = "CREATE FUNCTION %(functionname)s(%(arguments)s) RETURN %(returns)s AS\n%(contents)s;"
+        self.params['drop_function'] ='DROP FUNCTION %(functionname)s'
+        
         #self.params['set_default_keyword'] = 'DEFAULT'  # Oracle uses DEFAULT instead of SET DEFAULT for ALTER ...
         self.params['keywords'] = """
             ALL AND ANY AS ASC AUTHORIZATION BETWEEN BINARY BOTH CASE CAST CHECK COLLATE COLUMN CONSTRAINT CREATE
@@ -364,18 +381,10 @@ class DdlOracle(DdlCommonInterface):
         
     def addFunction(self, strNewFunctionName, argumentList, strReturn, strContents, attribs, diffs):
         newArgs = []
-        declares = []
-        for nIndex, arg in enumerate(argumentList):
-            oneArg = arg.strip().split()
-            newArgs.append(oneArg[-1])
-            declares.append('    %s ALIAS FOR $%d;' % (oneArg[0], nIndex + 1))
-        
-        if len(declares) > 0:
-            match = re.compile('(\s*declare)(.*)', re.IGNORECASE | re.MULTILINE | re.DOTALL).match(strContents)
-            if match:
-                strContents = match.group(1) + '\n' + '\n'.join(declares) + match.group(2)
-            else:
-                strContents = 'DECLARE\n' + '\n'.join(declares) + "\n" + strContents
+        for arg in argumentList:
+            if ' IN ' not in arg.upper():
+                arg = ' IN '.join(arg.split())
+            newArgs.append(arg)
             
         info = {
             'functionname' : self.quoteName(strNewFunctionName),
@@ -383,7 +392,5 @@ class DdlOracle(DdlCommonInterface):
             'returns'  : strReturn,
             'contents' : strContents.replace("'", "''"),
         }
-        
-        diffs.append(('Add view',  # OR REPLACE 
-            "CREATE FUNCTION %(functionname)s(%(arguments)s) RETURNS %(returns)s AS '\n%(contents)s'" % info )
-        )
+
+        diffs.append(('Add function',  self.params['create_function'] % info))
