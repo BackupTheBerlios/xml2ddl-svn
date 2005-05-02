@@ -245,16 +245,16 @@ if __name__ == "__main__":
     import optparse
     parser = optparse.OptionParser()
     parser.add_option("-b", "--dbms",
-                  dest="strDbms", metavar="DBMS", default="oracle", #"postgres",
+                  dest="strDbms", metavar="DBMS", default="firebird",# oracle
                   help="Dowload for which Database Managment System (postgres, mysql, or firebird)")
     parser.add_option("-d", "--dbname",
-                  dest="strDbName", metavar="DATABASE", default="scott",#"simplifia",
+                  dest="strDbName", metavar="DATABASE", default='/scott/xml2ddl/tests/test.db',#scott
                   help="Dowload for which named Database")
     parser.add_option("-u", "--user",
-                  dest="strUserName", metavar="USER", default="scott", #"postgres",
+                  dest="strUserName", metavar="USER", default="SYSDBA", #"scott",
                   help="User to login with")
     parser.add_option("-p", "--pass",
-                  dest="strPassword", metavar="PASS", default="tiger", #"postgres",
+                  dest="strPassword", metavar="PASS", default="masterkey", #"tiger",
                   help="Password for the user")
 
     parser.add_option("-t", "--tables",

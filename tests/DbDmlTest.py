@@ -1,5 +1,10 @@
 #! /usr/bin/env python
 # -*- coding: iso-8859-1 -*-
+
+"""
+Use dbTest to run this.
+"""
+
 import sys
 
 sys.path += ['..']

@@ -1,5 +1,14 @@
 #! /usr/bin/env python
 # -*- coding: iso-8859-1 -*-
+
+"""
+This is the main test routine which will actually connect to a database and try the
+tests. 
+
+WARNING: These test perform operations like DROP and should not be used on a database
+that's in use.  My tests are done with empty databases, for example.
+"""
+
 import DbDmlTest
 import os
 if os.path.exists('my_conn.py'):
@@ -77,10 +86,10 @@ class DbTests:
 def doTests(testList = None, bExec = True):
     dbt = DbTests(testList)
     
-    dbt.pgTests(bExec = bExec)
+    #dbt.pgTests(bExec = bExec)
     #dbt.mySqlTests(bExec = bExec)
-    #dbt.fireBirdTests(bExec = bExec)
-    dbt.oracleTests(bExec = bExec) 
+    dbt.fireBirdTests(bExec = bExec)
+    #dbt.oracleTests(bExec = bExec) 
     
 if __name__ == "__main__":
     import sys

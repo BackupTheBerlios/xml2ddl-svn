@@ -16,7 +16,6 @@ class FbDownloader(DownloadCommon):
             return
         
         self.strDbms = 'firebird'
-        info = conn_info[self.strDbms]
         self.conn = kinterbasdb.connect(
             dsn='localhost:%s' % info['dbname'],
             user = info['user'], 
@@ -49,10 +48,7 @@ class FbDownloader(DownloadCommon):
         rows = self.cursor.fetchall()
         
         ret = []
-        fixNames = {
-            'character varying' : 'varchar',
-        }
-        
+       
         # TODO auto_increment
         bAutoIncrement = False
         for row in rows:
@@ -66,15 +62,23 @@ class FbDownloader(DownloadCommon):
             
             strType = self.convertTypeId(nType)
                 
+            
             if sub_type == 1:
                 strType = 'numeric'
             elif sub_type == 2:
                 strType = 'decimal'
             
-            if not size and numsize > 0:
+            if numsize > 0:
                 size = numsize
                 numsize = None
-                
+            
+            if strType == 'integer' and size == 4:
+                size = None
+            elif strType == 'date' and size == 4:
+                size = None
+            elif strType == 'float' and size == 4:
+                size = None
+            
             if default:
                 # Remove the 'DEFAULT ' part of the SQL
                 default = default.replace('DEFAULT ', '')
@@ -313,9 +317,9 @@ class DdlFirebird(DdlCommonInterface):
         self.params['drop_constraints_on_col_rename'] = True
         self.params['drop_table_has_cascade'] = False
         self.params['no_alter_default'] = True
-        self.params['default_keyword'] = 'DEFAULT'
         self.params['alter_default'] = 'ALTER TABLE %(table_name)s ALTER %(column_name)s TYPE %(column_type)s'
         self.params['rename_column'] = 'ALTER TABLE %(table_name)s ALTER %(old_col_name)s TO %(new_col_name)s'
+        self.params['alter_default'] = 'ALTER TABLE %(table_name)s ALTER %(column_name)s DEFAULT %(new_default)s'
         
         self.params['keywords'] = """
             ACTION ACTIVE ADD ADMIN AFTER ALL ALTER AND ANY AS ASC ASCENDING AT AUTO AUTODDL AVG BASED BASENAME BASE_NAME 

@@ -1,3 +1,11 @@
+#! /usr/bin/env python
+# -*- coding: iso-8859-1 -*-
+
+""" You can safely run these set of tests, there is no coneection
+made with a database. Basically, this just performs string
+manipulation
+"""
+
 import sys, re
 
 sys.path += ['..']

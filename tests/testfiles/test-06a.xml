@@ -28,7 +28,7 @@
     <ddl>ALTER TABLE table1 MODIFY col2 integer DEFAULT 3</ddl>
 </ddls>
 <ddls dbms="firebird">
-    <ddl>ALTER TABLE table1 ALTER col1 TYPE decimal(15) DEFAULT 2</ddl>
-    <ddl>ALTER TABLE table1 ALTER col2 TYPE integer DEFAULT 3</ddl>
+    <ddl>ALTER TABLE table1 ALTER col1 TYPE decimal(15) SET DEFAULT 2</ddl>
+    <ddl>ALTER TABLE table1 ALTER col2 TYPE integer SET DEFAULT 3</ddl>
 </ddls>
 </test>

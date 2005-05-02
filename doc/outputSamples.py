@@ -5,6 +5,10 @@ import glob
 from xml.dom.minidom import parse, parseString
 
 class OutputSamples:
+    def __init__(self):
+        # Sorted alphabetically, in descending order :-)
+        self.allDbmss = ['postgres', 'postgres7', 'oracle', 'mysql', 'firebird' ]
+        
     def doCreate(self, strDbms, strFilename):
         print '\tpython xml2ddl.py --dbms %s %s' % (strDbms, strFilename)
         print
@@ -72,17 +76,24 @@ class OutputSamples:
         fo.write('</table>\n')
     
     def writeDdls(self, fo, ddls):
+        remainingDbms = self.allDbmss[:]
         for ddl in ddls:
-            self.writeDdl(fo, ddl)
+            strDmss = ddl.getAttribute('dbms')
+            for dbms in strDmss.split(','):
+                if dbms:
+                    remainingDbms.remove(dbms)
+        
+        for ddl in ddls:
+            self.writeDdl(fo, ddl, remainingDbms)
     
-    def writeDdl(self, fo, ddls):
+    def writeDdl(self, fo, ddls, remainingDbms):
         fo.write('<table class="ddls" width="100%">\n')
         fo.write('<tr>\n')
         strDbms = ddls.getAttribute('dbms')
         strFails = ddls.getAttribute('fails')
         strDesc = ddls.getAttribute('desc') 
         if len(strDbms) == 0:
-            strDbms = "Default"
+            strDbms = ', '.join(remainingDbms)
         
         if len(strFails) > 0:
             strDbms += ' <span class="warning">%s</span>' % ('Warning: Fails')
@@ -112,7 +123,8 @@ class OutputSamples:
         self.fo = open('testdetails.html', "w")
         self.writeHeader(self.fo)
         
-        self.doIndex()
+        #self.doIndex()
+        self.doSupportGrid()
         
         self.doTestDetails()
         
@@ -138,6 +150,50 @@ class OutputSamples:
             doc.unlink()
             
         self.fo.write('</table>')
+
+    def doSupportGrid(self):
+        files = glob.glob(r'..\tests\testfiles\test*.xml')
+        nTestNumber = 0
+        
+        self.fo.write('<table style="border-collapse:collapse;borderspacing:0">')
+        self.fo.write('<td></td><td><h2>Index</h2></td>\n')
+        self.fo.write('<tr>')
+        self.fo.write('<td style="text-align:right">Description</td>')
+        for dbms in self.allDbmss:
+            self.fo.write('<td style="text-align:center;width:8ex">%s</td>' % (dbms.capitalize()))
+        self.fo.write('</tr>')
+        
+        for testFilename in files:
+            nTestNumber += 1
+            doc = parse(testFilename)
+            strDesc = doc.getElementsByTagName('test')[0].getAttribute('title')
+            
+            self.fo.write('<tr>')
+            self.fo.write('<td style="text-align:right"><a href="%s" class="ddltitle">%s</a></td>\n' % ("#_%d" % (nTestNumber), strDesc))
+
+            strSupportTxt = '<img alt="yes" src="yes.gif"/>'
+            strFailsTxt = '<img alt="no" src="no.gif"/>'
+            dbmsSupport = {}
+            for dbms in self.allDbmss:
+                dbmsSupport[dbms] = strSupportTxt 
+                
+            docDdls = doc.getElementsByTagName('ddls')
+            for ddl in docDdls:
+                strDmss = ddl.getAttribute('dbms')
+                strFails = ddl.getAttribute('fails')
+                for dbms in strDmss.split(','):
+                    if dbms:
+                        if strFails.lower() == 'true':
+                            dbmsSupport[dbms] = strFailsTxt
+            
+            for dbms in self.allDbmss:
+                self.fo.write('<td style="border:1px solid black;text-align:center">%s</td>' % (dbmsSupport[dbms]))
+            self.fo.write('</tr>')
+            
+            doc.unlink()
+            
+        self.fo.write('</table>')
+
     def doTestDetails(self):
         files = glob.glob(r'..\tests\testfiles\test*.xml')
         nTestNumber = 0
