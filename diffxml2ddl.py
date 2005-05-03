@@ -609,11 +609,11 @@ class FindChanges:
             'Drop Index'                          : -99,
             'Add Relation'                        : 0,
             'Drop Relation'                       : -99,
-            'Add Autoincrement Generator'         : 0,
+            'Add Autoincrement Generator'         : -1, # Drop sequence drop table
             'Add Autoincrement Trigger'           : 0,
             'Add Autoincrement'                   : 0,
             'Drop Autoincrement Trigger'          : 0,
-            'Drop Autoincrement'                  : -99,
+            'Drop Autoincrement'                  : 99, # Do last
             'Change Col Type'                     : -9, # Change col type needs to be before change default
             'Change Default'                      : -5,
             'Drop Default'                        : -5,

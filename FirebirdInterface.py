@@ -319,7 +319,7 @@ class DdlFirebird(DdlCommonInterface):
         self.params['no_alter_default'] = True
         self.params['alter_default'] = 'ALTER TABLE %(table_name)s ALTER %(column_name)s TYPE %(column_type)s'
         self.params['rename_column'] = 'ALTER TABLE %(table_name)s ALTER %(old_col_name)s TO %(new_col_name)s'
-        self.params['alter_default'] = 'ALTER TABLE %(table_name)s ALTER %(column_name)s DEFAULT %(new_default)s'
+        self.params['alter_default'] = 'ALTER TABLE %(table_name)s ALTER COLUMN %(column_name)s SET DEFAULT %(new_default)s'
         
         self.params['keywords'] = """
             ACTION ACTIVE ADD ADMIN AFTER ALL ALTER AND ANY AS ASC ASCENDING AT AUTO AUTODDL AVG BASED BASENAME BASE_NAME 

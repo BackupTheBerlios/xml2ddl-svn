@@ -29,7 +29,7 @@
     <ddl>DROP TRIGGER ai_table1_table1_id</ddl>
 	<ddl>DROP SEQUENCE table1_table1_id_seq</ddl>
 </ddls>
-<ddls dbms="firebird">
+<ddls dbms="firebird" fails="true">
     <!-- todo -->
 </ddls>
 </test>

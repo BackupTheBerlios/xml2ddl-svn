@@ -1,7 +1,12 @@
 <test title="Drop a function">
 <before>
     <schema>
-        <function name="myfunc" arguments="subtotal float" returns="float">
+        <function name="myfunc" arguments="subtotal float" returns="float" dbms="firebird">
+BEGIN
+    ret = subtotal * 0.06;
+END
+    </function>
+        <function name="myfunc" arguments="subtotal float" returns="float" dbms="postgres,mysql,oracle">
 BEGIN
     RETURN subtotal * 0.06;
 END;
