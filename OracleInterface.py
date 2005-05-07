@@ -16,6 +16,7 @@ class OracleDownloader(DownloadCommon):
             print "Missing PostgreSQL support through psycopg"
             return
         
+        self.version = info['version']
         self.conn = cx_Oracle.connect(info['user'], info['pass'], info['dbname'])
         self.cursor = self.conn.cursor()
         
@@ -24,8 +25,9 @@ class OracleDownloader(DownloadCommon):
         for col in self.cursor.description:
             print col[0]
         
-    def useConnection(self, con):
+    def useConnection(self, con, version):
         self.conn = con
+        self.version = version
         self.cursor = self.conn.cursor()
         
     def getTables(self, tableList):

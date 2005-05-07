@@ -232,7 +232,7 @@ def createDownloader(dbms, conn = None, info = None, options = None):
         db = OracleDownloader()
 
     if conn:
-        db.useConnection(conn)
+        db.useConnection(conn, info['version'])
     elif info:
         db.connect(info)
     else:
@@ -273,7 +273,8 @@ if __name__ == "__main__":
     info = {
         'dbname' : options.strDbName, 
         'user'   : options.strUserName, 
-        'pass'   : options.strPassword, 
+        'pass'   : options.strPassword,
+        'version' : 99,
     }
 
     if options.strTables:

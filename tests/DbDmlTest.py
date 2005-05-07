@@ -32,11 +32,11 @@ class DbDmlTest:
         self.aFindChanges.setDbms(strDbms)
         self.strDbms = strDbms
         
-    def doTests(self, con, bExec = True):
+    def doTests(self, con, version, bExec = True):
         self.log.info("Logging using the test files")
-        self.useTheTestXmls(con, bExec)
+        self.useTheTestXmls(con, version, bExec)
         
-    def useTheTestXmls(self, con, bExec = True):
+    def useTheTestXmls(self, con, version, bExec = True):
         options = {
             'getfunctions' : True,
             'getviews'     : True,
@@ -45,8 +45,9 @@ class DbDmlTest:
             'tables'       : ['table1', 'table2', 'table3', 'Table with spaces', 'new_table_name'],
             'views'        : ['myview', 'newview',  'oldview', 'view2'],
             'functions'    : ['myfunc', 'newfunc', 'func2'],
+            'version'      : version,
         }
-        self.downLoader = downloadXml.createDownloader(self.strDbms, con, options = options)
+        self.downLoader = downloadXml.createDownloader(self.strDbms, con, info = { 'version' : version }, options = options)
         
         for testFilename in glob.glob('testfiles/test*.xml'):
             if self.testList != None and len(self.testList) > 0 and os.path.basename(testFilename) not in self.testList:

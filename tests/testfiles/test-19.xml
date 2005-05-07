@@ -24,8 +24,7 @@
     <ddl>DROP SEQUENCE table1_table1_id_seq</ddl>
 </ddls>
 <ddls dbms="mysql">
-    <ddl>ALTER TABLE table1 ALTER table1_id DROP DEFAULT</ddl>
-    <ddl>DROP SEQUENCE table1_table1_id_seq</ddl>
+    <ddl>ALTER TABLE table1 MODIFY table1_id integer NOT NULL</ddl>
 </ddls>
 <ddls dbms="mysql4" fails="true">
     <!-- fails because it sets default to = '0' -->

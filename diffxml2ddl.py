@@ -471,12 +471,16 @@ class FindChanges:
         attribs = attribsToDict(new)
         strDefinition = new.firstChild.nodeValue.rstrip()
         
-        self.ddli.renameView(old.getAttribute('name'), new.getAttribute('name'), strDefinition, attribs, self.diffs)
+        if self.inDbms(new):
+            self.ddli.renameView(old.getAttribute('name'), new.getAttribute('name'), strDefinition, attribs, self.diffs)
         
     def diffView(self, ignore, oldView, newView):
         strOldContents = oldView.firstChild.nodeValue.rstrip()
         strNewContents = newView.firstChild.nodeValue.rstrip()
         
+        if not self.inDbms(newView):
+            return
+            
         if strOldContents != strNewContents:
             attribs = attribsToDict(newView)
             strDefinition = newView.firstChild.nodeValue.rstrip()
@@ -487,10 +491,12 @@ class FindChanges:
         attribs = attribsToDict(new)
         strDefinition = new.firstChild.nodeValue.rstrip()
         
-        self.ddli.addView(new.getAttribute('name'), strDefinition, attribs, self.diffs)
+        if self.inDbms(new):
+            self.ddli.addView(new.getAttribute('name'), strDefinition, attribs, self.diffs)
         
     def dropView(self, ignore, view):
-        self.ddli.dropView(view.getAttribute('name'), self.diffs)
+        if self.inDbms(view):
+            self.ddli.dropView(view.getAttribute('name'), self.diffs)
         
     def findView(self, views, strViewName):
         strViewName = strViewName.lower()

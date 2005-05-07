@@ -51,7 +51,7 @@ class DbTests:
         
             self.conn = MySQLdb.connect(host=info['host'], db=info['dbname'], user=info['user'], passwd=info['pass'])
             ddt = DbDmlTest.DbDmlTest(self.strDbms, self.testList, log)
-            ddt.doTests(self.conn, bExec = bExec)
+            ddt.doTests(self.conn, info['version'], bExec = bExec)
 
     def fireBirdTests(self, bExec = True):
         try:
@@ -68,7 +68,7 @@ class DbTests:
             password = info['pass'])
     
         ddt = DbDmlTest.DbDmlTest(self.strDbms, self.testList, log)
-        ddt.doTests(self.conn, bExec = bExec)
+        ddt.doTests(self.conn, info['version'], bExec = bExec)
 
     def oracleTests(self, bExec = True):
         try:
@@ -82,7 +82,7 @@ class DbTests:
         self.conn = cx_Oracle.connect(
             info['user'], info['pass'], info['dbname'])
         ddt = DbDmlTest.DbDmlTest(self.strDbms, self.testList, log)
-        ddt.doTests(self.conn, bExec = bExec)
+        ddt.doTests(self.conn, info['version'], bExec = bExec)
 
 def doTests(testList = None, bExec = True):
     dbt = DbTests(testList)

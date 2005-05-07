@@ -7,6 +7,7 @@ import re
 class MySqlDownloader(DownloadCommon):
     def __init__(self):
         self.strDbms = 'mysql'
+        self.version = (5, 0)
     
     def connect(self, info):
         try:
@@ -14,11 +15,14 @@ class MySqlDownloader(DownloadCommon):
         except:
             print "Missing MySQL support through MySQLdb"
             return
+            
+        self.version = info['version']
         self.conn = MySQLdb.connect(db=info['dbname'], user=info['user'], passwd=info['pass'])
         self.cursor = self.conn.cursor()
 
-    def useConnection(self, conn):
+    def useConnection(self, conn, version):
         self.conn = conn
+        self.version = version
         self.cursor = self.conn.cursor()
         
     def getTables(self, tableList):
@@ -179,7 +183,10 @@ class MySqlDownloader(DownloadCommon):
         return 'a'
         
     def getViews(self, viewList):
-        strQuery = "SHOW TABLES"
+        if self.version[0] < 5:
+            return []
+        
+        strQuery = "SHOW FULL TABLES"
         self.cursor.execute(strQuery)
         rows = self.cursor.fetchall()
         ret = []
@@ -199,7 +206,7 @@ class MySqlDownloader(DownloadCommon):
         if rows:
             ret = rows[0][1]
             # ext CREATE VIEW test.v AS select 1 AS `a`,2 AS `b`
-            reGetDef = re.compile('CREATE VIEW [a-zA-Z0-9_$`\.]+ AS (.*)')
+            reGetDef = re.compile('CREATE (?:ALGORITHM=[^ ]+[ ])?VIEW [a-zA-Z0-9_$`\.]+ AS (.*)')
             match = reGetDef.match(ret)
             if match:
                 return match.group(1)

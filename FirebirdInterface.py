@@ -16,14 +16,16 @@ class FbDownloader(DownloadCommon):
             return
         
         self.strDbms = 'firebird'
+        self.version = info['version']
         self.conn = kinterbasdb.connect(
             dsn='localhost:%s' % info['dbname'],
             user = info['user'], 
             password = info['pass'])
         self.cursor = self.conn.cursor()
         
-    def useConnection(self, con):
+    def useConnection(self, con, version):
         self.conn = con
+        self.version = version
         self.cursor = self.conn.cursor()
         
     def getTables(self, tableList):
