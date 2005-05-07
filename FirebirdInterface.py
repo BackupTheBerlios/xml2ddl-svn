@@ -311,15 +311,14 @@ class DdlFirebird(DdlCommonInterface):
     def __init__(self):
         DdlCommonInterface.__init__(self, 'firebird')
         self.params['max_id_len'] = { 'default' : 256 }
-        self.params['table_desc'] = "UPDATE RDB$RELATIONS SET RDB$DESCRIPTION = %(desc)s\n\tWHERE RDB$RELATION_NAME = upper('%(table)s')"
-        self.params['column_desc'] = "UPDATE RDB$RELATION_FIELDS SET RDB$DESCRIPTION = %(desc)s\n\tWHERE RDB$RELATION_NAME = upper('%(table)s') AND RDB$FIELD_NAME = upper('%(column)s')"
-        self.params['rename_keyword'] = 'ALTER'
+        self.params['table_desc'] = ["UPDATE RDB$RELATIONS SET RDB$DESCRIPTION = %(desc)s\n\tWHERE RDB$RELATION_NAME = upper('%(table)s')"]
+        self.params['column_desc'] = ["UPDATE RDB$RELATION_FIELDS SET RDB$DESCRIPTION = %(desc)s\n\tWHERE RDB$RELATION_NAME = upper('%(table)s') AND RDB$FIELD_NAME = upper('%(column)s')"]
         self.params['drop_constraints_on_col_rename'] = True
         self.params['drop_table_has_cascade'] = False
         self.params['no_alter_default'] = True
-        self.params['alter_default'] = 'ALTER TABLE %(table_name)s ALTER %(column_name)s TYPE %(column_type)s'
-        self.params['rename_column'] = 'ALTER TABLE %(table_name)s ALTER %(old_col_name)s TO %(new_col_name)s'
-        self.params['alter_default'] = 'ALTER TABLE %(table_name)s ALTER COLUMN %(column_name)s SET DEFAULT %(new_default)s'
+        self.params['alter_default'] = ['ALTER TABLE %(table_name)s ALTER %(column_name)s TYPE %(column_type)s']
+        self.params['rename_column'] = ['ALTER TABLE %(table_name)s ALTER %(old_col_name)s TO %(new_col_name)s']
+        self.params['alter_default'] = ['ALTER TABLE %(table_name)s ALTER COLUMN %(column_name)s SET DEFAULT %(new_default)s']
         
         self.params['keywords'] = """
             ACTION ACTIVE ADD ADMIN AFTER ALL ALTER AND ANY AS ASC ASCENDING AT AUTO AUTODDL AVG BASED BASENAME BASE_NAME 

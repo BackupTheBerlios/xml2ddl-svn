@@ -16,7 +16,7 @@ conn_info = {
         'host'   : 'localhost',
         'dbname' : 'test',
         'user'   : 'root',
-        'pass'   : '',
+        'pass'   : 'mysql',
     },
     'oracle' : {
         'dbname' : 'test', # DSN Name

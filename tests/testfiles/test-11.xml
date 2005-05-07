@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
 <test title="Change a table description">
 <before>
     <schema>
@@ -11,7 +12,7 @@
 </before>
 <after>
     <schema>
-    <table name="table1" desc="A description">
+    <table name="table1" desc="François's table">
         <columns>
             <column name="col1" type="integer"/>
             <column name="col2" type="integer"/>
@@ -20,14 +21,13 @@
     </schema>
 </after>
 <ddls>
-    <ddl>COMMENT ON TABLE table1 IS 'A description'</ddl>
+    <ddl>COMMENT ON TABLE table1 IS 'François''s table'</ddl>
 </ddls>
-<ddls dbms="mysql" desc="Can't change a comment on a mysql table, would require recreating table from scratch.
+<ddls dbms="mysql,mysql4" fails="true" desc="Can't change a comment on a mysql table, would require recreating table from scratch.
 If anyone knows otherwise, please let me know.">
 </ddls>
-
 <ddls dbms="firebird">
-    <ddl>UPDATE RDB$RELATIONS SET RDB$DESCRIPTION = 'A description'
+    <ddl>UPDATE RDB$RELATIONS SET RDB$DESCRIPTION = 'François''s table'
     WHERE RDB$RELATION_NAME = upper('table1')</ddl>
 </ddls>
 </test>

@@ -25,7 +25,7 @@
 <ddls dbms="oracle">
     <ddl>ALTER TABLE table1 RENAME COLUMN col2 TO col_newname</ddl>
 </ddls>
-<ddls dbms="mysql">
+<ddls dbms="mysql,mysql4">
     <ddl>ALTER TABLE table1 CHANGE col2 col_newname integer</ddl>
 </ddls>
 <ddls dbms="firebird">

@@ -23,11 +23,11 @@
     )</ddl>
     <ddl>CREATE INDEX "from" ON "Table with spaces" ("column with spaces", "select")</ddl>
 </ddls>
-<ddls dbms="mysql">
+<ddls dbms="mysql,mysql4">
     <ddl>CREATE TABLE `Table with spaces` ( 
         `column with spaces` int,
         `select` int
-    ) ENGINE=InnoDB</ddl>
+    ) TYPE=InnoDB</ddl>
     <ddl>CREATE INDEX `from` ON `Table with spaces` (`column with spaces`, `select`)</ddl>
 </ddls>
 </test>

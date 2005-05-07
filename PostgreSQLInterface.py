@@ -290,7 +290,12 @@ class DdlPostgres(DdlCommonInterface):
         self.params['max_id_len'] = { 'default' : 63 }
         
         if self.dbmsType == 'postgres7':
-            self.params['no_alter_column_type'] = True
+            self.params['change_col_type'] = [
+                    'ALTER TABLE %(table_name)s ADD tmp_%(column_name)s %(column_type)s',
+                    'UPDATE %(table_name)s SET tmp_%(column_name)s = %(column_name)s',
+                    'ALTER TABLE %(table_name)s DROP %(column_name)s',
+                    'ALTER TABLE %(table_name)s RENAME tmp_%(column_name)s TO %(column_name)s',
+            ]
         
         self.params['keywords'] = """
             ALL AND ANY AS ASC AUTHORIZATION BETWEEN BINARY BOTH CASE CAST CHECK COLLATE COLUMN CONSTRAINT CREATE
@@ -299,7 +304,7 @@ class DdlPostgres(DdlCommonInterface):
             INTO IS ISNULL JOIN LEADING LEFT LIKE LIMIT LOCALTIME LOCALTIMESTAMP NATURAL NEW NOT NOTNULL NULL 
             OFF OLD ON ONLY OR ORDER OUTER OVERLAPS PRIMARY REFERENCES RIGHT SELECT SESSION_USER SIMILAR SOME TABLE 
             THEN TO TRAILING TRUE UNION UNIQUE USER USING VERBOSE WHEN WHERE""".split()
-        
+     
     def addFunction(self, strNewFunctionName, argumentList, strReturn, strContents, attribs, diffs):
         newArgs = []
         declares = []

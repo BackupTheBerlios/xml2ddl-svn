@@ -20,4 +20,6 @@
     <ddl>DROP VIEW myview</ddl>
     <ddl>DROP TABLE table1</ddl>
 </ddls>
+<ddls dbms="mysql4" fails="true">
+</ddls>
 </test>

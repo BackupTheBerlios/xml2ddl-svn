@@ -13,16 +13,24 @@
     <schema>
         <table name="table1">
             <columns> <!-- Added the default="0" to work best with MySQL -->
-                <column name="table1_id" type="integer" null="no" key="1" default="0"/>
+                <column name="table1_id" type="integer" null="no" key="1"/>
                 <column name="col2" type="integer"/>
             </columns>
         </table>
     </schema>
 </after>
 <ddls dbms="postgres,postgres7">
-	<ddl>DROP SEQUENCE table1_table1_id_seq</ddl>
-	<ddl>ALTER TABLE table1 ALTER table1_id DROP DEFAULT</ddl>
-	<ddl>ALTER TABLE table1 ALTER table1_id SET DEFAULT 0</ddl>
+    <ddl>ALTER TABLE table1 ALTER table1_id DROP DEFAULT</ddl>
+    <ddl>DROP SEQUENCE table1_table1_id_seq</ddl>
+</ddls>
+<ddls dbms="mysql">
+    <ddl>ALTER TABLE table1 ALTER table1_id DROP DEFAULT</ddl>
+    <ddl>DROP SEQUENCE table1_table1_id_seq</ddl>
+</ddls>
+<ddls dbms="mysql4" fails="true">
+    <!-- fails because it sets default to = '0' -->
+    <ddl>ALTER TABLE table1 ALTER table1_id DROP DEFAULT</ddl>
+    <ddl>DROP SEQUENCE table1_table1_id_seq</ddl>
 </ddls>
 <ddls dbms="oracle" fails="true">
     <!-- todo -->

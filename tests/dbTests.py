@@ -45,12 +45,13 @@ class DbTests:
             print "Missing MySQL support through MySQLdb"
             return
         
-        self.strDbms = 'mysql'
-        info = conn_info[self.strDbms]
-    
-        self.conn = MySQLdb.connect(host=info['host'], db=info['dbname'], user=info['user'], passwd=info['pass'])
-        ddt = DbDmlTest.DbDmlTest(self.strDbms, self.testList, log)
-        ddt.doTests(self.conn, bExec = bExec)
+        for dbms in ['mysql4', 'mysql']:
+            self.strDbms = dbms
+            info = conn_info[self.strDbms]
+        
+            self.conn = MySQLdb.connect(host=info['host'], db=info['dbname'], user=info['user'], passwd=info['pass'])
+            ddt = DbDmlTest.DbDmlTest(self.strDbms, self.testList, log)
+            ddt.doTests(self.conn, bExec = bExec)
 
     def fireBirdTests(self, bExec = True):
         try:
@@ -87,8 +88,8 @@ def doTests(testList = None, bExec = True):
     dbt = DbTests(testList)
     
     #dbt.pgTests(bExec = bExec)
-    #dbt.mySqlTests(bExec = bExec)
-    dbt.fireBirdTests(bExec = bExec)
+    dbt.mySqlTests(bExec = bExec)
+    #dbt.fireBirdTests(bExec = bExec)
     #dbt.oracleTests(bExec = bExec) 
     
 if __name__ == "__main__":

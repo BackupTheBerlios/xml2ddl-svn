@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<test title="Create table with various types">
+<test title="Test the new idea of abbreviations and Naming Conventions">
 <before>
     <schema>
     </schema>
@@ -9,7 +9,7 @@
         <dictionary name="column">
             <dict class="mytype" type="integer"/>
         </dictionary>
-        <table name="table1">
+        <table name="table1" abbr="t">
             <columns>
                 <column name="col1" class="mytype"/>
                 <column name="col2" type="integer"/>
@@ -24,28 +24,29 @@
         </table>
     </schema>
 </after>
-<ddls>
+<ddls dbms="oracle,postgres,postgres7,firebird" fails="true">
+<!-- Actually it only fails because the testing code is not up to it yet -->
 <ddl>CREATE TABLE table1 (
-    col1 integer,
-    col2 integer,
-    col3 varchar(32),
-    col4 decimal(15),
-    col5 decimal(15, 3),
-    col6 date,
-    col8 int DEFAULT 2,
-    col9 float DEFAULT 1.234
+    t_col1 integer,
+    t_col2 integer,
+    t_col3 varchar(32),
+    t_col4 decimal(15),
+    t_col5 decimal(15, 3),
+    t_col6 date,
+    t_col8 int DEFAULT 2,
+    t_col9 float DEFAULT 1.234
 )</ddl>
 </ddls>
-<ddls dbms="mysql,mysql4">
+<ddls dbms="mysql,mysql4" fails="true">
 <ddl>CREATE TABLE table1 (
-    col1 integer,
-    col2 integer,
-    col3 varchar(32),
-    col4 decimal(15),
-    col5 decimal(15, 3),
-    col6 date,
-    col8 int DEFAULT 2,
-    col9 float DEFAULT 1.234
-) TYPE=InnoDB</ddl>
+    t_col1 integer,
+    t_col2 integer,
+    t_col3 varchar(32),
+    t_col4 decimal(15),
+    t_col5 decimal(15, 3),
+    t_col6 date,
+    t_col8 int DEFAULT 2,
+    t_col9 float DEFAULT 1.234
+) ENGINE=InnoDB</ddl>
 </ddls>
 </test>

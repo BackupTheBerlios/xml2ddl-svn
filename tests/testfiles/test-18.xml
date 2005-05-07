@@ -20,11 +20,11 @@
         col2 integer,
         CONSTRAINT pk_table1 PRIMARY KEY (table1_id))</ddl>
 </ddls>
-<ddls dbms="mysql">
+<ddls dbms="mysql,mysql4">
 	<ddl>CREATE TABLE table1 ( 
         table1_id integer NOT NULL AUTO_INCREMENT, 
         col2 integer, 
-        CONSTRAINT pk_table1 PRIMARY KEY (table1_id)) ENGINE=InnoDB</ddl>
+        CONSTRAINT pk_table1 PRIMARY KEY (table1_id)) TYPE=InnoDB</ddl>
 </ddls>
 <ddls dbms="oracle" fails="true">
     <ddl>CREATE SEQUENCE table1_table1_id_seq</ddl>

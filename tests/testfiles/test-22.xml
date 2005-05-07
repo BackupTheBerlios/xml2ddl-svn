@@ -29,5 +29,6 @@
     <ddl>DROP VIEW myview</ddl>
     <ddl>CREATE VIEW newview AS SELECT table1.id, table1.col2 FROM table1</ddl>
 </ddls>
-
+<ddls dbms="mysql4" fails="true">
+</ddls>
 </test>

@@ -27,7 +27,7 @@
     <ddl>DROP INDEX idx_table1col1</ddl>
 	<ddl>DROP INDEX col1col2</ddl>
 </ddls>
-<ddls dbms="mysql">
+<ddls dbms="mysql,mysql4">
     <ddl>DROP INDEX idx_table1col1 ON table1</ddl>
     <ddl>DROP INDEX col1col2 ON table1</ddl></ddls>
 </test>

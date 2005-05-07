@@ -30,8 +30,8 @@ def attribsToDict(node):
     return dict
 
 def createDdlInterface(strDbms):
-    if strDbms.lower() not in ['postgres', 'postgres7', 'mysql', 'oracle', 'firebird']:
-        print "Unknown dbms %s" % (dbmsType)
+    if strDbms.lower() not in ['postgres', 'postgres7', 'mysql', 'mysql4', 'oracle', 'firebird']:
+        print "Unknown dbms %s" % (strDbms)
     
     if strDbms.startswith('postgres'):
         return DdlPostgres(strDbms)
@@ -42,7 +42,7 @@ def createDdlInterface(strDbms):
     elif strDbms.startswith('oracle'):
         return DdlOracle(strDbms)
     else:
-        assert(false)
+        assert(False)
         
 if __name__ == "__main__":
     import os, sys

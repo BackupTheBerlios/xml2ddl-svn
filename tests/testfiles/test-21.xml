@@ -25,4 +25,6 @@
 <ddls>
     <ddl>DROP VIEW myview</ddl>
 </ddls>
+<ddls dbms="mysql4" fails="true">
+</ddls>
 </test>

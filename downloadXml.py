@@ -224,7 +224,7 @@ class DownloadXml:
 def createDownloader(dbms, conn = None, info = None, options = None):
     if dbms == 'postgres' or dbms == 'postgres7':
         db = PgDownloader()
-    elif dbms == 'mysql':
+    elif dbms == 'mysql' or dbms == 'mysql4':
         db = MySqlDownloader()
     elif dbms == 'firebird':
         db = FbDownloader()

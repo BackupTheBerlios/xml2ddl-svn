@@ -158,7 +158,8 @@ class Xml2Ddl:
                 'INSERT INTO %s (%s) VALUES (%s)' % (self.ddlInterface.quoteName(strTableName), ', '.join(cols), ', '.join(vals))))
         
     def createTable(self, doc):
-        strTableName = self.ddlInterface.quoteName(getTableName(doc))
+        rawTableName = getTableName(doc)
+        strTableName = self.ddlInterface.quoteName(rawTableName)
         
         if self.params['drop-tables']:
             self.ddlInterface.dropTable(strTableName, ' CASCADE', self.ddls)
@@ -171,18 +172,13 @@ class Xml2Ddl:
         
         keys = self.retKeys(doc)
         strTableStuff = ''
-        if len(keys) > 0:
-            strPrimaryKeys = ',\n\tCONSTRAINT pk_%s PRIMARY KEY (%s)' % (strTableName, ',\n\t'.join(keys))
-        else:
-            strPrimaryKeys = '\n'
         
-        if self.dbmsType == 'mysql':
-            strTableStuff += ' ENGINE=InnoDB'
-        if doc.hasAttribute('desc') and self.dbmsType == 'mysql':
+        if self.dbmsType.startswith('mysql'):
+            strTableStuff += ' TYPE=InnoDB'
+        if doc.hasAttribute('desc') and self.dbmsType.startswith('mysql'):
             strTableStuff += " COMMENT=%s" % (self.ddlInterface.quoteString(doc.getAttribute('desc')))
         
-        self.ddls.append(
-            ('Create Table', 'CREATE TABLE %s (\n\t%s%s)%s' % (strTableName, ',\n\t'.join(colDefs), strPrimaryKeys, strTableStuff)))
+        self.ddlInterface.addTable(rawTableName, colDefs, keys, strTableStuff, self.ddls)
 
         self.ddls += strPostDdl
 

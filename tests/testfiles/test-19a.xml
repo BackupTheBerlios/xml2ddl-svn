@@ -17,10 +17,10 @@
 	<ddl>DROP TABLE table1</ddl>
 </ddls>
 <ddls dbms="postgres,postgres7">
-    <ddl>DROP SEQUENCE table1_table1_id_seq</ddl>
     <ddl>ALTER TABLE table1 ALTER table1_id DROP DEFAULT</ddl>
     <ddl>ALTER TABLE table1 DROP CONSTRAINT pk_table1</ddl>
     <ddl>DROP TABLE table1</ddl>
+    <ddl>DROP SEQUENCE table1_table1_id_seq</ddl>
 </ddls>
 <ddls dbms="oracle" fails="true">
     <ddl>DROP SEQUENCE table1_table1_id_seq</ddl>
@@ -29,9 +29,9 @@
     <ddl>DROP TABLE table1</ddl>
 </ddls>
 <ddls dbms="firebird">
-    <ddl>DROP GENERATOR table1_table1_id_seq</ddl>
     <ddl>ALTER TABLE table1 DROP CONSTRAINT pk_table1</ddl>
     <ddl>DROP TRIGGER ai_table1_table1_id</ddl>
     <ddl>DROP TABLE table1</ddl>
+    <ddl>DROP GENERATOR table1_table1_id_seq</ddl>
 </ddls>
 </test>

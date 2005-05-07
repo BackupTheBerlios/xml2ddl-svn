@@ -87,7 +87,7 @@ def doTests():
         docAfter = doc.getElementsByTagName('after')[0].firstChild.nextSibling
         handleDictionary(docAfter)
         
-        theList = ['oracle', 'postgres', 'postgres7', 'mysql', 'firebird']
+        theList = ['oracle', 'postgres', 'postgres7', 'mysql4', 'mysql', 'firebird']
         docDdls = doc.getElementsByTagName('ddls')
         for docDdl in docDdls:
             if docDdl.hasAttribute('dbms'):

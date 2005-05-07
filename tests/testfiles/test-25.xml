@@ -47,7 +47,7 @@ END</ddl>
     <ddl>DROP PROCEDURE myfunc</ddl>
     <ddl>CREATE PROCEDURE myfunc(subtotal float) RETURNS (ret float) AS 
 BEGIN
-    RETURN subtotal * 0.07;
+    ret = subtotal * 0.07;
 END;</ddl>
 </ddls>
 </test>

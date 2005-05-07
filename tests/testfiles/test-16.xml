@@ -33,7 +33,7 @@
     <ddl>CREATE INDEX table1Col1 ON table1 (col2)</ddl>
     <ddl>CREATE INDEX col1col2 ON table1 (col2, col1)</ddl>
 </ddls>
-<ddls dbms="mysql">
+<ddls dbms="mysql,mysql4">
     <ddl>DROP INDEX col1col2 ON table1</ddl>
     <ddl>DROP INDEX table1cCol1 ON table1</ddl>
     <ddl>CREATE INDEX table1Col1 ON table1 (col2)</ddl>

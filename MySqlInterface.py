@@ -29,7 +29,7 @@ class MySqlDownloader(DownloadCommon):
         rows = self.cursor.fetchall()
         ret = []
         for row in rows:
-            if row[1] == 'BASE TABLE':
+            if len(row) == 1 or row[1] == 'BASE TABLE':
                 ret.append(row[0])
         
         return ret
@@ -91,7 +91,12 @@ class MySqlDownloader(DownloadCommon):
         fullcols = self.cursor.fetchall()
         strColumnName = strColumnName.lower()
         for col in fullcols:
-            (Field, Type, Collation, Null, Key, Default, Extra, Privileges, Comment) = col
+            if len(col) == 7:
+                (Field, Type, Null, Key, Default, Extra, Privileges) = col
+                (Collation, Comment) = None, None
+            else:
+               (Field, Type, Collation, Null, Key, Default, Extra, Privileges, Comment) = col
+            
             if Field.lower() == strColumnName:
                 return Comment
         
@@ -179,14 +184,17 @@ class MySqlDownloader(DownloadCommon):
         rows = self.cursor.fetchall()
         ret = []
         for row in rows:
-            if row[1] == 'VIEW':
+            if len(row) > 1 and row[1] == 'VIEW':
                 ret.append(row[0])
                 
         return ret
         
     def getViewDefinition(self, strViewName):
         strQuery = "SHOW CREATE VIEW `%s`" % (strViewName)
-        self.cursor.execute(strQuery)
+        try:
+            self.cursor.execute(strQuery)
+        except:
+            return ''
         rows = self.cursor.fetchall()
         if rows:
             ret = rows[0][1]
@@ -200,12 +208,17 @@ class MySqlDownloader(DownloadCommon):
             
             return ret
         
-        return []
+        return ''
         
-    def getFunctions(self):
+    def getFunctions(self, functionList):
         """ Returns functions """
+        
+        # TODO handle the functionList
         strQuery = "SHOW FUNCTION STATUS"
-        self.cursor.execute(strQuery)
+        try:
+            self.cursor.execute(strQuery)
+        except:
+            return []
         rows = self.cursor.fetchall()
         if rows:
             return [x[1] for x in rows]
@@ -246,17 +259,14 @@ class DdlMySql(DdlCommonInterface):
         self.params['max_id_len'] = { 'default' : 64 }
         self.params['quote_l'] = '`'
         self.params['quote_r'] = '`'
-        self.params['table_desc'] = "ALTER TABLE %(table)s COMMENT %(desc)s"
-        self.params['column_desc'] = "ALTER TABLE %(table)s MODIFY %(column)s %(type)sCOMMENT %(desc)s"
+        self.params['table_desc'] = ["ALTER TABLE %(table)s COMMENT %(desc)s"]
+        self.params['change_col_type'] = ['ALTER TABLE %(table_name)s MODIFY %(column_name)s %(column_type)s']
+        self.params['column_desc'] = ["ALTER TABLE %(table)s MODIFY %(column)s %(type)sCOMMENT %(desc)s"]
         self.params['has_auto_increment'] = True
-        self.params['rename_keyword'] = 'ALTER'
-        self.params['no_rename_col'] = True
-        self.params['change_type_keyword'] = 'MODIFY'
-        self.params['TYPE'] = ''
         self.params['can_change_table_comment'] = False
-        self.params['drop_index'] = 'DROP INDEX %(index_name)s ON %(table_name)s'
-        self.params['drop_default'] = 'ALTER TABLE %(table_name)s MODIFY %(column_name)s %(column_type)s'
-        self.params['rename_column'] = 'ALTER TABLE %(table_name)s CHANGE %(old_col_name)s %(new_col_name)s %(column_type)s'
+        self.params['drop_index'] = ['DROP INDEX %(index_name)s ON %(table_name)s']
+        self.params['drop_default'] = ['ALTER TABLE %(table_name)s MODIFY %(column_name)s %(column_type)s']
+        self.params['rename_column'] = ['ALTER TABLE %(table_name)s CHANGE %(old_col_name)s %(new_col_name)s %(column_type)s']
         self.params['keywords'] = """
             ADD ALL ALTER ANALYZE AND AS ASC ASENSITIVE AUTO_INCREMENT BDB BEFORE BERKELEYDB BETWEEN BIGINT BINARY
             BLOB BOTH BY CALL CASCADE CASE CHANGE CHAR CHARACTER CHECK COLLATE COLUMN COLUMNS CONDITION CONNECTION
