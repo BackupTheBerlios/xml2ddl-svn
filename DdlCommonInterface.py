@@ -6,27 +6,36 @@ class DdlCommonInterface:
     def __init__(self, strDbms):
         self.dbmsType = strDbms
         self.params = {
+            # Table
             'add_table'       : ['CREATE TABLE %(table_name)s (\n\t%(col_defs)s%(primary_keys)s)%(extra)s'],
             'drop_table'      : ['DROP TABLE %(table_name)s%(cascade)s'],
             'rename_table'    : ['ALTER TABLE %(table_name)s RENAME TO %(new_table_name)s'],
             'table_desc'      : ["COMMENT ON TABLE %(table)s IS %(desc)s"],
+            # Column
             'add_column'      : ['ALTER TABLE %(table_name)s ADD %(column_name)s %(column_type)s'],
             'drop_column'     : ['ALTER TABLE %(table_name)s DROP %(column_name)s'],
             'rename_column'   : ['ALTER TABLE %(table_name)s RENAME %(old_col_name)s TO %(new_col_name)s'],
-            'drop_default'    : ['ALTER TABLE %(table_name)s ALTER %(column_name)s DROP DEFAULT'],
-            'column_desc'     : ["COMMENT ON COLUMN %(table)s.%(column)s IS %(desc)s"],
-            'alter_default'   : ['ALTER TABLE %(table_name)s ALTER %(column_name)s SET DEFAULT %(new_default)s'],
             'change_col_type' : ['ALTER TABLE %(table_name)s ALTER %(column_name)s TYPE %(column_type)s'],
+            'column_desc'     : ["COMMENT ON COLUMN %(table)s.%(column)s IS %(desc)s"],
+            # Column Default
+            'drop_default'    : ['ALTER TABLE %(table_name)s ALTER %(column_name)s DROP DEFAULT'],
+            'alter_default'   : ['ALTER TABLE %(table_name)s ALTER %(column_name)s SET DEFAULT %(new_default)s'],
+            # Relation
             'add_relation'    : ['ALTER TABLE %(tablename)s ADD CONSTRAINT %(constraint)s FOREIGN KEY (%(thiscolumn)s) REFERENCES %(othertable)s(%(fk)s)%(ondelete)s%(onupdate)s'],
             'drop_relation'   : ['ALTER TABLE %(tablename)s DROP CONSTRAINT %(constraintname)s'],
+            # View
             'create_view'     : ['CREATE VIEW %(viewname)s AS %(contents)s'],
             'drop_view'       : ['DROP VIEW %(viewname)s'],
+            # Function
             'create_function' : ["CREATE FUNCTION %(functionname)s(%(arguments)s) RETURNS %(returns)s AS '\n%(contents)s'%(language)s"],
             'drop_function'   : ['DROP FUNCTION %(functionname)s(%(params)s)'],
+            # Key Constraint
             'add_key_constraint' : ['ALTER TABLE %(table_name)s ADD CONSTRAINT %(pk_constraint)s PRIMARY KEY (%(keys)s)'],
             'drop_key_constraint' : ['ALTER TABLE %(table_name)s DROP CONSTRAINT %(constraint_name)s'],
+            # Index
             'add_index'       : ['CREATE INDEX %(index_name)s ON %(table_name)s (%(col_names)s)'],
             'drop_index'      : ['DROP INDEX %(index_name)s'],
+            
             'unquoted_id'     : re.compile(r'^[A-Za-z][A-Za-z0-9_]+$'),
             'max_id_len'      : { 'default' : 256 },
             'has_auto_increment' : False,
@@ -34,9 +43,7 @@ class DdlCommonInterface:
             'quote_l'         : '"',
             'quote_r'         : '"',
             'drop_constraints_on_col_rename' : False,
-            'no_alter_column_type' : False,
             'drop_table_has_cascade' : False, # Test
-            'no_alter_default' : False,
             'can_change_table_comment' : True,
         }
 

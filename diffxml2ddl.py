@@ -36,7 +36,6 @@ class FindChanges:
         self.dbmsType = 'postgres'
         self.params = {
             'drop_constraints_on_col_rename' : False,
-            'no_alter_column_type' : False,
             'drop_table_has_cascade' : False, # test
             'can_change_table_comment' : True,
         }
@@ -50,11 +49,9 @@ class FindChanges:
         self.xml2ddl.setDbms(self.dbmsType)
         self.ddli = createDdlInterface(self.dbmsType)
         
-        if self.dbmsType == 'firebird':
-            self.params['drop_constraints_on_col_rename'] = True
-            self.params['drop_table_has_cascade'] = False
-        elif self.dbmsType == 'mysql':
-            self.params['can_change_table_comment'] = False
+        self.params['drop_constraints_on_col_rename'] = self.ddli.params['drop_constraints_on_col_rename']
+        self.params['drop_table_has_cascade']   = self.ddli.params['drop_table_has_cascade']
+        self.params['can_change_table_comment'] = self.ddli.params['can_change_table_comment'] 
             
 
     def changeAutoIncrement(self, strTableName, old, new):

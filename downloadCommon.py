@@ -9,7 +9,7 @@ class DownloadCommon:
     def connect(self, info):
         pass
         
-    def useConnection(self, con):
+    def useConnection(self, con, version):
         pass
         
     def getTables(self, tableList = None):

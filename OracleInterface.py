@@ -360,16 +360,15 @@ class DdlOracle(DdlCommonInterface):
         DdlCommonInterface.__init__(self, strDbms)
         
         self.params['max_id_len'] = { 'default' : 63 }
-        self.params['no_alter_default'] = True
-        self.params['drop_default'] = ['ALTER TABLE %(table_name)s ALTER %(column_name)s %(column_type)s']
-        self.params['alter_default'] = ['ALTER TABLE %(table_name)s MODIFY %(column_name)s %(column_type)s']
-        self.params['rename_column'] = ['ALTER TABLE %(table_name)s RENAME COLUMN %(old_col_name)s TO %(new_col_name)s']
-        self.params['change_col_type'] = ['ALTER TABLE %(table_name)s MODIFY %(column_name)s %(column_type)s']
-        self.params['drop_column'] = ['ALTER TABLE %(table_name)s DROP COLUMN %(column_name)s']
-        self.params['add_relation'] = ['ALTER TABLE %(tablename)s ADD CONSTRAINT %(constraint)s FOREIGN KEY (%(thiscolumn)s) REFERENCES %(othertable)s(%(fk)s)%(ondelete)s']
-        self.params['create_view'] = ['CREATE VIEW %(viewname)s AS %(contents)s']
-        self.params['create_function'] = ["CREATE FUNCTION %(functionname)s(%(arguments)s) RETURN %(returns)s AS\n%(contents)s;"]
-        self.params['drop_function'] =['DROP FUNCTION %(functionname)s']
+        self.params['alter_default']    = ['ALTER TABLE %(table_name)s MODIFY %(column_name)s %(column_type)s']
+        self.params['drop_default']     = ['ALTER TABLE %(table_name)s ALTER %(column_name)s %(column_type)s']
+        self.params['rename_column']    = ['ALTER TABLE %(table_name)s RENAME COLUMN %(old_col_name)s TO %(new_col_name)s']
+        self.params['change_col_type']  = ['ALTER TABLE %(table_name)s MODIFY %(column_name)s %(column_type)s']
+        self.params['drop_column']      = ['ALTER TABLE %(table_name)s DROP COLUMN %(column_name)s']
+        self.params['add_relation']     = ['ALTER TABLE %(tablename)s ADD CONSTRAINT %(constraint)s FOREIGN KEY (%(thiscolumn)s) REFERENCES %(othertable)s(%(fk)s)%(ondelete)s']
+        self.params['create_view']      = ['CREATE VIEW %(viewname)s AS %(contents)s']
+        self.params['create_function']  = ["CREATE FUNCTION %(functionname)s(%(arguments)s) RETURN %(returns)s AS\n%(contents)s;"]
+        self.params['drop_function']    = ['DROP FUNCTION %(functionname)s']
         
         self.params['keywords'] = """AS ASC AUDIT ACCESS BY ADD ALL ALTER CHAR AND ANY CHECK DATE CLUSTER COLUMN COMMENT DECIMAL DEFAULT COMPRESS
             DELETE CONNECT DESC DISTINCT DROP CREATE CURRENT ELSE CURSOR GRANT GROUP EXCLUSIVE EXISTS HAVING IDENTIFIED IMMEDIATE

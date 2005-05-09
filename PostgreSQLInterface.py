@@ -17,11 +17,11 @@ class PgDownloader(DownloadCommon):
             print "Missing PostgreSQL support through psycopg"
             return
         
-        self.conn = psycopg.connect('dbname=%(dbname)s user=%(user)s password=%(pass)s' % info)
+        self.conn = psycopg.connect('host=%(host)s dbname=%(dbname)s user=%(user)s password=%(pass)s' % info)
         self.cursor = self.conn.cursor()
         #self.doSomeTests()
         
-    def useConnection(self, con):
+    def useConnection(self, con, version):
         self.conn = con
         self.cursor = self.conn.cursor()
         
@@ -38,7 +38,7 @@ class PgDownloader(DownloadCommon):
 
         sys.exit(-1)
 
-    def getTables(self, tableList):
+    def getTablesStandard(self, tableList):
         """ Returns the list of tables as a array of strings """
         
         strQuery = "SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES where TABLE_SCHEMA not in ('pg_catalog', 'information_schema') and TABLE_NAME NOT LIKE 'pg_%' AND TABLE_TYPE = 'BASE TABLE'"
@@ -49,7 +49,12 @@ class PgDownloader(DownloadCommon):
         
         return []
 
-    def getTableColumns(self, strTable):
+    def getTables(self, tableList):
+        """ Returns the list of tables as a array of strings """
+        self.cursor.execute("select tablename from pg_tables where schemaname not in ('pg_catalog', 'information_schema')")
+        return [x[0] for x in self.cursor.fetchall() ]
+
+    def getTableColumnsStandard(self, strTable):
         """ Returns column in this format
             (nColIndex, strColumnName, strColType, CHARACTER_MAXIMUM_LENGTH, NUMERIC_PRECISION, bNotNull, strDefault, auto_increment)
         """
@@ -90,7 +95,51 @@ class PgDownloader(DownloadCommon):
             ret.append((name, type, size, numprec, attnotnull, default, bAutoIncrement))
             
         return ret
-    
+
+    def getTableColumns(self, strTable):
+        """ Returns column in this format
+            (strColumnName, strColType, nColSize, nColPrecision, bNotNull, strDefault)
+        """
+        strSql = """
+            SELECT pa.attnum, pa.attname, pt.typname, pa.atttypmod, pa.attnotnull, pa.atthasdef, pc.oid
+            FROM pg_attribute pa, pg_type pt, pg_class pc
+            WHERE pa.atttypid = pt.oid 
+            AND pa.attrelid = pc.oid
+            AND pa.attisdropped = 'f'
+            AND pc.relname = %s
+            AND pc.relkind = 'r'
+            ORDER BY attnum"""
+        self.cursor.execute(strSql, [strTable])
+        rows = self.cursor.fetchall()
+        
+        specialCols = ['cmax', 'cmin', 'xmax', 'xmin', 'oid', 'ctid', 'tableoid']
+        fixNames = {
+            'int4' : 'integer',
+            'int'  : 'integer',
+            'bool' : 'boolean',
+            'float8' : 'double precision',
+            'int8' : 'bigint',
+            'serial8' : 'bigserial',
+            'serial4' : 'serial',
+            'float4' : 'real',
+            'int2' : 'smallint',
+        }
+        ret = []
+        for row in rows:
+            attnum, name, type, attlen, attnotnull, atthasdef, clasoid = row
+            if name not in specialCols:
+                if type in fixNames:
+                    type = fixNames[type]
+                
+                attlen, precision = self.decodeLength(type, attlen)
+                    
+                default = None
+                if atthasdef:
+                    default = self.getColumnDefault(clasoid, attnum)
+                ret.append((name, type, attlen, precision, attnotnull, default))
+            
+        return ret
+
     def getTableComment(self, strTableName):
         """ Returns the comment as a string """
         
@@ -103,7 +152,7 @@ class PgDownloader(DownloadCommon):
         
         return None
 
-    def getColumnComment(self, strTableName, strColumnName):
+    def getColumnCommentStandard(self, strTableName, strColumnName):
         """ Returns the comment as a string """
         
         strSql = """SELECT description FROM pg_description pd, pg_class pc, pg_attribute pa
@@ -214,7 +263,11 @@ class PgDownloader(DownloadCommon):
 
     def getViews(self, viewList):
         """ Returns the list of views as a array of strings """
-        
+
+        self.cursor.execute("select viewname from pg_views where schemaname not in ('pg_catalog', 'information_schema')")
+        return [x[0] for x in self.cursor.fetchall() ]
+
+    def getViewsStandard(self, viewList):
         strQuery =  """SELECT TABLE_NAME 
         FROM INFORMATION_SCHEMA.TABLES 
         WHERE TABLE_SCHEMA not in ('pg_catalog', 'information_schema') 
@@ -241,6 +294,21 @@ class PgDownloader(DownloadCommon):
         """ Returns functions """
         #TODO: Add function list constraint
         
+        strQuery = """SELECT proname
+        FROM pg_proc
+        WHERE proname not in ('_get_parser_from_curcfg', 'ts_debug', 'pg_file_length', 'pg_file_rename')
+        """
+        self.cursor.execute(strQuery)
+        rows = self.cursor.fetchall()
+        if rows:
+            return [x[0] for x in rows]
+        
+        return []
+
+    def getFunctionsStandard(self, functionList):
+        """ Returns functions """
+        #TODO: Add function list constraint
+        
         strQuery = """SELECT SPECIFIC_NAME
         FROM INFORMATION_SCHEMA.ROUTINES 
         WHERE SPECIFIC_SCHEMA not in ('pg_catalog', 'information_schema')
@@ -260,7 +328,7 @@ class PgDownloader(DownloadCommon):
         self.cursor.execute(strQuery, [strSpecifiName])
         rows = self.cursor.fetchall()
         if not rows:
-            return (None, None, None, None)
+            return (None, None, None, None, None)
         
         
         strRoutineName, strDefinition, retType, strLanguage = rows[0]
