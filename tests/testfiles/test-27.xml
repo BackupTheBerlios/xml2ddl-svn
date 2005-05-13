@@ -24,7 +24,7 @@
         </table>
     </schema>
 </after>
-<ddls dbms="oracle,postgres,postgres7,firebird" fails="true">
+<ddls dbms="oracle,postgres,postgres7,firebird">
 <!-- Actually it only fails because the testing code is not up to it yet -->
 <ddl>CREATE TABLE table1 (
     t_col1 integer,
@@ -37,7 +37,7 @@
     t_col9 float DEFAULT 1.234
 )</ddl>
 </ddls>
-<ddls dbms="mysql,mysql4" fails="true">
+<ddls dbms="mysql,mysql4">
 <ddl>CREATE TABLE table1 (
     t_col1 integer,
     t_col2 integer,
@@ -47,6 +47,6 @@
     t_col6 date,
     t_col8 int DEFAULT 2,
     t_col9 float DEFAULT 1.234
-) ENGINE=InnoDB</ddl>
+) TYPE=InnoDB</ddl>
 </ddls>
 </test>

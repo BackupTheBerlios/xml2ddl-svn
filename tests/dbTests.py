@@ -32,10 +32,10 @@ class DbTests:
             print "Missing PostgreSQL support through psycopg"
             return
         
-        for strDbms in ['postgres7', 'postgres']:
-            self.strDbms = 'postgres'
+        for strDbms in ['postgres', 'postgres7']:
+            self.strDbms = strDbms
             info = conn_info[self.strDbms]
-            self.conn = psycopg.connect('dbname=%(dbname)s user=%(user)s password=%(pass)s' % info)
+            self.conn = psycopg.connect('host=%(host)s dbname=%(dbname)s user=%(user)s password=%(pass)s' % info)
             ddt = DbDmlTest.DbDmlTest(self.strDbms, self.testList, log)
             ddt.doTests(self.conn, info['version'], bExec = bExec)
     
@@ -89,9 +89,9 @@ def doTests(testList = None, bExec = True):
     dbt = DbTests(testList)
     
     dbt.pgTests(bExec = bExec)
-    #dbt.mySqlTests(bExec = bExec)
-    #dbt.fireBirdTests(bExec = bExec)
-    #dbt.oracleTests(bExec = bExec) 
+    dbt.mySqlTests(bExec = bExec)
+    dbt.fireBirdTests(bExec = bExec)
+    dbt.oracleTests(bExec = bExec) 
     
 if __name__ == "__main__":
     import sys

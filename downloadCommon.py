@@ -66,3 +66,12 @@ class DownloadCommon:
         
         return (None, None, None, None)
         
+    def _confirmReturns(self, newList, okList):
+        if not okList:
+            return newList
+            
+        for item in newList:
+            if item not in okList:
+                newList.remove(item)
+            
+        return newList

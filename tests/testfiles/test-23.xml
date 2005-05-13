@@ -18,6 +18,12 @@ END
     </schema>
 </after>
 <ddls dbms="postgres">
+    <ddl>CREATE FUNCTION myfunc(subtotal float) RETURNS float AS '
+BEGIN
+    RETURN subtotal * 0.06;
+END' LANGUAGE plpgsql</ddl>
+</ddls>
+<ddls dbms="postgres7">
     <ddl>CREATE FUNCTION myfunc(float) RETURNS float AS '
 DECLARE
     subtotal ALIAS FOR $1;

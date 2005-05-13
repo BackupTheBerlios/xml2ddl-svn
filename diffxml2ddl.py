@@ -322,7 +322,7 @@ class FindChanges:
     def findColumn(self, columns, strColName):
         strColName = strColName.lower()
         for column in columns:
-            strCurColName = column.getAttribute('name').lower()
+            strCurColName = getColName(column).lower()
             if strCurColName == strColName:
                 return column
             

@@ -7,7 +7,7 @@ from xml.dom.minidom import parse, parseString
 class OutputSamples:
     def __init__(self):
         # Sorted alphabetically, in descending order :-)
-        self.allDbmss = ['postgres', 'oracle', 'mysql', 'firebird' ]
+        self.allDbmss = ['postgres', 'postgres7', 'oracle', 'mysql', 'mysql4', 'firebird' ]
         
     def doCreate(self, strDbms, strFilename):
         print '\tpython xml2ddl.py --dbms %s %s' % (strDbms, strFilename)

@@ -17,7 +17,7 @@ END;
     <schema>
     </schema>
 </after>
-<ddls dbms="postgres">
+<ddls dbms="postgres,postgres7">
     <ddl>DROP FUNCTION myfunc(float)</ddl>
 </ddls>
 <ddls dbms="mysql">
