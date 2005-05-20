@@ -6,20 +6,15 @@
 </before>
 <after>
     <schema>
-        <dictionary name="column">
-            <dict class="mytype" type="integer"/>
-        </dictionary>
         <table name="table1">
             <columns>
-                <column name="col1" class="mytype"/>
-                <column name="col2" type="integer"/>
-                <column name="col3" type="varchar" size="32"/>
-                <column name="col4" type="decimal" size="15"/>
-                <column name="col5" type="decimal" size="15" precision="3"/>
-                <column name="col6" type="date"/>
-                <!-- <column name="col7" type="timestamp"/> This one causing problems with mysql -->
-                <column name="col8" type="int" default="2"/>
-                <column name="col9" type="float" default="1.234"/>
+                <column name="col1" type="integer"/>
+                <column name="col2" type="varchar" size="32"/>
+                <column name="col3" type="decimal" size="15"/>
+                <column name="col4" type="decimal" size="15" precision="3"/>
+                <column name="col5" type="date"/>
+                <column name="col6" type="int" default="2"/>
+                <column name="col7" type="float" default="1.234"/>
             </columns>
         </table>
     </schema>
@@ -27,25 +22,23 @@
 <ddls>
 <ddl>CREATE TABLE table1 (
     col1 integer,
-    col2 integer,
-    col3 varchar(32),
-    col4 decimal(15),
-    col5 decimal(15, 3),
-    col6 date,
-    col8 int DEFAULT 2,
-    col9 float DEFAULT 1.234
+    col2 varchar(32),
+    col3 decimal(15),
+    col4 decimal(15, 3),
+    col5 date,
+    col6 int DEFAULT 2,
+    col7 float DEFAULT 1.234
 )</ddl>
 </ddls>
 <ddls dbms="mysql,mysql4">
 <ddl>CREATE TABLE table1 (
     col1 integer,
-    col2 integer,
-    col3 varchar(32),
-    col4 decimal(15),
-    col5 decimal(15, 3),
-    col6 date,
-    col8 int DEFAULT 2,
-    col9 float DEFAULT 1.234
+    col2 varchar(32),
+    col3 decimal(15),
+    col4 decimal(15, 3),
+    col5 date,
+    col6 int DEFAULT 2,
+    col7 float DEFAULT 1.234
 ) TYPE=InnoDB</ddl>
 </ddls>
 </test>

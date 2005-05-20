@@ -27,7 +27,7 @@ END
         </function>
     </schema>
 </after>
-<ddls dbms="postgres">
+<ddls dbms="postgres,postgres7">
     <ddl>DROP FUNCTION myfunc(float)</ddl>
     <ddl>CREATE FUNCTION newfunc(float) RETURNS float AS '
 DECLARE
@@ -35,8 +35,6 @@ DECLARE
 BEGIN
     RETURN subtotal * 0.06;
 END' LANGUAGE plpgsql</ddl>
-</ddls>
-<ddls dbms="postgres7" fails="true" desc="Fails because I don't have plpgsql installed">
 </ddls>
 <ddls dbms="mysql">
     <ddl>DROP FUNCTION myfunc</ddl>

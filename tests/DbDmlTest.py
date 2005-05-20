@@ -146,4 +146,4 @@ class DbDmlTest:
 if __name__ == "__main__":
     import dbTests
 
-    dbTests.doTests(bExec = False)
+    dbTests.doTests(bExec = True)

@@ -38,7 +38,7 @@
 <ddls>
     <ddl>ALTER TABLE table2 DROP CONSTRAINT fk_table1_id</ddl>
 </ddls>
-<ddls dbms="mysql,mysql4" fails="true">
+<ddls dbms="mysql,mysql4" desc="This doesn't pass the test because mysql drops the default as well">
     <ddl>ALTER TABLE table2 DROP CONSTRAINT fk_table1_id</ddl>
 </ddls>
 <ddls dbms="firebird" fails="true">

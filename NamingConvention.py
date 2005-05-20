@@ -37,3 +37,12 @@ def getIndexName(strTableName, index):
     
     return strIndexName
 
+def getPkContraintName(strTableName):
+    return 'pk_%s' % (strTableName)
+    
+
+def getSeqName(strTableName, strColName):
+    return '%s_%s_seq' % (strTableName, strColName)
+
+def getAiTriggerName(strTableName, strColName):
+    return 'ai_%s_%s' % (strTableName, strColName)

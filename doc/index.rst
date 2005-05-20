@@ -6,22 +6,24 @@ XML To DDL
    :keywords: XML, DDL, databases, generation
    :description lang=en: Creating DDL statements from XML
 
-''Bringing some sanity to database maintenance.''
+''Bringing some sanity to database schemas.''
 
 .. contents:: Table of Contents
 
 Introduction
 ============
 
-|xml2ddl| is a set of python programs to convert an XML representation of a database into a 
-set of SQL (or DDL_: Data Definition Language) statements.
+|xml2ddl| is a set of python programs to convert an XML representation of a database into a
+database and vice versa. 
+It can also examine the differences between two databases and emit the ALTER DDL statements required to bring the database up-to-date.
+This makes it ideal for storing the database schema into a source code repository.
 
-In addition |xml2ddl| can examine the difference between two XML files and output a sequence of ALTER statements that
-will update the database to conform to the new schema.
+With |xml2ddl| you can download and create the databases for PostgreSQL_, MySQL_, Oracle_, and Firebird_.
+|xml2ddl| strives to be database independant so that the same XML can be used for a variety of databases.
+This is great for quickly testing out a variety of databases for performance, for example.
 
-If you install the required python package [#]_ you can download the XML schema from the database directly (in the SVN repository).
-
-Finallly, |xml2ddl| can generate HTML documentation of your schema.
+The XML is fairly rich and permits adding more documentation about the database than the database stores itself.
+For example, you may want to document that a column is deprated. 
 
 You can find more information and download files at the `Berlios page <http://developer.berlios.de/projects/xml2ddl/>`_
 
@@ -35,9 +37,6 @@ This code was written with Agile Data Modeling techniques in mind
 see also
 `Ten Steps to a Robust DB <http://www.sdmagazine.com/documents/s=826/sdm0302h/>`_, 
 `Agile Data Modeling <http://www.sdmagazine.com/documents/s=826/sdm0407g/>`_.
-
-
-.. [#] For PostgreSQL you need ``psycopg``, For MySQL you need ``MySQLdb`` and for Firebird you need ``kinterbasdb``.
 
 Simple Example
 ==============
@@ -90,7 +89,6 @@ we'll get different output::
 		WHERE RDB$RELATION_NAME = upper('students') AND RDB$FIELD_NAME = upper('student_name');
     
 The example shows a feature of |xml2ddl|, database independence. 
-Currently the program supports the Firebird_, PostgreSQL_, and MySQL_ databases, but more will probably become available.
 
 Differencing Example
 ====================
@@ -726,6 +724,7 @@ It seems to do a lot of what I'm doing but is even larger in scope.
 .. _DDL: http://http://en.wikipedia.org/wiki/Data_Definition_Language
 .. _Subversion: http://subversion.tigris.org/
 .. _CVS: https://www.cvshome.org/
+.. _Oracle: http://www.oracle.com
 
 .. |xml2ddl| replace:: ``XML to DDL``
 

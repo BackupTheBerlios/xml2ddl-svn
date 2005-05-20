@@ -35,7 +35,12 @@ BEGIN
     RETURN subtotal * 0.07;
 END' LANGUAGE plpgsql</ddl>
 </ddls>
-<ddls dbms="postgres7" desc="Fails because I don't have PL/pgSQL installed">
+<ddls dbms="postgres7">
+    <ddl>DROP FUNCTION myfunc(float)</ddl>
+    <ddl>CREATE FUNCTION myfunc(subtotal float) RETURNS float AS '
+BEGIN
+    RETURN subtotal * 0.07;
+END' LANGUAGE plpgsql</ddl>
 </ddls>
 <ddls dbms="mysql">
     <ddl>DROP FUNCTION myfunc</ddl>

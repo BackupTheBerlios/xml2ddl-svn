@@ -1,6 +1,7 @@
 #! /usr/bin/env python
 # -*- coding: iso-8859-1 -*-
 import re, os
+from NamingConvention import *
 
 class DdlCommonInterface:
     def __init__(self, strDbms):
@@ -140,7 +141,7 @@ class DdlCommonInterface:
     def addKeyConstraint(self, strTableName, keylist, diffs):
         info = {
             'table_name'    : self.quoteName(strTableName), 
-            'pk_constraint' : self.quoteName('pk_%s' % (strTableName)),
+            'pk_constraint' : self.quoteName(getPkContraintName(strTableName)),
             'keys'          : ', '.join(keylist),
         }
         for strDdl in self.params['add_key_constraint']:
@@ -226,8 +227,8 @@ class DdlCommonInterface:
         info = {
             'table_name' : strTableName,
             'col_name'   : strColName,
-            'seq_name'   : self.getSeqName(strTableName, strColName),
-            'ai_trigger' : self.getAiTriggerName(strTableName, strColName),
+            'seq_name'   : getSeqName(strTableName, strColName),
+            'ai_trigger' : getAiTriggerName(strTableName, strColName),
         }
         
         if self.params['has_auto_increment']:
@@ -260,8 +261,8 @@ class DdlCommonInterface:
         info = {
             'table_name' : strTableName,
             'col_name'   : strColName,
-            'seq_name'   : self.getSeqName(strTableName, strColName),
-            'ai_trigger' : self.getAiTriggerName(strTableName, strColName),
+            'seq_name'   : getSeqName(strTableName, strColName),
+            'ai_trigger' : getAiTriggerName(strTableName, strColName),
         }
         if self.params['has_auto_increment']:
             self.doChangeColType(strTableName, strColName, self.retColTypeEtc(col), diffs)
@@ -399,12 +400,6 @@ class DdlCommonInterface:
             strRet = '%s%s%s' % (strType, strDefault, strNull)
 
         return strRet
-
-    def getSeqName(self, strTableName, strColName):
-        return '%s_%s_seq' % (strTableName, strColName)
-    
-    def getAiTriggerName(self, strTableName, strColName):
-        return 'ai_%s_%s' % (strTableName, strColName)
 
     def quoteName(self, strName):
         bQuoteName = False
