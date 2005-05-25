@@ -1,4 +1,4 @@
-<test title="Drop table with related view">
+<test title="Drop a table with a related view">
 <before>
     <schema>
         <table name="table1">

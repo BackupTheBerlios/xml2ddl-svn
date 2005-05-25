@@ -1,4 +1,4 @@
-<test title="Drop Complex table">
+<test title="Drop a complex table">
 <before>
     <schema>
         <table name="table1">

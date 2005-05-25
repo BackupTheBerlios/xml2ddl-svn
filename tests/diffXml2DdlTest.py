@@ -11,9 +11,11 @@ import sys, re
 sys.path += ['..']
 
 import diffxml2ddl
+import xml2html
 from xml2ddl import handleDictionary
 import glob
-from xml.dom.minidom import parse, parseString
+from xml.dom.minidom import parse, parseString, getDOMImplementation
+import xml.dom
 import logging, logging.config
 
 logging.config.fileConfig("xml2ddl.ini")
@@ -29,11 +31,25 @@ def cleanString(strString):
     strString= re.sub(r'\n', ' ', strString)
     return strString
 
+def outputHtml(testFilename, doc):
+    xml2htm = xml2html.Xml2Html()
+    impl = getDOMImplementation()
+    newDoc = impl.createDocument(None, "schema", None)
+    newDoc.documentElement.appendChild(doc)
+    lines = xml2htm.outputHtml(newDoc)
+    newFilename = testFilename.replace('.xml', '.html')
+    of = open(newFilename, "w")
+    of.write('\n'.join(lines))
+    of.close()
+    
+    
 def doOne(strDbms, testFilename, docBefore, docAfter, docDdl, bFails):
     global nPassed, nFailed
     
     aFindChanges.setDbms(strDbms)
     ret = aFindChanges.diffTables(docBefore, docAfter)
+    
+    outputHtml(testFilename, docAfter)
     
     docDdlList = docDdl.getElementsByTagName('ddl')
     expected = []

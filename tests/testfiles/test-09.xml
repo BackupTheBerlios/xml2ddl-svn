@@ -1,4 +1,4 @@
-<test title="Drop column last">
+<test title="Drop an end column">
 <before>
     <schema>
     <table name="table1">

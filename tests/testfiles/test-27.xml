@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<test title="Test the new idea of abbreviations and Naming Conventions">
+<test title="Test a naming convention with abbreviations">
 <before>
     <schema>
     </schema>

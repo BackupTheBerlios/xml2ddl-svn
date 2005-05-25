@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<test title="Create table with various types">
+<test title="Create table of various types">
 <before>
     <schema>
     </schema>

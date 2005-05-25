@@ -1,4 +1,4 @@
-<test title="Add auto increment">
+<test title="Add an auto increment">
 <before>
     <schema>
     </schema>

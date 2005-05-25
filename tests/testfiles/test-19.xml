@@ -1,4 +1,4 @@
-<test title="Drop Auto number">
+<test title="Drop an autoincrement">
 <before>
     <schema>
         <table name="table1">

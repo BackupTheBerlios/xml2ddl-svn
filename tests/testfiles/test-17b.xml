@@ -1,4 +1,4 @@
-<test title="Create a relation with on delete">
+<test title="Create a relation with 'on delete'">
 <before>
     <schema>
         <table name="table2">

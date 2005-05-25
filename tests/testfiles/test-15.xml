@@ -1,4 +1,4 @@
-<test title="Rename two indexes">
+<test title="Rename two indexes, with index names">
 <before>
     <schema>
     <table name="table1">

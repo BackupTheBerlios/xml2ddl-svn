@@ -1,4 +1,4 @@
-<test title="Change relation">
+<test title="Change a relation">
 <before>
     <schema>
         <!-- Fix: if the tables are in the wrong order it fails -->

@@ -309,11 +309,11 @@ class Xml2Html:
         
         self.lines += ['<table class="schema">']
         for nIndex, view in enumerate(views):
-            outputView(view, nIndex)
+            self.outputView(view, nIndex)
         
         self.lines += ['</table>']
             
-    def outputView(self, view):
+    def outputView(self, view, nIndex):
         """ I think I'll just output the metadata instead of the actual view for now """
         
         strName = view.getAttribute('name')
@@ -326,6 +326,33 @@ class Xml2Html:
         self.lines += ['<td>%s</td>' % (strDesc) ]
         self.lines += ['</tr>']
         
+    def outputFunctions(self):
+        funcs = self.xml.getElementsByTagName('function')
+        if len(funcs) == 0:
+            return
+        
+        self.lines += ['<h3>Functions</h3>']
+        
+        self.lines += ['<table class="schema">']
+        for nIndex, func in enumerate(funcs):
+            self.outputFunction(func, nIndex)
+        
+        self.lines += ['</table>']
+            
+    def outputFunction(self, function, nIndex):
+        """ Output the function """
+        
+        strName = function.getAttribute('name')
+        strFull = function.getAttribute('fullname')
+        strDesc = function.getAttribute('desc')
+        strArgs = function.getAttribute('arguments')
+        strReturns = function.getAttribute('returns')
+        
+        self.lines += ['<tr class="%s">' % (evenOdd(nIndex)) ]
+        self.lines += ['<td>%s</td>' % (strName) ]
+        self.lines += ['<td>%s</td>' % (strFull) ]
+        self.lines += ['<td>%s</td>' % (strDesc) ]
+        self.lines += ['</tr>']
         
     def outputHtml(self, xml):
         self.xml = xml
@@ -335,7 +362,7 @@ class Xml2Html:
         self.tableToc()
         self.outTables()
         self.outputViews()
-        #self.outputFunctions()
+        self.outputFunctions()
         self.addTrailer()
         
         return self.lines

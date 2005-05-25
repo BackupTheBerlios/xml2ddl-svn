@@ -1,4 +1,4 @@
-<test title="Add, change defaults">
+<test title="Add a default and change another default">
 <before>
     <schema>
     <table name="table1">

@@ -1,4 +1,4 @@
-<test title="Rename Table">
+<test title="Rename a table">
 <before>
     <schema>
     <table name="table1">

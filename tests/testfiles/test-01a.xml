@@ -1,4 +1,4 @@
-<test title="Test special names">
+<test title="Test names that need to be escaped">
 <before>
     <schema>
     </schema>

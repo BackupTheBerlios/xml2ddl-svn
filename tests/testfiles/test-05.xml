@@ -1,4 +1,4 @@
-<test title="Change column larger size">
+<test title="Change a column to a larger size">
 <before>
     <schema>
     <table name="table1">
