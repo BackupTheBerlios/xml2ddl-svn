@@ -49,7 +49,7 @@ class OracleDownloader(DownloadCommon):
         self.cursor.execute(strQuery)
         rows = self.cursor.fetchall()
         if rows:
-            return [x[0] for x in rows]
+            return self._confirmReturns([x[0] for x in rows], tableList)
         
         return []
 
@@ -265,7 +265,7 @@ class OracleDownloader(DownloadCommon):
         self.cursor.execute(strQuery)
         rows = self.cursor.fetchall()
         if rows:
-            return [x[0] for x in rows]
+            return self._confirmReturns([x[0] for x in rows], viewList)
         
         return []
 
@@ -296,7 +296,7 @@ class OracleDownloader(DownloadCommon):
         self.cursor.execute(strQuery)
         rows = self.cursor.fetchall()
         if rows:
-            return [x[0] for x in rows]
+            return self._confirmReturns([x[0] for x in rows], functionList)
         
         return []
 

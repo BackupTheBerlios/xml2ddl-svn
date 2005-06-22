@@ -36,7 +36,7 @@ class MySqlDownloader(DownloadCommon):
             if len(row) == 1 or row[1] == 'BASE TABLE':
                 ret.append(row[0])
         
-        return ret
+        return self._confirmReturns(ret, tableList)
     
     def getTableColumns(self, strTable):
         """ Returns column in this format
@@ -194,7 +194,7 @@ class MySqlDownloader(DownloadCommon):
             if len(row) > 1 and row[1] == 'VIEW':
                 ret.append(row[0])
                 
-        return ret
+        return self._confirmReturns(ret, viewList)
         
     def getViewDefinition(self, strViewName):
         strQuery = "SHOW CREATE VIEW `%s`" % (strViewName)
@@ -228,7 +228,7 @@ class MySqlDownloader(DownloadCommon):
             return []
         rows = self.cursor.fetchall()
         if rows:
-            return [x[1] for x in rows]
+            return self._confirmReturns([x[1] for x in rows], funcionList)
         
         return []
 

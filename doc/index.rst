@@ -13,7 +13,7 @@ XML To DDL
 Introduction
 ============
 
-|xml2ddl| is a set of python programs to convert an XML representation of a database into a
+|xml2ddl| is a set of python programs to convert an XML representation of a schema into a
 database and vice versa. 
 It can also examine the differences between two databases and emit the ALTER DDL statements required to bring the database up-to-date.
 This makes it ideal for storing the database schema into a source code repository.
@@ -24,6 +24,13 @@ This is great for quickly testing out a variety of databases for performance, fo
 
 The XML is fairly rich and permits adding more documentation about the database than the database stores itself.
 For example, you may want to document that a column is deprated. 
+
+Although you can both upload and download the metadata, it's not designed to be fully round trip.
+The XML can store more information than most databases permit.
+When looking for differences the program ignores this extra data.
+
+Links
+=====
 
 You can find more information and download files at the `Berlios page <http://developer.berlios.de/projects/xml2ddl/>`_
 

@@ -33,7 +33,7 @@ class FbDownloader(DownloadCommon):
         
         strQuery =  "SELECT RDB$RELATION_NAME FROM RDB$RELATIONS WHERE RDB$SYSTEM_FLAG=0 AND RDB$VIEW_SOURCE IS NULL;"
         self.cursor.execute(strQuery)
-        return [x[0].strip() for x in self.cursor.fetchall() ]
+        return self._confirmReturns([x[0].strip() for x in self.cursor.fetchall() ], tableList)
     
     def getTableColumns(self, strTable):
         """ Returns column in this format
@@ -252,7 +252,7 @@ class FbDownloader(DownloadCommon):
         #TODO add viewList constraint
 
         self.cursor.execute(strQuery)
-        return [x[0].strip() for x in self.cursor.fetchall() ]
+        return self._confirmReturns([x[0].strip() for x in self.cursor.fetchall() ], viewList)
 
     def getViewDefinition(self, strViewName):
         strQuery = "SELECT RDB$RELATION_NAME, RDB$VIEW_SOURCE FROM RDB$RELATIONS WHERE RDB$RELATION_NAME = UPPER(?)"
@@ -270,7 +270,7 @@ class FbDownloader(DownloadCommon):
         strQuery = "SELECT RDB$PROCEDURE_NAME FROM RDB$PROCEDURES WHERE RDB$SYSTEM_FLAG = 0"
         self.cursor.execute(strQuery)
         rows = self.cursor.fetchall()
-        return [x[0].strip() for x in rows]
+        return self._confirmReturns([x[0].strip() for x in rows], functionList)
 
     def getFunctionDefinition(self, strSpecifiName):
         """ Returns (routineName, parameters, return, language, definition) """

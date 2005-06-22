@@ -4,11 +4,14 @@ table.schema {
     border-collapse: collapse;
     border-spacing: 0;
     margin-top: 1em;
+    margin-left:1em;
+    width: 95%;
 }
 table.schema th {
     text-align: left;
     padding: 0 1em .1em 0;
     font-size: 12px;
+    background-color:#00aaff;
 }
 table.schema td {
     font-family:Arial, "MS Sans Serif", sans-serif;
@@ -35,7 +38,8 @@ table.schema tbody tr.odd   { background-color: #e7e7e7 }
 table.schema tbody tr:hover { background: #eed }
 
 td.def {
-    text-align : right;
+    text-align : left;
+    width:10em;
 }
 
 td.extradef {
@@ -46,4 +50,14 @@ td.extradef {
 span.deprecated {
     color: red;
     font-weight: bold;
+}
+
+h1 {
+    font-size:x-large;
+    padding-top: 1em
+}
+
+h3 {
+    font-size:large;
+    padding-top: 1em;
 }
