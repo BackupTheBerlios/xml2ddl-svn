@@ -5,15 +5,15 @@ This is a set of programs to create a database schema (structure) from an XML re
 
 There are 4 tools available:
 
-  python xml2ddl.py --dbms <dbms> <schema.xml>
+  xml2ddl --dbms <dbms> <schema.xml>
   
-  python diffxml2ddl.py --dbms <dbms> <new-schema.xml> [<old-schema.xml>]
+  diffxml2ddl --dbms <dbms> <new-schema.xml> [<old-schema.xml>]
   
-  python xml2html.py [-f <outfile.html>] <schema.xml>
+  xml2html [-f <outfile.html>] <schema.xml>
   
-  python downloadXml.py --dbms <dbms> --user <user> --pass <pass>
+  downloadXml --dbms <dbms> --database <database> --user <user> --pass <password>
 
-<dbms> can (currently) be one of: postgres, postgres7, mysql, or firefox
+<dbms> can (currently) be one of: postgres, postgres7, mysql, oracle, or firebird
 
 xml2ddl outputs the SQL (aka DDL) statements to standard output.
 
@@ -28,16 +28,20 @@ More info available at index.html in the subdirectory doc.
 Install
 -------
 
-Uncompress the files in a folder of your choosing.
-The programs are best run from the command line.
+# python setup.py install
+
+or
+
+# easy_install.py xml2ddl
 
 Prerequesites
 -------------
 
-Requires Python 2.3.
+Requires Python 2.3 or greater
 
 Tested with:
-    - PostgreSQL version 8.0.0beta2
+    - PostgreSQL version 7.3.4
+    - PostgreSQL version 8.0.3
     - MySQL version 5.0.1-alpha-nt
     - Firebird version 1.5.1
 

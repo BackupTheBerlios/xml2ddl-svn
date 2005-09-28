@@ -35,6 +35,8 @@ class DbTests:
         for strDbms in ['postgres', 'postgres7']:
             self.strDbms = strDbms
             info = conn_info[self.strDbms]
+            
+            #self.conn = psycopg.connect('dbname=%(dbname)s user=%(user)s password=%(pass)s' % info)
             self.conn = psycopg.connect('host=%(host)s dbname=%(dbname)s user=%(user)s password=%(pass)s' % info)
             ddt = DbDmlTest.DbDmlTest(self.strDbms, self.testList, log)
             ddt.doTests(self.conn, info['version'], bExec = bExec)
@@ -46,7 +48,7 @@ class DbTests:
             print "Missing MySQL support through MySQLdb"
             return
         
-        for dbms in ['mysql4', 'mysql']:
+        for dbms in ['mysql4']:  # new machine doesn't have mysql 5.0 , 'mysql']:
             self.strDbms = dbms
             info = conn_info[self.strDbms]
         

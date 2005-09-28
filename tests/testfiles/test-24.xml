@@ -6,7 +6,7 @@ BEGIN
     ret = subtotal * 0.06;
 END
     </function>
-        <function name="myfunc" arguments="subtotal float" returns="float" dbms="postgres,mysql,oracle">
+        <function name="myfunc" arguments="subtotal float" returns="float" dbms="postgres,postgres7,mysql,oracle">
 BEGIN
     RETURN subtotal * 0.06;
 END;

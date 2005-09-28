@@ -1,11 +1,14 @@
 #!/usr/bin/env python
 
-from distutils.core import setup
+#from distutils.core import setup
+from setuptools import setup
 import glob
-
 # Note to self:
 # python setup.py sdist --formats=zip
 # To create the zip file
+
+# python setup.py --command-packages=setuptools.command bdist_egg
+# To create the egg file
 
 # python setup.py register
 # to register with PyPI
@@ -16,13 +19,15 @@ import glob
 # 
 setup(
     name='xml2ddl',
-    version='0.3',
-    description="Xml to DDL is a set of python programs to convert an XML representation of a database into a set of SQL (or DDL - Data Definition Language) commands.",
-    long_description="""
-XML to DDL is a set of Python programs that converts an XML representation of a database into a set of SQL (or DDL commands - Data Definition Language) commands.
-In addition it can examine the difference between two XML files and output a sequence of SQL statements (normally ALTER statements).
-Finally, there's a tool to convert your schema into HTML for documentation purposes. 
-XML to DDL requires no database to run (XML text in -> SQL text out) and currently supports PostgreSQL, MySQL, and Firefox databases.
+    version='0.3.1',
+    description="Xml to DDL is a set tools to convert an XML representation of a database into a set of SQL (or DDL) commands and vice versa.",
+    long_description=
+"""XML to DDL is a set of Python programs that converts an XML representation of a database into a set of SQL (or DDL commands - Data Definition Language) commands.
+Also, you can download the XML metadata directly from your existing database.
+Other tools exist to examine the difference between two XML schemas and output a sequence of SQL statements 
+to change from one to the other (normally via ALTER statements).
+There is also a tool to create HTML documentation from the XML. 
+XML to DDL supports PostgreSQL, MySQL, Oracle and Firebird databases.
 """,
     author='Scott Kirkwood',
     author_email='scott_kirkwood@users.berlios.de',
@@ -47,6 +52,14 @@ XML to DDL requires no database to run (XML text in -> SQL text out) and current
         'Topic :: Software Development :: Code Generators',
         'Topic :: Text Processing :: Markup :: XML',
         'Topic :: Utilities',
-    ],    
-    py_modules=['xml2ddl', 'diffxml2ddl', 'xml2html', 'downloadXml'],
+    ], 
+    scripts=[
+        'scripts/xml2ddl', 
+        'scripts/xml2html', 
+        'scripts/diffxml2ddl',
+        'scripts/downloadXml',
+    ],
+    packages=['xml2ddl', 'doc'],
+    package_dir={'doc': 'doc'},
+    package_data={'doc': ['*.html','*.pdf'],},
 )

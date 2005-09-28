@@ -1,23 +1,11 @@
-include xml2ddl.py
-include diffxml2ddl.py
-include xml2html.py
-include downloadXml.py
-include ddlInterface.py
+include xml2ddl/*.py
 include CHANGELOG.txt
 include TODO.txt
-include *.css
-include *.gif
-include docs/*.html
-include docs/*.pdf
-include tests/school-schema.xml
-recursive-include tests *.py
-recursive-include tests/testfiles *.xml
-recursive-include doc *.html
-recursive-include doc *.pdf
+include doc/*.html
+include doc/*.pdf
+include doc/*.css
+include doc/*.gif
+include doc/*.png
+prune tests
 exclude .svn
 prune .svn
-prune setup.py
-prune tests/CheckNumbers
-prune tests/my_conn.py
-prune tests/db_row.py
-prune tests/SpeedTests.py

@@ -1,13 +1,18 @@
 import re, sys
 sys.path += ['../']
-import xml2ddl, diffxml2ddl, ddlInterface
+import xml2ddl.xml2ddl
+import xml2ddl.diffxml2ddl
+import xml2ddl.ddlInterface
+from xml2ddl.ddlInterface import g_dbTypes
 import glob
+import codecs
 from xml.dom.minidom import parse, parseString
 
 class OutputSamples:
     def __init__(self):
-        # Sorted alphabetically, in descending order :-)
-        self.allDbmss = ['postgres', 'postgres7', 'oracle', 'mysql', 'mysql4', 'firebird' ]
+        self.allDbmss = g_dbTypes[:]
+        self.strTestDir = r'../tests/testfiles/test*.xml'
+        self.strOutfile = 'testdetails.html'
         
     def doCreate(self, strDbms, strFilename):
         print '\tpython xml2ddl.py --dbms %s %s' % (strDbms, strFilename)
@@ -120,20 +125,21 @@ class OutputSamples:
         fo.write('</html>\n')
         
     def createDoc(self, ):
-        
-        self.fo = open('testdetails.html', "w")
+        self.fo = codecs.open(self.strOutfile, "w", 'ISO-8859-1')
         self.writeHeader(self.fo)
         
-        #self.doIndex()
+        self.doIndex()
         self.doSupportGrid()
         
         self.doTestDetails()
         
         self.writeFooter(self.fo)
         self.fo.close()
+        
+        print "Created '%s'" % (self.strOutfile)
     
     def doIndex(self):
-        files = glob.glob(r'..\tests\testfiles\test*.xml')
+        files = glob.glob(self.strTestDir)
         nTestNumber = 0
         
         self.fo.write('<table>')
@@ -151,9 +157,11 @@ class OutputSamples:
             doc.unlink()
             
         self.fo.write('</table>')
+        if nTestNumber == 0:
+            print "No files found for '%s'" % (self.strTestDir)
 
     def doSupportGrid(self):
-        files = glob.glob(r'..\tests\testfiles\test*.xml')
+        files = glob.glob(self.strTestDir)
         nTestNumber = 0
         
         self.fo.write('<table style="border-collapse:collapse;borderspacing:0">')
@@ -196,7 +204,7 @@ class OutputSamples:
         self.fo.write('</table>')
 
     def doTestDetails(self):
-        files = glob.glob(r'..\tests\testfiles\test*.xml')
+        files = glob.glob(self.strTestDir)
         nTestNumber = 0
         for testFilename in files:
             nTestNumber += 1
@@ -247,7 +255,7 @@ class OutputSamples:
         re_first_spaces = re.compile(r'\n')
         strText = re_first_spaces.sub('<br/>', strText)
         
-        cd = ddlInterface.createDdlInterface('firebird') # Firebird has the most keywords
+        cd = xml2ddl.ddlInterface.createDdlInterface('firebird') # Firebird has the most keywords
 
         re_keywords = re.compile(r'\b(%s)\b' % ('|'.join(cd.params['keywords'])), re.IGNORECASE)
         strText = re_keywords.sub(r'<span class="keyword">\1</span>', strText)

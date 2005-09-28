@@ -16,8 +16,45 @@
     The output comes directly from the test files which are used to unit test xml2ddl.
     
     </head>
-<table style="border-collapse:collapse;borderspacing:0"><td></td><td><h2>Index</h2></td>
-<tr><td style="text-align:right">Description</td><td style="text-align:center;width:8ex">Postgres</td><td style="text-align:center;width:8ex">Postgres7</td><td style="text-align:center;width:8ex">Oracle</td><td style="text-align:center;width:8ex">Mysql</td><td style="text-align:center;width:8ex">Mysql4</td><td style="text-align:center;width:8ex">Firebird</td></tr><tr><td style="text-align:right"><a href="#_1" class="ddltitle">Create table of various types</a></td>
+<table><td></td><td><h2>Index</h2></td>
+<tr><td align="right">1 -</td><td><a href="#_1" class="ddltitle">Create table of various types</a></td>
+</tr><tr><td align="right">2 -</td><td><a href="#_2" class="ddltitle">Test names that need to be escaped</a></td>
+</tr><tr><td align="right">3 -</td><td><a href="#_3" class="ddltitle">Drop Table</a></td>
+</tr><tr><td align="right">4 -</td><td><a href="#_4" class="ddltitle">Change a column to a larger size</a></td>
+</tr><tr><td align="right">5 -</td><td><a href="#_5" class="ddltitle">Change a column to a smaller size</a></td>
+</tr><tr><td align="right">6 -</td><td><a href="#_6" class="ddltitle">Add a default and change another default</a></td>
+</tr><tr><td align="right">7 -</td><td><a href="#_7" class="ddltitle">Rename a column</a></td>
+</tr><tr><td align="right">8 -</td><td><a href="#_8" class="ddltitle">Rename and change column type at the same time</a></td>
+</tr><tr><td align="right">9 -</td><td><a href="#_9" class="ddltitle">Change a column type and a default at the same time</a></td>
+</tr><tr><td align="right">10 -</td><td><a href="#_10" class="ddltitle">Drop a column</a></td>
+</tr><tr><td align="right">11 -</td><td><a href="#_11" class="ddltitle">Drop an end column</a></td>
+</tr><tr><td align="right">12 -</td><td><a href="#_12" class="ddltitle">Rename a table</a></td>
+</tr><tr><td align="right">13 -</td><td><a href="#_13" class="ddltitle">Change a table description</a></td>
+</tr><tr><td align="right">14 -</td><td><a href="#_14" class="ddltitle">Change a column description</a></td>
+</tr><tr><td align="right">15 -</td><td><a href="#_15" class="ddltitle">Create two indexes</a></td>
+</tr><tr><td align="right">16 -</td><td><a href="#_16" class="ddltitle">Drop two indexes</a></td>
+</tr><tr><td align="right">17 -</td><td><a href="#_17" class="ddltitle">Rename two indexes, with index names</a></td>
+</tr><tr><td align="right">18 -</td><td><a href="#_18" class="ddltitle">Rename two indexes, no index name given originally</a></td>
+</tr><tr><td align="right">19 -</td><td><a href="#_19" class="ddltitle">Change two indexes with index names given</a></td>
+</tr><tr><td align="right">20 -</td><td><a href="#_20" class="ddltitle">Change two indexes, no index name given originally</a></td>
+</tr><tr><td align="right">21 -</td><td><a href="#_21" class="ddltitle">Create a relation</a></td>
+</tr><tr><td align="right">22 -</td><td><a href="#_22" class="ddltitle">Drop a relation</a></td>
+</tr><tr><td align="right">23 -</td><td><a href="#_23" class="ddltitle">Create a relation with 'on delete'</a></td>
+</tr><tr><td align="right">24 -</td><td><a href="#_24" class="ddltitle">Change a relation</a></td>
+</tr><tr><td align="right">25 -</td><td><a href="#_25" class="ddltitle">Add an auto increment</a></td>
+</tr><tr><td align="right">26 -</td><td><a href="#_26" class="ddltitle">Drop an autoincrement</a></td>
+</tr><tr><td align="right">27 -</td><td><a href="#_27" class="ddltitle">Drop a complex table</a></td>
+</tr><tr><td align="right">28 -</td><td><a href="#_28" class="ddltitle">Create a view</a></td>
+</tr><tr><td align="right">29 -</td><td><a href="#_29" class="ddltitle">Drop a table with a related view</a></td>
+</tr><tr><td align="right">30 -</td><td><a href="#_30" class="ddltitle">Drop a view</a></td>
+</tr><tr><td align="right">31 -</td><td><a href="#_31" class="ddltitle">Rename a view</a></td>
+</tr><tr><td align="right">32 -</td><td><a href="#_32" class="ddltitle">Create a function</a></td>
+</tr><tr><td align="right">33 -</td><td><a href="#_33" class="ddltitle">Drop a function</a></td>
+</tr><tr><td align="right">34 -</td><td><a href="#_34" class="ddltitle">Change a function</a></td>
+</tr><tr><td align="right">35 -</td><td><a href="#_35" class="ddltitle">Rename a function</a></td>
+</tr><tr><td align="right">36 -</td><td><a href="#_36" class="ddltitle">Test a naming convention with abbreviations</a></td>
+</tr></table><table style="border-collapse:collapse;borderspacing:0"><td></td><td><h2>Index</h2></td>
+<tr><td style="text-align:right">Description</td><td style="text-align:center;width:8ex">Postgres</td><td style="text-align:center;width:8ex">Postgres7</td><td style="text-align:center;width:8ex">Mysql</td><td style="text-align:center;width:8ex">Mysql4</td><td style="text-align:center;width:8ex">Oracle</td><td style="text-align:center;width:8ex">Firebird</td></tr><tr><td style="text-align:right"><a href="#_1" class="ddltitle">Create table of various types</a></td>
 <td style="border:1px solid black;text-align:center"><img alt="yes" src="yes.gif"/></td><td style="border:1px solid black;text-align:center"><img alt="yes" src="yes.gif"/></td><td style="border:1px solid black;text-align:center"><img alt="yes" src="yes.gif"/></td><td style="border:1px solid black;text-align:center"><img alt="yes" src="yes.gif"/></td><td style="border:1px solid black;text-align:center"><img alt="yes" src="yes.gif"/></td><td style="border:1px solid black;text-align:center"><img alt="yes" src="yes.gif"/></td></tr><tr><td style="text-align:right"><a href="#_2" class="ddltitle">Test names that need to be escaped</a></td>
 <td style="border:1px solid black;text-align:center"><img alt="yes" src="yes.gif"/></td><td style="border:1px solid black;text-align:center"><img alt="yes" src="yes.gif"/></td><td style="border:1px solid black;text-align:center"><img alt="yes" src="yes.gif"/></td><td style="border:1px solid black;text-align:center"><img alt="yes" src="yes.gif"/></td><td style="border:1px solid black;text-align:center"><img alt="yes" src="yes.gif"/></td><td style="border:1px solid black;text-align:center"><img alt="yes" src="yes.gif"/></td></tr><tr><td style="text-align:right"><a href="#_3" class="ddltitle">Drop Table</a></td>
 <td style="border:1px solid black;text-align:center"><img alt="yes" src="yes.gif"/></td><td style="border:1px solid black;text-align:center"><img alt="yes" src="yes.gif"/></td><td style="border:1px solid black;text-align:center"><img alt="yes" src="yes.gif"/></td><td style="border:1px solid black;text-align:center"><img alt="yes" src="yes.gif"/></td><td style="border:1px solid black;text-align:center"><img alt="yes" src="yes.gif"/></td><td style="border:1px solid black;text-align:center"><img alt="yes" src="yes.gif"/></td></tr><tr><td style="text-align:right"><a href="#_4" class="ddltitle">Change a column to a larger size</a></td>
@@ -30,7 +67,7 @@
 <td style="border:1px solid black;text-align:center"><img alt="yes" src="yes.gif"/></td><td style="border:1px solid black;text-align:center"><img alt="yes" src="yes.gif"/></td><td style="border:1px solid black;text-align:center"><img alt="yes" src="yes.gif"/></td><td style="border:1px solid black;text-align:center"><img alt="yes" src="yes.gif"/></td><td style="border:1px solid black;text-align:center"><img alt="yes" src="yes.gif"/></td><td style="border:1px solid black;text-align:center"><img alt="yes" src="yes.gif"/></td></tr><tr><td style="text-align:right"><a href="#_11" class="ddltitle">Drop an end column</a></td>
 <td style="border:1px solid black;text-align:center"><img alt="yes" src="yes.gif"/></td><td style="border:1px solid black;text-align:center"><img alt="yes" src="yes.gif"/></td><td style="border:1px solid black;text-align:center"><img alt="yes" src="yes.gif"/></td><td style="border:1px solid black;text-align:center"><img alt="yes" src="yes.gif"/></td><td style="border:1px solid black;text-align:center"><img alt="yes" src="yes.gif"/></td><td style="border:1px solid black;text-align:center"><img alt="yes" src="yes.gif"/></td></tr><tr><td style="text-align:right"><a href="#_12" class="ddltitle">Rename a table</a></td>
 <td style="border:1px solid black;text-align:center"><img alt="yes" src="yes.gif"/></td><td style="border:1px solid black;text-align:center"><img alt="yes" src="yes.gif"/></td><td style="border:1px solid black;text-align:center"><img alt="yes" src="yes.gif"/></td><td style="border:1px solid black;text-align:center"><img alt="yes" src="yes.gif"/></td><td style="border:1px solid black;text-align:center"><img alt="yes" src="yes.gif"/></td><td style="border:1px solid black;text-align:center"><img alt="no" src="no.gif"/></td></tr><tr><td style="text-align:right"><a href="#_13" class="ddltitle">Change a table description</a></td>
-<td style="border:1px solid black;text-align:center"><img alt="yes" src="yes.gif"/></td><td style="border:1px solid black;text-align:center"><img alt="yes" src="yes.gif"/></td><td style="border:1px solid black;text-align:center"><img alt="yes" src="yes.gif"/></td><td style="border:1px solid black;text-align:center"><img alt="no" src="no.gif"/></td><td style="border:1px solid black;text-align:center"><img alt="no" src="no.gif"/></td><td style="border:1px solid black;text-align:center"><img alt="yes" src="yes.gif"/></td></tr><tr><td style="text-align:right"><a href="#_14" class="ddltitle">Change a column description</a></td>
+<td style="border:1px solid black;text-align:center"><img alt="yes" src="yes.gif"/></td><td style="border:1px solid black;text-align:center"><img alt="yes" src="yes.gif"/></td><td style="border:1px solid black;text-align:center"><img alt="no" src="no.gif"/></td><td style="border:1px solid black;text-align:center"><img alt="no" src="no.gif"/></td><td style="border:1px solid black;text-align:center"><img alt="yes" src="yes.gif"/></td><td style="border:1px solid black;text-align:center"><img alt="yes" src="yes.gif"/></td></tr><tr><td style="text-align:right"><a href="#_14" class="ddltitle">Change a column description</a></td>
 <td style="border:1px solid black;text-align:center"><img alt="yes" src="yes.gif"/></td><td style="border:1px solid black;text-align:center"><img alt="yes" src="yes.gif"/></td><td style="border:1px solid black;text-align:center"><img alt="yes" src="yes.gif"/></td><td style="border:1px solid black;text-align:center"><img alt="yes" src="yes.gif"/></td><td style="border:1px solid black;text-align:center"><img alt="yes" src="yes.gif"/></td><td style="border:1px solid black;text-align:center"><img alt="yes" src="yes.gif"/></td></tr><tr><td style="text-align:right"><a href="#_15" class="ddltitle">Create two indexes</a></td>
 <td style="border:1px solid black;text-align:center"><img alt="yes" src="yes.gif"/></td><td style="border:1px solid black;text-align:center"><img alt="yes" src="yes.gif"/></td><td style="border:1px solid black;text-align:center"><img alt="yes" src="yes.gif"/></td><td style="border:1px solid black;text-align:center"><img alt="yes" src="yes.gif"/></td><td style="border:1px solid black;text-align:center"><img alt="yes" src="yes.gif"/></td><td style="border:1px solid black;text-align:center"><img alt="yes" src="yes.gif"/></td></tr><tr><td style="text-align:right"><a href="#_16" class="ddltitle">Drop two indexes</a></td>
 <td style="border:1px solid black;text-align:center"><img alt="yes" src="yes.gif"/></td><td style="border:1px solid black;text-align:center"><img alt="yes" src="yes.gif"/></td><td style="border:1px solid black;text-align:center"><img alt="yes" src="yes.gif"/></td><td style="border:1px solid black;text-align:center"><img alt="yes" src="yes.gif"/></td><td style="border:1px solid black;text-align:center"><img alt="yes" src="yes.gif"/></td><td style="border:1px solid black;text-align:center"><img alt="yes" src="yes.gif"/></td></tr><tr><td style="text-align:right"><a href="#_17" class="ddltitle">Rename two indexes, with index names</a></td>
@@ -39,22 +76,22 @@
 <td style="border:1px solid black;text-align:center"><img alt="yes" src="yes.gif"/></td><td style="border:1px solid black;text-align:center"><img alt="yes" src="yes.gif"/></td><td style="border:1px solid black;text-align:center"><img alt="yes" src="yes.gif"/></td><td style="border:1px solid black;text-align:center"><img alt="yes" src="yes.gif"/></td><td style="border:1px solid black;text-align:center"><img alt="yes" src="yes.gif"/></td><td style="border:1px solid black;text-align:center"><img alt="yes" src="yes.gif"/></td></tr><tr><td style="text-align:right"><a href="#_20" class="ddltitle">Change two indexes, no index name given originally</a></td>
 <td style="border:1px solid black;text-align:center"><img alt="yes" src="yes.gif"/></td><td style="border:1px solid black;text-align:center"><img alt="yes" src="yes.gif"/></td><td style="border:1px solid black;text-align:center"><img alt="yes" src="yes.gif"/></td><td style="border:1px solid black;text-align:center"><img alt="yes" src="yes.gif"/></td><td style="border:1px solid black;text-align:center"><img alt="yes" src="yes.gif"/></td><td style="border:1px solid black;text-align:center"><img alt="yes" src="yes.gif"/></td></tr><tr><td style="text-align:right"><a href="#_21" class="ddltitle">Create a relation</a></td>
 <td style="border:1px solid black;text-align:center"><img alt="yes" src="yes.gif"/></td><td style="border:1px solid black;text-align:center"><img alt="yes" src="yes.gif"/></td><td style="border:1px solid black;text-align:center"><img alt="yes" src="yes.gif"/></td><td style="border:1px solid black;text-align:center"><img alt="yes" src="yes.gif"/></td><td style="border:1px solid black;text-align:center"><img alt="yes" src="yes.gif"/></td><td style="border:1px solid black;text-align:center"><img alt="no" src="no.gif"/></td></tr><tr><td style="text-align:right"><a href="#_22" class="ddltitle">Drop a relation</a></td>
-<td style="border:1px solid black;text-align:center"><img alt="yes" src="yes.gif"/></td><td style="border:1px solid black;text-align:center"><img alt="yes" src="yes.gif"/></td><td style="border:1px solid black;text-align:center"><img alt="yes" src="yes.gif"/></td><td style="border:1px solid black;text-align:center"><img alt="yes" src="yes.gif"/></td><td style="border:1px solid black;text-align:center"><img alt="yes" src="yes.gif"/></td><td style="border:1px solid black;text-align:center"><img alt="no" src="no.gif"/></td></tr><tr><td style="text-align:right"><a href="#_23" class="ddltitle">Create a relation with 'on delete'</a></td>
+<td style="border:1px solid black;text-align:center"><img alt="yes" src="yes.gif"/></td><td style="border:1px solid black;text-align:center"><img alt="yes" src="yes.gif"/></td><td style="border:1px solid black;text-align:center"><img alt="no" src="no.gif"/></td><td style="border:1px solid black;text-align:center"><img alt="no" src="no.gif"/></td><td style="border:1px solid black;text-align:center"><img alt="yes" src="yes.gif"/></td><td style="border:1px solid black;text-align:center"><img alt="no" src="no.gif"/></td></tr><tr><td style="text-align:right"><a href="#_23" class="ddltitle">Create a relation with 'on delete'</a></td>
 <td style="border:1px solid black;text-align:center"><img alt="yes" src="yes.gif"/></td><td style="border:1px solid black;text-align:center"><img alt="yes" src="yes.gif"/></td><td style="border:1px solid black;text-align:center"><img alt="yes" src="yes.gif"/></td><td style="border:1px solid black;text-align:center"><img alt="yes" src="yes.gif"/></td><td style="border:1px solid black;text-align:center"><img alt="yes" src="yes.gif"/></td><td style="border:1px solid black;text-align:center"><img alt="no" src="no.gif"/></td></tr><tr><td style="text-align:right"><a href="#_24" class="ddltitle">Change a relation</a></td>
-<td style="border:1px solid black;text-align:center"><img alt="yes" src="yes.gif"/></td><td style="border:1px solid black;text-align:center"><img alt="yes" src="yes.gif"/></td><td style="border:1px solid black;text-align:center"><img alt="yes" src="yes.gif"/></td><td style="border:1px solid black;text-align:center"><img alt="no" src="no.gif"/></td><td style="border:1px solid black;text-align:center"><img alt="no" src="no.gif"/></td><td style="border:1px solid black;text-align:center"><img alt="no" src="no.gif"/></td></tr><tr><td style="text-align:right"><a href="#_25" class="ddltitle">Add an auto increment</a></td>
-<td style="border:1px solid black;text-align:center"><img alt="yes" src="yes.gif"/></td><td style="border:1px solid black;text-align:center"><img alt="yes" src="yes.gif"/></td><td style="border:1px solid black;text-align:center"><img alt="no" src="no.gif"/></td><td style="border:1px solid black;text-align:center"><img alt="yes" src="yes.gif"/></td><td style="border:1px solid black;text-align:center"><img alt="yes" src="yes.gif"/></td><td style="border:1px solid black;text-align:center"><img alt="yes" src="yes.gif"/></td></tr><tr><td style="text-align:right"><a href="#_26" class="ddltitle">Drop an autoincrement</a></td>
-<td style="border:1px solid black;text-align:center"><img alt="yes" src="yes.gif"/></td><td style="border:1px solid black;text-align:center"><img alt="yes" src="yes.gif"/></td><td style="border:1px solid black;text-align:center"><img alt="no" src="no.gif"/></td><td style="border:1px solid black;text-align:center"><img alt="yes" src="yes.gif"/></td><td style="border:1px solid black;text-align:center"><img alt="no" src="no.gif"/></td><td style="border:1px solid black;text-align:center"><img alt="no" src="no.gif"/></td></tr><tr><td style="text-align:right"><a href="#_27" class="ddltitle">Drop a complex table</a></td>
-<td style="border:1px solid black;text-align:center"><img alt="yes" src="yes.gif"/></td><td style="border:1px solid black;text-align:center"><img alt="yes" src="yes.gif"/></td><td style="border:1px solid black;text-align:center"><img alt="no" src="no.gif"/></td><td style="border:1px solid black;text-align:center"><img alt="yes" src="yes.gif"/></td><td style="border:1px solid black;text-align:center"><img alt="yes" src="yes.gif"/></td><td style="border:1px solid black;text-align:center"><img alt="yes" src="yes.gif"/></td></tr><tr><td style="text-align:right"><a href="#_28" class="ddltitle">Create a view</a></td>
-<td style="border:1px solid black;text-align:center"><img alt="yes" src="yes.gif"/></td><td style="border:1px solid black;text-align:center"><img alt="yes" src="yes.gif"/></td><td style="border:1px solid black;text-align:center"><img alt="yes" src="yes.gif"/></td><td style="border:1px solid black;text-align:center"><img alt="yes" src="yes.gif"/></td><td style="border:1px solid black;text-align:center"><img alt="no" src="no.gif"/></td><td style="border:1px solid black;text-align:center"><img alt="yes" src="yes.gif"/></td></tr><tr><td style="text-align:right"><a href="#_29" class="ddltitle">Drop a table with a related view</a></td>
-<td style="border:1px solid black;text-align:center"><img alt="yes" src="yes.gif"/></td><td style="border:1px solid black;text-align:center"><img alt="yes" src="yes.gif"/></td><td style="border:1px solid black;text-align:center"><img alt="yes" src="yes.gif"/></td><td style="border:1px solid black;text-align:center"><img alt="yes" src="yes.gif"/></td><td style="border:1px solid black;text-align:center"><img alt="no" src="no.gif"/></td><td style="border:1px solid black;text-align:center"><img alt="yes" src="yes.gif"/></td></tr><tr><td style="text-align:right"><a href="#_30" class="ddltitle">Drop a view</a></td>
-<td style="border:1px solid black;text-align:center"><img alt="yes" src="yes.gif"/></td><td style="border:1px solid black;text-align:center"><img alt="yes" src="yes.gif"/></td><td style="border:1px solid black;text-align:center"><img alt="yes" src="yes.gif"/></td><td style="border:1px solid black;text-align:center"><img alt="yes" src="yes.gif"/></td><td style="border:1px solid black;text-align:center"><img alt="no" src="no.gif"/></td><td style="border:1px solid black;text-align:center"><img alt="yes" src="yes.gif"/></td></tr><tr><td style="text-align:right"><a href="#_31" class="ddltitle">Rename a view</a></td>
-<td style="border:1px solid black;text-align:center"><img alt="yes" src="yes.gif"/></td><td style="border:1px solid black;text-align:center"><img alt="yes" src="yes.gif"/></td><td style="border:1px solid black;text-align:center"><img alt="yes" src="yes.gif"/></td><td style="border:1px solid black;text-align:center"><img alt="yes" src="yes.gif"/></td><td style="border:1px solid black;text-align:center"><img alt="no" src="no.gif"/></td><td style="border:1px solid black;text-align:center"><img alt="yes" src="yes.gif"/></td></tr><tr><td style="text-align:right"><a href="#_32" class="ddltitle">Create a function</a></td>
+<td style="border:1px solid black;text-align:center"><img alt="yes" src="yes.gif"/></td><td style="border:1px solid black;text-align:center"><img alt="yes" src="yes.gif"/></td><td style="border:1px solid black;text-align:center"><img alt="no" src="no.gif"/></td><td style="border:1px solid black;text-align:center"><img alt="no" src="no.gif"/></td><td style="border:1px solid black;text-align:center"><img alt="yes" src="yes.gif"/></td><td style="border:1px solid black;text-align:center"><img alt="no" src="no.gif"/></td></tr><tr><td style="text-align:right"><a href="#_25" class="ddltitle">Add an auto increment</a></td>
+<td style="border:1px solid black;text-align:center"><img alt="yes" src="yes.gif"/></td><td style="border:1px solid black;text-align:center"><img alt="yes" src="yes.gif"/></td><td style="border:1px solid black;text-align:center"><img alt="yes" src="yes.gif"/></td><td style="border:1px solid black;text-align:center"><img alt="yes" src="yes.gif"/></td><td style="border:1px solid black;text-align:center"><img alt="no" src="no.gif"/></td><td style="border:1px solid black;text-align:center"><img alt="yes" src="yes.gif"/></td></tr><tr><td style="text-align:right"><a href="#_26" class="ddltitle">Drop an autoincrement</a></td>
+<td style="border:1px solid black;text-align:center"><img alt="yes" src="yes.gif"/></td><td style="border:1px solid black;text-align:center"><img alt="yes" src="yes.gif"/></td><td style="border:1px solid black;text-align:center"><img alt="yes" src="yes.gif"/></td><td style="border:1px solid black;text-align:center"><img alt="no" src="no.gif"/></td><td style="border:1px solid black;text-align:center"><img alt="no" src="no.gif"/></td><td style="border:1px solid black;text-align:center"><img alt="no" src="no.gif"/></td></tr><tr><td style="text-align:right"><a href="#_27" class="ddltitle">Drop a complex table</a></td>
+<td style="border:1px solid black;text-align:center"><img alt="yes" src="yes.gif"/></td><td style="border:1px solid black;text-align:center"><img alt="yes" src="yes.gif"/></td><td style="border:1px solid black;text-align:center"><img alt="yes" src="yes.gif"/></td><td style="border:1px solid black;text-align:center"><img alt="yes" src="yes.gif"/></td><td style="border:1px solid black;text-align:center"><img alt="no" src="no.gif"/></td><td style="border:1px solid black;text-align:center"><img alt="yes" src="yes.gif"/></td></tr><tr><td style="text-align:right"><a href="#_28" class="ddltitle">Create a view</a></td>
+<td style="border:1px solid black;text-align:center"><img alt="yes" src="yes.gif"/></td><td style="border:1px solid black;text-align:center"><img alt="yes" src="yes.gif"/></td><td style="border:1px solid black;text-align:center"><img alt="yes" src="yes.gif"/></td><td style="border:1px solid black;text-align:center"><img alt="no" src="no.gif"/></td><td style="border:1px solid black;text-align:center"><img alt="yes" src="yes.gif"/></td><td style="border:1px solid black;text-align:center"><img alt="yes" src="yes.gif"/></td></tr><tr><td style="text-align:right"><a href="#_29" class="ddltitle">Drop a table with a related view</a></td>
+<td style="border:1px solid black;text-align:center"><img alt="yes" src="yes.gif"/></td><td style="border:1px solid black;text-align:center"><img alt="yes" src="yes.gif"/></td><td style="border:1px solid black;text-align:center"><img alt="yes" src="yes.gif"/></td><td style="border:1px solid black;text-align:center"><img alt="no" src="no.gif"/></td><td style="border:1px solid black;text-align:center"><img alt="yes" src="yes.gif"/></td><td style="border:1px solid black;text-align:center"><img alt="yes" src="yes.gif"/></td></tr><tr><td style="text-align:right"><a href="#_30" class="ddltitle">Drop a view</a></td>
+<td style="border:1px solid black;text-align:center"><img alt="yes" src="yes.gif"/></td><td style="border:1px solid black;text-align:center"><img alt="yes" src="yes.gif"/></td><td style="border:1px solid black;text-align:center"><img alt="yes" src="yes.gif"/></td><td style="border:1px solid black;text-align:center"><img alt="no" src="no.gif"/></td><td style="border:1px solid black;text-align:center"><img alt="yes" src="yes.gif"/></td><td style="border:1px solid black;text-align:center"><img alt="yes" src="yes.gif"/></td></tr><tr><td style="text-align:right"><a href="#_31" class="ddltitle">Rename a view</a></td>
+<td style="border:1px solid black;text-align:center"><img alt="yes" src="yes.gif"/></td><td style="border:1px solid black;text-align:center"><img alt="yes" src="yes.gif"/></td><td style="border:1px solid black;text-align:center"><img alt="yes" src="yes.gif"/></td><td style="border:1px solid black;text-align:center"><img alt="no" src="no.gif"/></td><td style="border:1px solid black;text-align:center"><img alt="yes" src="yes.gif"/></td><td style="border:1px solid black;text-align:center"><img alt="yes" src="yes.gif"/></td></tr><tr><td style="text-align:right"><a href="#_32" class="ddltitle">Create a function</a></td>
 <td style="border:1px solid black;text-align:center"><img alt="yes" src="yes.gif"/></td><td style="border:1px solid black;text-align:center"><img alt="yes" src="yes.gif"/></td><td style="border:1px solid black;text-align:center"><img alt="yes" src="yes.gif"/></td><td style="border:1px solid black;text-align:center"><img alt="yes" src="yes.gif"/></td><td style="border:1px solid black;text-align:center"><img alt="yes" src="yes.gif"/></td><td style="border:1px solid black;text-align:center"><img alt="yes" src="yes.gif"/></td></tr><tr><td style="text-align:right"><a href="#_33" class="ddltitle">Drop a function</a></td>
 <td style="border:1px solid black;text-align:center"><img alt="yes" src="yes.gif"/></td><td style="border:1px solid black;text-align:center"><img alt="yes" src="yes.gif"/></td><td style="border:1px solid black;text-align:center"><img alt="yes" src="yes.gif"/></td><td style="border:1px solid black;text-align:center"><img alt="yes" src="yes.gif"/></td><td style="border:1px solid black;text-align:center"><img alt="yes" src="yes.gif"/></td><td style="border:1px solid black;text-align:center"><img alt="yes" src="yes.gif"/></td></tr><tr><td style="text-align:right"><a href="#_34" class="ddltitle">Change a function</a></td>
 <td style="border:1px solid black;text-align:center"><img alt="yes" src="yes.gif"/></td><td style="border:1px solid black;text-align:center"><img alt="yes" src="yes.gif"/></td><td style="border:1px solid black;text-align:center"><img alt="yes" src="yes.gif"/></td><td style="border:1px solid black;text-align:center"><img alt="yes" src="yes.gif"/></td><td style="border:1px solid black;text-align:center"><img alt="yes" src="yes.gif"/></td><td style="border:1px solid black;text-align:center"><img alt="yes" src="yes.gif"/></td></tr><tr><td style="text-align:right"><a href="#_35" class="ddltitle">Rename a function</a></td>
 <td style="border:1px solid black;text-align:center"><img alt="yes" src="yes.gif"/></td><td style="border:1px solid black;text-align:center"><img alt="yes" src="yes.gif"/></td><td style="border:1px solid black;text-align:center"><img alt="yes" src="yes.gif"/></td><td style="border:1px solid black;text-align:center"><img alt="yes" src="yes.gif"/></td><td style="border:1px solid black;text-align:center"><img alt="yes" src="yes.gif"/></td><td style="border:1px solid black;text-align:center"><img alt="yes" src="yes.gif"/></td></tr><tr><td style="text-align:right"><a href="#_36" class="ddltitle">Test a naming convention with abbreviations</a></td>
 <td style="border:1px solid black;text-align:center"><img alt="yes" src="yes.gif"/></td><td style="border:1px solid black;text-align:center"><img alt="yes" src="yes.gif"/></td><td style="border:1px solid black;text-align:center"><img alt="yes" src="yes.gif"/></td><td style="border:1px solid black;text-align:center"><img alt="yes" src="yes.gif"/></td><td style="border:1px solid black;text-align:center"><img alt="yes" src="yes.gif"/></td><td style="border:1px solid black;text-align:center"><img alt="yes" src="yes.gif"/></td></tr></table><div id="_1" class="ddltitle">1 Create table of various types</div>
-<small>..\tests\testfiles\test-01.xml</small>
+<small>../tests/testfiles/test-01.xml</small>
 <table width="100%" class="beforeafter">
 <tr>
 <th>Before</th><th class="after">After</th></tr>
@@ -78,7 +115,7 @@
 <td><span class="keyword">CREATE</span> <span class="keyword">TABLE</span> table1 (<br/>&nbsp;&nbsp;&nbsp;&nbsp;col1 <span class="keyword">integer</span>,<br/>&nbsp;&nbsp;&nbsp;&nbsp;col2 <span class="keyword">varchar</span>(32),<br/>&nbsp;&nbsp;&nbsp;&nbsp;col3 <span class="keyword">decimal</span>(15),<br/>&nbsp;&nbsp;&nbsp;&nbsp;col4 <span class="keyword">decimal</span>(15, 3),<br/>&nbsp;&nbsp;&nbsp;&nbsp;col5 <span class="keyword">date</span>,<br/>&nbsp;&nbsp;&nbsp;&nbsp;col6 <span class="keyword">int</span> <span class="keyword">DEFAULT</span> 2,<br/>&nbsp;&nbsp;&nbsp;&nbsp;col7 <span class="keyword">float</span> <span class="keyword">DEFAULT</span> 1.234<br/>) <span class="keyword">TYPE</span>=InnoDB;</td></tr>
 </table>
 <div id="_2" class="ddltitle">2 Test names that need to be escaped</div>
-<small>..\tests\testfiles\test-01a.xml</small>
+<small>../tests/testfiles/test-01a.xml</small>
 <table width="100%" class="beforeafter">
 <tr>
 <th>Before</th><th class="after">After</th></tr>
@@ -106,7 +143,7 @@
 <td><span class="keyword">CREATE</span> <span class="keyword">INDEX</span> `<span class="keyword">from</span>` <span class="keyword">ON</span> `<span class="keyword">Table</span> <span class="keyword">with</span> spaces` (`<span class="keyword">column</span> <span class="keyword">with</span> spaces`, `<span class="keyword">select</span>`);</td></tr>
 </table>
 <div id="_3" class="ddltitle">3 Drop Table</div>
-<small>..\tests\testfiles\test-02.xml</small>
+<small>../tests/testfiles/test-02.xml</small>
 <table width="100%" class="beforeafter">
 <tr>
 <th>Before</th><th class="after">After</th></tr>
@@ -119,12 +156,12 @@
 </table>
 <table class="ddls" width="100%">
 <tr>
-<th align="left">DBMS: postgres, postgres7, oracle, mysql, mysql4, firebird</th></tr>
+<th align="left">DBMS: postgres, postgres7, mysql, mysql4, oracle, firebird</th></tr>
 <tr>
 <td><span class="keyword">DROP</span> <span class="keyword">TABLE</span> table1;</td></tr>
 </table>
 <div id="_4" class="ddltitle">4 Change a column to a larger size</div>
-<small>..\tests\testfiles\test-05.xml</small>
+<small>../tests/testfiles/test-05.xml</small>
 <table width="100%" class="beforeafter">
 <tr>
 <th>Before</th><th class="after">After</th></tr>
@@ -160,7 +197,7 @@
 <td><span class="keyword">ALTER</span> <span class="keyword">TABLE</span> table1 MODIFY col1 <span class="keyword">decimal</span>(10);</td></tr>
 </table>
 <div id="_5" class="ddltitle">5 Change a column to a smaller size</div>
-<small>..\tests\testfiles\test-06.xml</small>
+<small>../tests/testfiles/test-06.xml</small>
 <table width="100%" class="beforeafter">
 <tr>
 <th>Before</th><th class="after">After</th></tr>
@@ -196,7 +233,7 @@
 <td><span class="keyword">ALTER</span> <span class="keyword">TABLE</span> table1 MODIFY col1 <span class="keyword">decimal</span>(10);</td></tr>
 </table>
 <div id="_6" class="ddltitle">6 Add a default and change another default</div>
-<small>..\tests\testfiles\test-06a.xml</small>
+<small>../tests/testfiles/test-06a.xml</small>
 <table width="100%" class="beforeafter">
 <tr>
 <th>Before</th><th class="after">After</th></tr>
@@ -232,7 +269,7 @@
 <td><span class="keyword">ALTER</span> <span class="keyword">TABLE</span> table1 <span class="keyword">ALTER</span> col2 <span class="keyword">TYPE</span> <span class="keyword">integer</span> <span class="keyword">SET</span> <span class="keyword">DEFAULT</span> 3;</td></tr>
 </table>
 <div id="_7" class="ddltitle">7 Rename a column</div>
-<small>..\tests\testfiles\test-07.xml</small>
+<small>../tests/testfiles/test-07.xml</small>
 <table width="100%" class="beforeafter">
 <tr>
 <th>Before</th><th class="after">After</th></tr>
@@ -268,7 +305,7 @@
 <td><span class="keyword">ALTER</span> <span class="keyword">TABLE</span> table1 <span class="keyword">ALTER</span> col2 <span class="keyword">TO</span> col_newname;</td></tr>
 </table>
 <div id="_8" class="ddltitle">8 Rename and change column type at the same time</div>
-<small>..\tests\testfiles\test-07a.xml</small>
+<small>../tests/testfiles/test-07a.xml</small>
 <table width="100%" class="beforeafter">
 <tr>
 <th>Before</th><th class="after">After</th></tr>
@@ -326,7 +363,7 @@
 <td><span class="keyword">ALTER</span> <span class="keyword">TABLE</span> table1 <span class="keyword">ALTER</span> col-newname <span class="keyword">TYPE</span> <span class="keyword">varchar</span>(80);</td></tr>
 </table>
 <div id="_9" class="ddltitle">9 Change a column type and a default at the same time</div>
-<small>..\tests\testfiles\test-07b.xml</small>
+<small>../tests/testfiles/test-07b.xml</small>
 <table width="100%" class="beforeafter">
 <tr>
 <th>Before</th><th class="after">After</th></tr>
@@ -410,7 +447,7 @@
 <td><span class="keyword">ALTER</span> <span class="keyword">TABLE</span> table1 <span class="keyword">ALTER</span> col2 <span class="keyword">SET</span> <span class="keyword">DEFAULT</span> 3;</td></tr>
 </table>
 <div id="_10" class="ddltitle">10 Drop a column</div>
-<small>..\tests\testfiles\test-08.xml</small>
+<small>../tests/testfiles/test-08.xml</small>
 <table width="100%" class="beforeafter">
 <tr>
 <th>Before</th><th class="after">After</th></tr>
@@ -434,7 +471,7 @@
 <td><span class="keyword">ALTER</span> <span class="keyword">TABLE</span> table1 <span class="keyword">DROP</span> <span class="keyword">COLUMN</span> col1;</td></tr>
 </table>
 <div id="_11" class="ddltitle">11 Drop an end column</div>
-<small>..\tests\testfiles\test-09.xml</small>
+<small>../tests/testfiles/test-09.xml</small>
 <table width="100%" class="beforeafter">
 <tr>
 <th>Before</th><th class="after">After</th></tr>
@@ -458,7 +495,7 @@
 <td><span class="keyword">ALTER</span> <span class="keyword">TABLE</span> table1 <span class="keyword">DROP</span> <span class="keyword">COLUMN</span> col2;</td></tr>
 </table>
 <div id="_12" class="ddltitle">12 Rename a table</div>
-<small>..\tests\testfiles\test-10.xml</small>
+<small>../tests/testfiles/test-10.xml</small>
 <table width="100%" class="beforeafter">
 <tr>
 <th>Before</th><th class="after">After</th></tr>
@@ -471,7 +508,7 @@
 </table>
 <table class="ddls" width="100%">
 <tr>
-<th align="left">DBMS: postgres, postgres7, oracle, mysql, mysql4</th></tr>
+<th align="left">DBMS: postgres, postgres7, mysql, mysql4, oracle</th></tr>
 <tr>
 <td><span class="keyword">ALTER</span> <span class="keyword">TABLE</span> table1 RENAME <span class="keyword">TO</span> new_table_name;</td></tr>
 </table>
@@ -482,7 +519,7 @@
 <td><span class="keyword">ALTER</span> <span class="keyword">TABLE</span> table1 RENAME <span class="keyword">TO</span> new_table_name;</td></tr>
 </table>
 <div id="_13" class="ddltitle">13 Change a table description</div>
-<small>..\tests\testfiles\test-11.xml</small>
+<small>../tests/testfiles/test-11.xml</small>
 <table width="100%" class="beforeafter">
 <tr>
 <th>Before</th><th class="after">After</th></tr>
@@ -512,7 +549,7 @@
 <td><span class="keyword">UPDATE</span> RDB$RELATIONS <span class="keyword">SET</span> RDB$DESCRIPTION = 'François''s <span class="keyword">table</span>'<br/>&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">WHERE</span> RDB$RELATION_NAME = <span class="keyword">upper</span>('table1');</td></tr>
 </table>
 <div id="_14" class="ddltitle">14 Change a column description</div>
-<small>..\tests\testfiles\test-12.xml</small>
+<small>../tests/testfiles/test-12.xml</small>
 <table width="100%" class="beforeafter">
 <tr>
 <th>Before</th><th class="after">After</th></tr>
@@ -542,7 +579,7 @@
 <td><span class="keyword">UPDATE</span> RDB$RELATION_FIELDS <span class="keyword">SET</span> RDB$DESCRIPTION = 'François''s <span class="keyword">column</span>' <span class="keyword">WHERE</span> RDB$RELATION_NAME = <span class="keyword">upper</span>('table1') <span class="keyword">AND</span> RDB$FIELD_NAME = <span class="keyword">upper</span>('col1');</td></tr>
 </table>
 <div id="_15" class="ddltitle">15 Create two indexes</div>
-<small>..\tests\testfiles\test-13.xml</small>
+<small>../tests/testfiles/test-13.xml</small>
 <table width="100%" class="beforeafter">
 <tr>
 <th>Before</th><th class="after">After</th></tr>
@@ -555,14 +592,14 @@
 </table>
 <table class="ddls" width="100%">
 <tr>
-<th align="left">DBMS: postgres, postgres7, oracle, mysql, mysql4, firebird</th></tr>
+<th align="left">DBMS: postgres, postgres7, mysql, mysql4, oracle, firebird</th></tr>
 <tr>
 <td><span class="keyword">CREATE</span> <span class="keyword">INDEX</span> idx_table1col1 <span class="keyword">ON</span> table1 (col1);</td></tr>
 <tr>
 <td><span class="keyword">CREATE</span> <span class="keyword">INDEX</span> col1col2 <span class="keyword">ON</span> table1 (col1, col2);</td></tr>
 </table>
 <div id="_16" class="ddltitle">16 Drop two indexes</div>
-<small>..\tests\testfiles\test-14.xml</small>
+<small>../tests/testfiles/test-14.xml</small>
 <table width="100%" class="beforeafter">
 <tr>
 <th>Before</th><th class="after">After</th></tr>
@@ -590,7 +627,7 @@
 <td><span class="keyword">DROP</span> <span class="keyword">INDEX</span> col1col2 <span class="keyword">ON</span> table1;</td></tr>
 </table>
 <div id="_17" class="ddltitle">17 Rename two indexes, with index names</div>
-<small>..\tests\testfiles\test-15.xml</small>
+<small>../tests/testfiles/test-15.xml</small>
 <table width="100%" class="beforeafter">
 <tr>
 <th>Before</th><th class="after">After</th></tr>
@@ -626,7 +663,7 @@
 <td><span class="keyword">CREATE</span> <span class="keyword">INDEX</span> rename2 <span class="keyword">ON</span> table1 (col1, col2);</td></tr>
 </table>
 <div id="_18" class="ddltitle">18 Rename two indexes, no index name given originally</div>
-<small>..\tests\testfiles\test-15a.xml</small>
+<small>../tests/testfiles/test-15a.xml</small>
 <table width="100%" class="beforeafter">
 <tr>
 <th>Before</th><th class="after">After</th></tr>
@@ -662,7 +699,7 @@
 <td><span class="keyword">CREATE</span> <span class="keyword">INDEX</span> rename2 <span class="keyword">ON</span> table1 (col1, col2);</td></tr>
 </table>
 <div id="_19" class="ddltitle">19 Change two indexes with index names given</div>
-<small>..\tests\testfiles\test-16.xml</small>
+<small>../tests/testfiles/test-16.xml</small>
 <table width="100%" class="beforeafter">
 <tr>
 <th>Before</th><th class="after">After</th></tr>
@@ -698,7 +735,7 @@
 <td><span class="keyword">CREATE</span> <span class="keyword">INDEX</span> col1col2 <span class="keyword">ON</span> table1 (col2, col1);</td></tr>
 </table>
 <div id="_20" class="ddltitle">20 Change two indexes, no index name given originally</div>
-<small>..\tests\testfiles\test-16a.xml</small>
+<small>../tests/testfiles/test-16a.xml</small>
 <table width="100%" class="beforeafter">
 <tr>
 <th>Before</th><th class="after">After</th></tr>
@@ -711,7 +748,7 @@
 </table>
 <table class="ddls" width="100%">
 <tr>
-<th align="left">DBMS: postgres, postgres7, oracle, mysql, mysql4, firebird <span class="warning">Warning: Fails</span></th></tr>
+<th align="left">DBMS: postgres, postgres7, mysql, mysql4, oracle, firebird <span class="warning">Warning: Fails</span></th></tr>
 <tr>
 <td><span class="keyword">DROP</span> <span class="keyword">INDEX</span> table1Col1;</td></tr>
 <tr>
@@ -722,7 +759,7 @@
 <td><span class="keyword">CREATE</span> <span class="keyword">INDEX</span> col1col2 <span class="keyword">ON</span> table1 (col2, col1);</td></tr>
 </table>
 <div id="_21" class="ddltitle">21 Create a relation</div>
-<small>..\tests\testfiles\test-17.xml</small>
+<small>../tests/testfiles/test-17.xml</small>
 <table width="100%" class="beforeafter">
 <tr>
 <th>Before</th><th class="after">After</th></tr>
@@ -735,7 +772,7 @@
 </table>
 <table class="ddls" width="100%">
 <tr>
-<th align="left">DBMS: postgres, postgres7, oracle, mysql, mysql4</th></tr>
+<th align="left">DBMS: postgres, postgres7, mysql, mysql4, oracle</th></tr>
 <tr>
 <td><span class="keyword">ALTER</span> <span class="keyword">TABLE</span> table2 <span class="keyword">ADD</span> <span class="keyword">CONSTRAINT</span> fk_table1_id <span class="keyword">FOREIGN</span> <span class="keyword">KEY</span> (table1_id) <span class="keyword">REFERENCES</span> table1(table1_id);</td></tr>
 <tr>
@@ -748,7 +785,7 @@
 <td><span class="keyword">ALTER</span> <span class="keyword">TABLE</span> table2 <span class="keyword">ADD</span> <span class="keyword">CONSTRAINT</span> fk_table1_id <span class="keyword">FOREIGN</span> <span class="keyword">KEY</span> (table1_id) <span class="keyword">REFERENCES</span> table1(table1_id);</td></tr>
 </table>
 <div id="_22" class="ddltitle">22 Drop a relation</div>
-<small>..\tests\testfiles\test-17a.xml</small>
+<small>../tests/testfiles/test-17a.xml</small>
 <table width="100%" class="beforeafter">
 <tr>
 <th>Before</th><th class="after">After</th></tr>
@@ -767,7 +804,7 @@
 </table>
 <table class="ddls" width="100%">
 <tr>
-<th align="left">DBMS: mysql,mysql4</th></tr>
+<th align="left">DBMS: mysql,mysql4 <span class="warning">Warning: Fails</span></th></tr>
 <tr>
 <td>Note: <em>This doesn't pass the test because mysql drops the default as well</em></td></tr>
 <tr>
@@ -780,7 +817,7 @@
 <td><span class="keyword">ALTER</span> <span class="keyword">TABLE</span> table2 <span class="keyword">DROP</span> <span class="keyword">CONSTRAINT</span> fk_table1_id;</td></tr>
 </table>
 <div id="_23" class="ddltitle">23 Create a relation with 'on delete'</div>
-<small>..\tests\testfiles\test-17b.xml</small>
+<small>../tests/testfiles/test-17b.xml</small>
 <table width="100%" class="beforeafter">
 <tr>
 <th>Before</th><th class="after">After</th></tr>
@@ -814,7 +851,7 @@
 <td><span class="keyword">ALTER</span> <span class="keyword">TABLE</span> table2 <span class="keyword">ADD</span> <span class="keyword">CONSTRAINT</span> fk_table1_id <span class="keyword">FOREIGN</span> <span class="keyword">KEY</span> (table1_id) <span class="keyword">REFERENCES</span> table1(table1_id);</td></tr>
 </table>
 <div id="_24" class="ddltitle">24 Change a relation</div>
-<small>..\tests\testfiles\test-17c.xml</small>
+<small>../tests/testfiles/test-17c.xml</small>
 <table width="100%" class="beforeafter">
 <tr>
 <th>Before</th><th class="after">After</th></tr>
@@ -858,7 +895,7 @@
 <td><span class="keyword">ALTER</span> <span class="keyword">TABLE</span> table2 <span class="keyword">ADD</span> <span class="keyword">CONSTRAINT</span> fk_table1_id <span class="keyword">FOREIGN</span> <span class="keyword">KEY</span> (table1_id) <span class="keyword">REFERENCES</span> table1(table1_id) <span class="keyword">ON</span> <span class="keyword">DELETE</span> <span class="keyword">SET</span> <span class="keyword">NULL</span> <span class="keyword">ON</span> <span class="keyword">UPDATE</span> <span class="keyword">SET</span> <span class="keyword">NULL</span>;</td></tr>
 </table>
 <div id="_25" class="ddltitle">25 Add an auto increment</div>
-<small>..\tests\testfiles\test-18.xml</small>
+<small>../tests/testfiles/test-18.xml</small>
 <table width="100%" class="beforeafter">
 <tr>
 <th>Before</th><th class="after">After</th></tr>
@@ -904,7 +941,7 @@
 <td><span class="keyword">CREATE</span> <span class="keyword">TRIGGER</span> ai_table1_table1_id <span class="keyword">FOR</span> table1<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">BEFORE</span> <span class="keyword">INSERT</span> <span class="keyword">AS</span><br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">BEGIN</span><br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;NEW.table1_id = <span class="keyword">GEN_ID</span>(table1_table1_id_seq, 1);<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">END</span>;</td></tr>
 </table>
 <div id="_26" class="ddltitle">26 Drop an autoincrement</div>
-<small>..\tests\testfiles\test-19.xml</small>
+<small>../tests/testfiles/test-19.xml</small>
 <table width="100%" class="beforeafter">
 <tr>
 <th>Before</th><th class="after">After</th></tr>
@@ -950,7 +987,7 @@
 <th align="left">DBMS: firebird <span class="warning">Warning: Fails</span></th></tr>
 </table>
 <div id="_27" class="ddltitle">27 Drop a complex table</div>
-<small>..\tests\testfiles\test-19a.xml</small>
+<small>../tests/testfiles/test-19a.xml</small>
 <table width="100%" class="beforeafter">
 <tr>
 <th>Before</th><th class="after">After</th></tr>
@@ -1004,7 +1041,7 @@
 <td><span class="keyword">DROP</span> <span class="keyword">GENERATOR</span> table1_table1_id_seq;</td></tr>
 </table>
 <div id="_28" class="ddltitle">28 Create a view</div>
-<small>..\tests\testfiles\test-20.xml</small>
+<small>../tests/testfiles/test-20.xml</small>
 <table width="100%" class="beforeafter">
 <tr>
 <th>Before</th><th class="after">After</th></tr>
@@ -1017,7 +1054,7 @@
 </table>
 <table class="ddls" width="100%">
 <tr>
-<th align="left">DBMS: postgres, postgres7, oracle, mysql, firebird</th></tr>
+<th align="left">DBMS: postgres, postgres7, mysql, oracle, firebird</th></tr>
 <tr>
 <td><span class="keyword">CREATE</span> <span class="keyword">VIEW</span> myview <span class="keyword">AS</span> <span class="keyword">SELECT</span> table1.id, table1.col2 <span class="keyword">FROM</span> table1;</td></tr>
 </table>
@@ -1026,7 +1063,7 @@
 <th align="left">DBMS: mysql4 <span class="warning">Warning: Fails</span></th></tr>
 </table>
 <div id="_29" class="ddltitle">29 Drop a table with a related view</div>
-<small>..\tests\testfiles\test-20a.xml</small>
+<small>../tests/testfiles/test-20a.xml</small>
 <table width="100%" class="beforeafter">
 <tr>
 <th>Before</th><th class="after">After</th></tr>
@@ -1039,7 +1076,7 @@
 </table>
 <table class="ddls" width="100%">
 <tr>
-<th align="left">DBMS: postgres, postgres7, oracle, mysql, firebird</th></tr>
+<th align="left">DBMS: postgres, postgres7, mysql, oracle, firebird</th></tr>
 <tr>
 <td><span class="keyword">DROP</span> <span class="keyword">VIEW</span> myview;</td></tr>
 <tr>
@@ -1050,7 +1087,7 @@
 <th align="left">DBMS: mysql4 <span class="warning">Warning: Fails</span></th></tr>
 </table>
 <div id="_30" class="ddltitle">30 Drop a view</div>
-<small>..\tests\testfiles\test-21.xml</small>
+<small>../tests/testfiles/test-21.xml</small>
 <table width="100%" class="beforeafter">
 <tr>
 <th>Before</th><th class="after">After</th></tr>
@@ -1063,7 +1100,7 @@
 </table>
 <table class="ddls" width="100%">
 <tr>
-<th align="left">DBMS: postgres, postgres7, oracle, mysql, firebird</th></tr>
+<th align="left">DBMS: postgres, postgres7, mysql, oracle, firebird</th></tr>
 <tr>
 <td><span class="keyword">DROP</span> <span class="keyword">VIEW</span> myview;</td></tr>
 </table>
@@ -1072,7 +1109,7 @@
 <th align="left">DBMS: mysql4 <span class="warning">Warning: Fails</span></th></tr>
 </table>
 <div id="_31" class="ddltitle">31 Rename a view</div>
-<small>..\tests\testfiles\test-22.xml</small>
+<small>../tests/testfiles/test-22.xml</small>
 <table width="100%" class="beforeafter">
 <tr>
 <th>Before</th><th class="after">After</th></tr>
@@ -1100,7 +1137,7 @@
 <th align="left">DBMS: mysql</th></tr>
 </table>
 <div id="_32" class="ddltitle">32 Create a function</div>
-<small>..\tests\testfiles\test-23.xml</small>
+<small>../tests/testfiles/test-23.xml</small>
 <table width="100%" class="beforeafter">
 <tr>
 <th>Before</th><th class="after">After</th></tr>
@@ -1110,7 +1147,7 @@
 <td class="after"><div class="xml">
 <span class="tags">&lt;schema></span><br/>&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;function </span><span class="attrib">arguments</span>="subtotal float" <span class="attrib">dbms</span>="firebird" <span class="attrib">name</span>="myfunc" <span class="attrib">returns</span>="float">
 BEGIN<br/>ret = subtotal * 0.06;
-END<br/><span class="tags">&lt;/function></span><br/><span class="tags">&lt;function </span><span class="attrib">arguments</span>="subtotal float" <span class="attrib">dbms</span>="postgres,mysql,oracle" <span class="attrib">name</span>="myfunc" <span class="attrib">returns</span>="float">
+END<br/><span class="tags">&lt;/function></span><br/><span class="tags">&lt;function </span><span class="attrib">arguments</span>="subtotal float" <span class="attrib">dbms</span>="postgres,postgres7,mysql,oracle" <span class="attrib">name</span>="myfunc" <span class="attrib">returns</span>="float">
 BEGIN<br/>RETURN subtotal * 0.06;
 END<br/><span class="tags">&lt;/function></span><br/><span class="tags">&lt;/schema></span></div></td>
 </tr>
@@ -1146,7 +1183,7 @@ END<br/><span class="tags">&lt;/function></span><br/><span class="tags">&lt;/sch
 <td><span class="keyword">CREATE</span> <span class="keyword">FUNCTION</span> myfunc(subtotal <span class="keyword">IN</span> <span class="keyword">float</span>) <span class="keyword">RETURN</span> <span class="keyword">float</span> <span class="keyword">AS</span><br/><span class="keyword">BEGIN</span><br/>&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">RETURN</span> subtotal * 0.06;<br/><span class="keyword">END</span>;;</td></tr>
 </table>
 <div id="_33" class="ddltitle">33 Drop a function</div>
-<small>..\tests\testfiles\test-24.xml</small>
+<small>../tests/testfiles/test-24.xml</small>
 <table width="100%" class="beforeafter">
 <tr>
 <th>Before</th><th class="after">After</th></tr>
@@ -1154,7 +1191,7 @@ END<br/><span class="tags">&lt;/function></span><br/><span class="tags">&lt;/sch
 <td"><div class="xml">
 <span class="tags">&lt;schema></span><br/>&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;function </span><span class="attrib">arguments</span>="subtotal float" <span class="attrib">dbms</span>="firebird" <span class="attrib">name</span>="myfunc" <span class="attrib">returns</span>="float">
 BEGIN<br/>ret = subtotal * 0.06;
-END<br/><span class="tags">&lt;/function></span><br/>&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;function </span><span class="attrib">arguments</span>="subtotal float" <span class="attrib">dbms</span>="postgres,mysql,oracle" <span class="attrib">name</span>="myfunc" <span class="attrib">returns</span>="float">
+END<br/><span class="tags">&lt;/function></span><br/>&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;function </span><span class="attrib">arguments</span>="subtotal float" <span class="attrib">dbms</span>="postgres,postgres7,mysql,oracle" <span class="attrib">name</span>="myfunc" <span class="attrib">returns</span>="float">
 BEGIN<br/>RETURN subtotal * 0.06;
 END;<br/>&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;/function></span><br/><span class="tags">&lt;/schema></span></div></td>
 <td class="after"><div class="xml">
@@ -1180,19 +1217,19 @@ END;<br/>&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;/function></span><br/><s
 <td><span class="keyword">DROP</span> <span class="keyword">PROCEDURE</span> myfunc;</td></tr>
 </table>
 <div id="_34" class="ddltitle">34 Change a function</div>
-<small>..\tests\testfiles\test-25.xml</small>
+<small>../tests/testfiles/test-25.xml</small>
 <table width="100%" class="beforeafter">
 <tr>
 <th>Before</th><th class="after">After</th></tr>
 <tr>
 <td"><div class="xml">
-<span class="tags">&lt;schema></span><br/>&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;function </span><span class="attrib">arguments</span>="subtotal float" <span class="attrib">dbms</span>="postgres,mysql,oracle" <span class="attrib">name</span>="myfunc" <span class="attrib">returns</span>="float">
+<span class="tags">&lt;schema></span><br/>&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;function </span><span class="attrib">arguments</span>="subtotal float" <span class="attrib">dbms</span>="postgres,postgres7,mysql,oracle" <span class="attrib">name</span>="myfunc" <span class="attrib">returns</span>="float">
 BEGIN<br/>RETURN subtotal * 0.06;
 END<br/>&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;/function></span><br/>&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;function </span><span class="attrib">arguments</span>="subtotal float" <span class="attrib">dbms</span>="firebird" <span class="attrib">name</span>="myfunc" <span class="attrib">returns</span>="float">
 BEGIN<br/>ret = subtotal * 0.06;
 END<br/>&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;/function></span><br/><span class="tags">&lt;/schema></span></div></td>
 <td class="after"><div class="xml">
-<span class="tags">&lt;schema></span><br/>&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;function </span><span class="attrib">arguments</span>="subtotal float" <span class="attrib">dbms</span>="postgres,mysql,oracle" <span class="attrib">name</span>="myfunc" <span class="attrib">returns</span>="float">
+<span class="tags">&lt;schema></span><br/>&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;function </span><span class="attrib">arguments</span>="subtotal float" <span class="attrib">dbms</span>="postgres,postgres7,mysql,oracle" <span class="attrib">name</span>="myfunc" <span class="attrib">returns</span>="float">
 BEGIN<br/>RETURN subtotal * 0.07;
 END<br/>&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;/function></span><br/>&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;function </span><span class="attrib">arguments</span>="subtotal float" <span class="attrib">dbms</span>="firebird" <span class="attrib">name</span>="myfunc" <span class="attrib">returns</span>="float">
 BEGIN<br/>ret = subtotal * 0.07;
@@ -1213,7 +1250,7 @@ END<br/>&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;/function></span><br/><sp
 <tr>
 <td><span class="keyword">DROP</span> <span class="keyword">FUNCTION</span> myfunc(<span class="keyword">float</span>);</td></tr>
 <tr>
-<td><span class="keyword">CREATE</span> <span class="keyword">FUNCTION</span> myfunc(subtotal <span class="keyword">float</span>) <span class="keyword">RETURNS</span> <span class="keyword">float</span> <span class="keyword">AS</span> '<br/><span class="keyword">BEGIN</span><br/>&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">RETURN</span> subtotal * 0.07;<br/><span class="keyword">END</span>' LANGUAGE plpgsql;</td></tr>
+<td><span class="keyword">CREATE</span> <span class="keyword">FUNCTION</span> myfunc(<span class="keyword">float</span>) <span class="keyword">RETURNS</span> <span class="keyword">float</span> <span class="keyword">AS</span> '<br/><span class="keyword">DECLARE</span><br/>&nbsp;&nbsp;&nbsp;&nbsp;subtotal ALIAS <span class="keyword">FOR</span> $1;<br/><span class="keyword">BEGIN</span><br/>&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">RETURN</span> subtotal * 0.07;<br/><span class="keyword">END</span>' LANGUAGE plpgsql;</td></tr>
 </table>
 <table class="ddls" width="100%">
 <tr>
@@ -1232,19 +1269,19 @@ END<br/>&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;/function></span><br/><sp
 <td><span class="keyword">CREATE</span> <span class="keyword">PROCEDURE</span> myfunc(subtotal <span class="keyword">float</span>) <span class="keyword">RETURNS</span> (ret <span class="keyword">float</span>) <span class="keyword">AS</span> <br/><span class="keyword">BEGIN</span><br/>&nbsp;&nbsp;&nbsp;&nbsp;ret = subtotal * 0.07;<br/><span class="keyword">END</span>;;</td></tr>
 </table>
 <div id="_35" class="ddltitle">35 Rename a function</div>
-<small>..\tests\testfiles\test-26.xml</small>
+<small>../tests/testfiles/test-26.xml</small>
 <table width="100%" class="beforeafter">
 <tr>
 <th>Before</th><th class="after">After</th></tr>
 <tr>
 <td"><div class="xml">
-<span class="tags">&lt;schema></span><br/>&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;function </span><span class="attrib">arguments</span>="subtotal float" <span class="attrib">dbms</span>="postgres,mysql,oracle" <span class="attrib">name</span>="newfunc" <span class="attrib">oldname</span>="myfunc" <span class="attrib">returns</span>="float">
+<span class="tags">&lt;schema></span><br/>&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;function </span><span class="attrib">arguments</span>="subtotal float" <span class="attrib">dbms</span>="postgres,postgres7,mysql,oracle" <span class="attrib">name</span>="myfunc" <span class="attrib">returns</span>="float">
 BEGIN<br/>RETURN subtotal * 0.06;
-END<br/>&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;/function></span><br/>&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;function </span><span class="attrib">arguments</span>="subtotal float" <span class="attrib">dbms</span>="firebird" <span class="attrib">name</span>="newfunc" <span class="attrib">oldname</span>="myfunc" <span class="attrib">returns</span>="float">
+END<br/>&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;/function></span><br/>&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;function </span><span class="attrib">arguments</span>="subtotal float" <span class="attrib">dbms</span>="firebird" <span class="attrib">name</span>="myfunc" <span class="attrib">returns</span>="float">
 BEGIN<br/>ret = subtotal * 0.06;
 END<br/>&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;/function></span><br/><span class="tags">&lt;/schema></span></div></td>
 <td class="after"><div class="xml">
-<span class="tags">&lt;schema></span><br/>&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;function </span><span class="attrib">arguments</span>="subtotal float" <span class="attrib">dbms</span>="postgres,mysql,oracle" <span class="attrib">name</span>="newfunc" <span class="attrib">oldname</span>="myfunc" <span class="attrib">returns</span>="float">
+<span class="tags">&lt;schema></span><br/>&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;function </span><span class="attrib">arguments</span>="subtotal float" <span class="attrib">dbms</span>="postgres,postgres7,mysql,oracle" <span class="attrib">name</span>="newfunc" <span class="attrib">oldname</span>="myfunc" <span class="attrib">returns</span>="float">
 BEGIN<br/>RETURN subtotal * 0.06;
 END<br/>&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;/function></span><br/>&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;function </span><span class="attrib">arguments</span>="subtotal float" <span class="attrib">dbms</span>="firebird" <span class="attrib">name</span>="newfunc" <span class="attrib">oldname</span>="myfunc" <span class="attrib">returns</span>="float">
 BEGIN<br/>ret = subtotal * 0.06;
@@ -1253,7 +1290,15 @@ END<br/>&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;/function></span><br/><sp
 </table>
 <table class="ddls" width="100%">
 <tr>
-<th align="left">DBMS: postgres,postgres7</th></tr>
+<th align="left">DBMS: postgres</th></tr>
+<tr>
+<td><span class="keyword">DROP</span> <span class="keyword">FUNCTION</span> myfunc(<span class="keyword">float</span>);</td></tr>
+<tr>
+<td><span class="keyword">CREATE</span> <span class="keyword">FUNCTION</span> newfunc(subtotal <span class="keyword">float</span>) <span class="keyword">RETURNS</span> <span class="keyword">float</span> <span class="keyword">AS</span> '<br/><span class="keyword">BEGIN</span><br/>&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">RETURN</span> subtotal * 0.06;<br/><span class="keyword">END</span>' LANGUAGE plpgsql;</td></tr>
+</table>
+<table class="ddls" width="100%">
+<tr>
+<th align="left">DBMS: postgres7</th></tr>
 <tr>
 <td><span class="keyword">DROP</span> <span class="keyword">FUNCTION</span> myfunc(<span class="keyword">float</span>);</td></tr>
 <tr>
@@ -1273,10 +1318,10 @@ END<br/>&nbsp;&nbsp;&nbsp;&nbsp;<span class="tags">&lt;/function></span><br/><sp
 <tr>
 <td><span class="keyword">DROP</span> <span class="keyword">PROCEDURE</span> myfunc;</td></tr>
 <tr>
-<td><span class="keyword">CREATE</span> <span class="keyword">PROCEDURE</span> newfunc(subtotal <span class="keyword">float</span>) <span class="keyword">RETURNS</span> (ret <span class="keyword">float</span>) <span class="keyword">AS</span> <br/><span class="keyword">BEGIN</span><br/>&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">RETURN</span> subtotal * 0.06;<br/><span class="keyword">END</span>;;</td></tr>
+<td><span class="keyword">CREATE</span> <span class="keyword">PROCEDURE</span> newfunc(subtotal <span class="keyword">float</span>) <span class="keyword">RETURNS</span> (ret <span class="keyword">float</span>) <span class="keyword">AS</span> <br/><span class="keyword">BEGIN</span><br/>&nbsp;&nbsp;&nbsp;&nbsp;ret = subtotal * 0.06;<br/><span class="keyword">END</span>;;</td></tr>
 </table>
 <div id="_36" class="ddltitle">36 Test a naming convention with abbreviations</div>
-<small>..\tests\testfiles\test-27.xml</small>
+<small>../tests/testfiles/test-27.xml</small>
 <table width="100%" class="beforeafter">
 <tr>
 <th>Before</th><th class="after">After</th></tr>

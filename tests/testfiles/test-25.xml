@@ -1,7 +1,7 @@
 <test title="Change a function">
 <before>
     <schema>
-        <function name="myfunc" arguments="subtotal float" returns="float" dbms="postgres,mysql,oracle">
+        <function name="myfunc" arguments="subtotal float" returns="float" dbms="postgres,postgres7,mysql,oracle">
 BEGIN
     RETURN subtotal * 0.06;
 END
@@ -15,7 +15,7 @@ END
 </before>
 <after>
     <schema>
-        <function name="myfunc" arguments="subtotal float" returns="float" dbms="postgres,mysql,oracle">
+        <function name="myfunc" arguments="subtotal float" returns="float" dbms="postgres,postgres7,mysql,oracle">
 BEGIN
     RETURN subtotal * 0.07;
 END
@@ -37,7 +37,9 @@ END' LANGUAGE plpgsql</ddl>
 </ddls>
 <ddls dbms="postgres7">
     <ddl>DROP FUNCTION myfunc(float)</ddl>
-    <ddl>CREATE FUNCTION myfunc(subtotal float) RETURNS float AS '
+    <ddl>CREATE FUNCTION myfunc(float) RETURNS float AS '
+DECLARE
+    subtotal ALIAS FOR $1;
 BEGIN
     RETURN subtotal * 0.07;
 END' LANGUAGE plpgsql</ddl>

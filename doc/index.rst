@@ -16,27 +16,26 @@ Introduction
 |xml2ddl| is a set of python programs to convert an XML representation of a schema into a
 database and vice versa. 
 It can also examine the differences between two databases and emit the ALTER DDL statements required to bring the database up-to-date.
-This makes it ideal for storing the database schema into a source code repository.
+This makes it ideal for storing the database schema into a version control system.
 
 With |xml2ddl| you can download and create the databases for PostgreSQL_, MySQL_, Oracle_, and Firebird_.
 |xml2ddl| strives to be database independant so that the same XML can be used for a variety of databases.
 This is great for quickly testing out a variety of databases for performance, for example.
 
 The XML is fairly rich and permits adding more documentation about the database than the database stores itself.
-For example, you may want to document that a column is deprated. 
+For example, you may want to document that a column is deprate or what the columns previous name was.
 
-Although you can both upload and download the metadata, it's not designed to be fully round trip.
-The XML can store more information than most databases permit.
-When looking for differences the program ignores this extra data.
+Although you can both upload and download the metadata, it's not designed to be fully round trip,
+since the XML can store more information than most databases easily permit.
 
 Links
 =====
 
-You can find more information and download files at the `Berlios page <http://developer.berlios.de/projects/xml2ddl/>`_
+The main project page is at `Berlios <http://developer.berlios.de/projects/xml2ddl/>`_
 
-And you can find documentation through the many `test cases <testdetails.html>`_.
+Detailed documentation is created through the many `test cases <testdetails.html>`_.
 
-You can add comments or help in the `wiki pages <http://openfacts.berlios.de/index-en.phtml?title=XML%20to%20DDL>`_. 
+You can add comments or find some help in the `wiki pages <http://openfacts.berlios.de/index-en.phtml?title=XML%20to%20DDL>`_. 
 
 I you like you can read this document in `PDF form <index.pdf>`_.
 
@@ -64,7 +63,7 @@ The following is a simple schema XML definition of a database::
     
 Here we run the program indicating output for PostgreSQL_::
 
-	python xml2ddl.py --dbms postgres schema1.xml
+	xml2ddl --dbms postgres schema1.xml
     
 We get the following output::
 
@@ -79,7 +78,7 @@ We get the following output::
     
 If we run the program again for Firebird_::
     
-	python xml2ddl.py --dbms firebird schema1.xml
+	xml2ddl --dbms firebird schema1.xml
 
 we'll get different output::
 
@@ -119,7 +118,7 @@ to perform the changes to the database. If this is a new XML schema (schema2.xml
 
 Running this program::
 
-	python diffxml2ddl.py --dbms postgres schema1.xml schema2.xml
+	diffxml2ddl --dbms postgres schema1.xml schema2.xml
 
 Produces the following DDL output::
 
@@ -129,7 +128,7 @@ Produces the following DDL output::
 
 However, an older version of PostgreSQL doesn't support altering the column type::
 
-	python diffxml2ddl.py --dbms postgres7 schema1.xml schema2.xml
+	diffxml2ddl --dbms postgres7 schema1.xml schema2.xml
 
 The a temporary column needs to be created, the data copied over and the old column dropped::
 
@@ -174,7 +173,7 @@ as::
     </columns>
     ...
 
-In addition you can override any attributes in the dictionary, for example this::
+In addition you can override any attributes defined in the dictionary, for example this::
 
     ...
     <columns>
@@ -214,21 +213,26 @@ Database   Connectivity
 PostgreSQL ``psycopg``
 MySQL      ``MySQLdb``
 Firebird   ``kinterbasdb``
+Oracle     ``cx_Oracle``
 ========== ================
 
 Here's how to use the command::
 
-        python downloadXml.py --dbms <dbms> --database <database> --user <user> --pass <pass> > <filename.xml>
-    
-``dbms`` can be one of ``postgres``, ``mysql``, or ``firebird``. Defaults to "postgres".
+        downloadXml --dbms <dbms> --host <host> --database <database> --user <user> --pass <pass> > <filename.xml>
+
+``host`` defaults to "localhost" but can be another machine.
+
+``dbms`` can be one of ``postgres``, ``mysql``, ``oracle`` or ``firebird``. Defaults to "postgres".
 
 ``database`` the name of the database, defaults to "postgres"
 
-``user`` the user name to connect to the database, defaults to "postgres"
+``user`` the user name to connect to the database.
 
 ``pass`` the password to user, defaults to "postgres"
 
 ``filename.xml`` by default it sends the XML to the console (stdout) you can pipe the output to a file as shown above.
+
+New, is the ability to limit what is downloaded to a list of tables, views, or functions.
 
 Outputting HTML Documentation
 =============================
@@ -239,7 +243,7 @@ Another, it ``deprecated`` which indicates that a column or table should no long
 
 Here's how to output the HTML document::
 
-    python xml2html.py --file schema.html schema.xml
+    xml2html --file schema.html schema.xml
     
 Annotated XML
 =============

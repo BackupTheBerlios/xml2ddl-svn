@@ -14,12 +14,12 @@ try:
     psyco.full()
 except ImportError:
     pass
-import diffxml2ddl
+from xml2ddl import diffxml2ddl
 import re, glob
 import os.path
 from xml.dom.minidom import parse, parseString
-from xml2ddl import handleDictionary
-import downloadXml
+from xml2ddl.xml2ddl import handleDictionary
+from xml2ddl import downloadXml
 from cStringIO import StringIO
 import logging
 
@@ -27,7 +27,7 @@ class DbDmlTest:
     def __init__(self, strDbms, testList, log):
         self.log = log
         self.testList = testList
-        self.aFindChanges = diffxml2ddl.FindChanges()
+        self.aFindChanges = diffxml2ddl.DiffXml2Ddl()
 
         self.aFindChanges.setDbms(strDbms)
         self.strDbms = strDbms
@@ -129,7 +129,7 @@ class DbDmlTest:
                     if ret:
                         self.log.info('%s SQL: "%s"' % (strContext, ret[1]))
                         
-                        cursor.execute(str(ret[1]))
+                        cursor.execute(ret[1].encode('ISO-8859-1'))
                         con.commit()
                 except Exception, e:
                     strError = str(e)

@@ -1,4 +1,4 @@
-#! /usr/bin/env python
+#!/usr/bin/env python
 # -*- coding: iso-8859-1 -*-
 
 """ You can safely run these set of tests, there is no coneection
@@ -6,13 +6,12 @@ made with a database. Basically, this just performs string
 manipulation
 """
 
-import sys, re
+import sys, re, os
 
-sys.path += ['..']
-
-import diffxml2ddl
-import xml2html
-from xml2ddl import handleDictionary
+from xml2ddl import diffxml2ddl
+from xml2ddl import xml2html
+from xml2ddl import xml2ddl
+from xml2ddl.DdlCommonInterface import g_dbTypes
 import glob
 from xml.dom.minidom import parse, parseString, getDOMImplementation
 import xml.dom
@@ -23,7 +22,7 @@ log = logging.getLogger("xml2ddl.diffXml2DdlTest")
 
 nPassed = 0
 nFailed = 0
-aFindChanges = diffxml2ddl.FindChanges()
+aFindChanges = diffxml2ddl.DiffXml2Ddl()
 
 def cleanString(strString):
     strString = re.sub(r'\s\s+', ' ', strString)
@@ -32,19 +31,24 @@ def cleanString(strString):
     return strString
 
 def outputHtml(testFilename, doc):
+    import codecs
+    
     xml2htm = xml2html.Xml2Html()
     impl = getDOMImplementation()
     newDoc = impl.createDocument(None, "schema", None)
     newDoc.documentElement.appendChild(doc)
     lines = xml2htm.outputHtml(newDoc)
     newFilename = testFilename.replace('.xml', '.html')
-    of = open(newFilename, "w")
-    of.write('\n'.join(lines))
+    of = codecs.open(newFilename, "wb", 'ISO-8859-1')
+    strOut = '\n'.join(lines)
+    of.write(strOut)
     of.close()
     
     
 def doOne(strDbms, testFilename, docBefore, docAfter, docDdl, bFails):
     global nPassed, nFailed
+    
+    log.info("Doing test for dbms '%s'" % (strDbms))
     
     aFindChanges.setDbms(strDbms)
     ret = aFindChanges.diffTables(docBefore, docAfter)
@@ -68,10 +72,10 @@ def doOne(strDbms, testFilename, docBefore, docAfter, docDdl, bFails):
                     got.append("    <ddl>%s</ddl> <!-- %s -->" % (ret[nIndex][1], ret[nIndex][0], ))
                 else:
                     # this test is supposed to fail, probably to be fixed later (essentially the test is skipped)
+                    #info.append("Was expected to fail")
                     pass
             else:
-                if log.isEnabledFor('INFO'):
-                    info.append('%s'  % (strRet))
+                info.append('%s'  % (strRet))
                     
                 nPassed += 1
         elif not bFails:
@@ -91,19 +95,27 @@ def doOne(strDbms, testFilename, docBefore, docAfter, docDdl, bFails):
         log.critical("Got:")
         log.critical('\n'.join(['    <ddl>%s</ddl>' % (ddl[1]) for ddl in ret]))
 
+    if len(expected) > 0:
+        strMess = '%s (%s)' % (testFilename, strDbms)
+        log.critical(strMess)
+        log.critical("Expected:")
+        log.critical('\n'.join(expected))
+        log.critical("Got: nothing instead")
+        
     if len(info) > 0:
         log.info('\n'.join(info))
     
 def doTests():
     for testFilename in glob.glob('testfiles/test*.xml'):
         doc = parse(testFilename)
+        log.info("Doing test %s" % (testFilename))
         docBefore = doc.getElementsByTagName('before')[0].firstChild.nextSibling
-        handleDictionary(docBefore)
+        xml2ddl.handleDictionary(docBefore)
         
         docAfter = doc.getElementsByTagName('after')[0].firstChild.nextSibling
-        handleDictionary(docAfter)
+        xml2ddl.handleDictionary(docAfter)
         
-        theList = ['oracle', 'postgres', 'postgres7', 'mysql4', 'mysql', 'firebird']
+        theList = g_dbTypes[:]
         docDdls = doc.getElementsByTagName('ddls')
         for docDdl in docDdls:
             if docDdl.hasAttribute('dbms'):
