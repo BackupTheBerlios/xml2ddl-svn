@@ -6,6 +6,8 @@ include doc/*.pdf
 include doc/*.css
 include doc/*.gif
 include doc/*.png
+include setup.py
+include ez_setup.py
 prune tests
 exclude .svn
 prune .svn

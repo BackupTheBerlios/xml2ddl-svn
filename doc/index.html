@@ -18,15 +18,16 @@
 <ul class="simple">
 <li><a class="reference" href="#introduction" id="id1" name="id1">Introduction</a></li>
 <li><a class="reference" href="#links" id="id2" name="id2">Links</a></li>
-<li><a class="reference" href="#simple-example" id="id3" name="id3">Simple Example</a></li>
-<li><a class="reference" href="#differencing-example" id="id4" name="id4">Differencing Example</a></li>
-<li><a class="reference" href="#using-a-dictionary" id="id5" name="id5">Using a dictionary</a></li>
-<li><a class="reference" href="#downloading-the-xml" id="id6" name="id6">Downloading the XML</a></li>
-<li><a class="reference" href="#outputting-html-documentation" id="id7" name="id7">Outputting HTML Documentation</a></li>
-<li><a class="reference" href="#annotated-xml" id="id8" name="id8">Annotated XML</a></li>
-<li><a class="reference" href="#advantages" id="id9" name="id9">Advantages</a></li>
-<li><a class="reference" href="#to-do" id="id10" name="id10">To do</a></li>
-<li><a class="reference" href="#similar-work" id="id11" name="id11">Similar Work</a></li>
+<li><a class="reference" href="#installing" id="id3" name="id3">Installing</a></li>
+<li><a class="reference" href="#simple-example" id="id4" name="id4">Simple Example</a></li>
+<li><a class="reference" href="#differencing-example" id="id5" name="id5">Differencing Example</a></li>
+<li><a class="reference" href="#using-a-dictionary" id="id6" name="id6">Using a dictionary</a></li>
+<li><a class="reference" href="#downloading-the-xml" id="id7" name="id7">Downloading the XML</a></li>
+<li><a class="reference" href="#outputting-html-documentation" id="id8" name="id8">Outputting HTML Documentation</a></li>
+<li><a class="reference" href="#annotated-xml" id="id9" name="id9">Annotated XML</a></li>
+<li><a class="reference" href="#advantages" id="id10" name="id10">Advantages</a></li>
+<li><a class="reference" href="#to-do" id="id11" name="id11">To do</a></li>
+<li><a class="reference" href="#similar-work" id="id12" name="id12">Similar Work</a></li>
 </ul>
 </div>
 <div class="section" id="introduction">
@@ -45,17 +46,36 @@ since the XML can store more information than most databases easily permit.</p>
 </div>
 <div class="section" id="links">
 <h1><a class="toc-backref" href="#id2" name="links">Links</a></h1>
+<p><a class="reference" href="http://developer.berlios.de/project/showfiles.php?group_id=2209">Berlios download</a> for the files.</p>
 <p>The main project page is at <a class="reference" href="http://developer.berlios.de/projects/xml2ddl/">Berlios</a></p>
-<p>Detailed documentation is created through the many <a class="reference" href="testdetails.html">test cases</a>.</p>
+<p><a class="reference" href="http://xml2ddl.berlios.de/CHANGELOG.txt">Recent changes</a></p>
+<p>The results of the <a class="reference" href="testdetails.html">test cases</a>.</p>
 <p>You can add comments or find some help in the <a class="reference" href="http://openfacts.berlios.de/index-en.phtml?title=XML%20to%20DDL">wiki pages</a>.</p>
-<p>I you like you can read this document in <a class="reference" href="index.pdf">PDF form</a>.</p>
+<p>You can also read this document in <a class="reference" href="index.pdf">PDF form</a>.</p>
+<p>Or visit my <a class="reference" href="http://scottkirkwood.blogspot.com">blog</a>.</p>
 <p>This code was written with Agile Data Modeling techniques in mind
 see also
 <a class="reference" href="http://www.sdmagazine.com/documents/s=826/sdm0302h/">Ten Steps to a Robust DB</a>, 
 <a class="reference" href="http://www.sdmagazine.com/documents/s=826/sdm0407g/">Agile Data Modeling</a>.</p>
 </div>
+<div class="section" id="installing">
+<h1><a class="toc-backref" href="#id3" name="installing">Installing</a></h1>
+<p>Requirements:</p>
+<blockquote>
+<ul class="simple">
+<li>Python 2.3</li>
+<li>Optionally, one of:<ul>
+<li>psycopg (PostgreSQL)</li>
+<li>MySQLdb (MySQL)</li>
+<li>cx_Oracle (Oracle)</li>
+<li>kinterbasdb (firebird)</li>
+</ul>
+</li>
+</ul>
+</blockquote>
+</div>
 <div class="section" id="simple-example">
-<h1><a class="toc-backref" href="#id3" name="simple-example">Simple Example</a></h1>
+<h1><a class="toc-backref" href="#id4" name="simple-example">Simple Example</a></h1>
 <p>The following is a simple schema XML definition of a database:</p>
 <pre class="literal-block">
 &lt;schema&gt;
@@ -106,7 +126,7 @@ UPDATE RDB$RELATION_FIELDS SET RDB$DESCRIPTION = 'The full name of the student'
 <p>The example shows a feature of <tt class="docutils literal"><span class="pre">XML</span> <span class="pre">to</span> <span class="pre">DDL</span></tt>, database independence.</p>
 </div>
 <div class="section" id="differencing-example">
-<h1><a class="toc-backref" href="#id4" name="differencing-example">Differencing Example</a></h1>
+<h1><a class="toc-backref" href="#id5" name="differencing-example">Differencing Example</a></h1>
 <p>Another key feature is the ability to examine the changes done to the XML and generate the DDL statements necessary 
 to perform the changes to the database. If this is a new XML schema (schema2.xml):</p>
 <pre class="literal-block">
@@ -151,7 +171,7 @@ COMMENT ON TABLE students IS 'List of students with their full names';
 <a class="reference" href="http://xml2ddl.berlios.de/testdetails.html">http://xml2ddl.berlios.de/testdetails.html</a></p>
 </div>
 <div class="section" id="using-a-dictionary">
-<h1><a class="toc-backref" href="#id5" name="using-a-dictionary">Using a dictionary</a></h1>
+<h1><a class="toc-backref" href="#id6" name="using-a-dictionary">Using a dictionary</a></h1>
 <p>If you find yourself repeating the same attributes in your XML schema over and over you can put these
 in a dictionary:</p>
 <pre class="literal-block">
@@ -208,7 +228,7 @@ Here's a rather contrived example:</p>
 </pre>
 </div>
 <div class="section" id="downloading-the-xml">
-<h1><a class="toc-backref" href="#id6" name="downloading-the-xml">Downloading the XML</a></h1>
+<h1><a class="toc-backref" href="#id7" name="downloading-the-xml">Downloading the XML</a></h1>
 <p>You can download the XML schema directly from the database.
 Requires a connection that conforms to the <a class="reference" href="http://www.python.org/peps/pep-0249.html">Database API</a>.
 Without changing the code you can use the following connectivities:</p>
@@ -250,7 +270,7 @@ downloadXml --dbms &lt;dbms&gt; --host &lt;host&gt; --database &lt;database&gt; 
 <p>New, is the ability to limit what is downloaded to a list of tables, views, or functions.</p>
 </div>
 <div class="section" id="outputting-html-documentation">
-<h1><a class="toc-backref" href="#id7" name="outputting-html-documentation">Outputting HTML Documentation</a></h1>
+<h1><a class="toc-backref" href="#id8" name="outputting-html-documentation">Outputting HTML Documentation</a></h1>
 <p>Some of the attributes in the XML are used solely for documentation purposes.
 For example, <tt class="docutils literal"><span class="pre">fullname</span></tt> has no equivalent in most DBMSs. 
 Another, it <tt class="docutils literal"><span class="pre">deprecated</span></tt> which indicates that a column or table should no longer be used, but hasn't been deleted yet.</p>
@@ -260,7 +280,7 @@ xml2html --file schema.html schema.xml
 </pre>
 </div>
 <div class="section" id="annotated-xml">
-<h1><a class="toc-backref" href="#id8" name="annotated-xml">Annotated XML</a></h1>
+<h1><a class="toc-backref" href="#id9" name="annotated-xml">Annotated XML</a></h1>
 <p>The following is a list of the tags and attributes that xml2ddl accepts or 
 is planned to be accepted in the future. 
 The attributes enclosed in [square brackets] are optional. Also there are lot of thing not supported yet, and are so indicated.
@@ -587,7 +607,7 @@ If not ther all dbms systems are assumed.</li>
 </ol>
 </div>
 <div class="section" id="advantages">
-<h1><a class="toc-backref" href="#id9" name="advantages">Advantages</a></h1>
+<h1><a class="toc-backref" href="#id10" name="advantages">Advantages</a></h1>
 <p>Storing the schema in this form has some advantages:</p>
 <ol class="arabic simple">
 <li>All the information about a table is stored together in one place. 
@@ -618,7 +638,7 @@ Another example is to change a status code (ex. 1, 2, or 3) into an enumeration 
 </ol>
 </div>
 <div class="section" id="to-do">
-<h1><a class="toc-backref" href="#id10" name="to-do">To do</a></h1>
+<h1><a class="toc-backref" href="#id11" name="to-do">To do</a></h1>
 <p>Here are the major directions I see <tt class="docutils literal"><span class="pre">XML</span> <span class="pre">to</span> <span class="pre">DDL</span></tt> going:</p>
 <ul class="simple">
 <li>Support for more databases (currently I've written code only for PostgreSQL, Firebird, and MySQL).
@@ -636,7 +656,7 @@ database may be more up-to-date, but the XML probably has more information (like
 </ul>
 </div>
 <div class="section" id="similar-work">
-<h1><a class="toc-backref" href="#id11" name="similar-work">Similar Work</a></h1>
+<h1><a class="toc-backref" href="#id12" name="similar-work">Similar Work</a></h1>
 <p>I've been pointed to another project which looks similar calle <a class="reference" href="http://erw.dsi.unimi.it/">ERW</a> 
 A quick look shows that it tries to work at a higher level than my XML does (i.e. more abstract).
 It also generates code for PHP and produces nicer documentation.</p>
@@ -646,7 +666,7 @@ It seems to do a lot of what I'm doing but is even larger in scope.</p>
 </div>
 <hr class="docutils footer" />
 <div class="footer">
-Generated on: 2005-09-28.
+Generated on: 2005-09-30.
 Generated by <a class="reference" href="http://docutils.sourceforge.net/">Docutils</a> from <a class="reference" href="http://docutils.sourceforge.net/rst.html">reStructuredText</a> source.
 </div>
 </body>

@@ -1,8 +1,9 @@
 #!/usr/bin/env python
 
-#from distutils.core import setup
-from setuptools import setup
-import glob
+from ez_setup import use_setuptools
+use_setuptools()
+from setuptools import setup, find_packages
+
 # Note to self:
 # python setup.py sdist --formats=zip
 # To create the zip file
@@ -13,6 +14,9 @@ import glob
 # python setup.py register
 # to register with PyPI
 # 
+
+# create an egg and upload it
+# setup.py register bdist_egg upload
 
 # Set this on command line
 # DISTUTILS_DEBUG=true
@@ -32,7 +36,7 @@ XML to DDL supports PostgreSQL, MySQL, Oracle and Firebird databases.
     author='Scott Kirkwood',
     author_email='scott_kirkwood@users.berlios.de',
     url='http://xml2ddl.berlios.de/',
-    download_url='http://developer.berlios.de/project/showfiles.php?group_id=2209&release_id=3368',
+    download_url='http://download.berlios.de/xml2ddl/xml2ddl-0.3.1.zip',
     keywords=['XML', 'SQL', 'DDL', 'ALTER', 'Database', 'AgileDB', 'PostgreSQL', 'MySQL', 'Firebird', 'Oracle', 'SQL99'],
     license='GNU GPL',
     platforms=['POSIX', 'Windows'],
@@ -59,7 +63,6 @@ XML to DDL supports PostgreSQL, MySQL, Oracle and Firebird databases.
         'scripts/diffxml2ddl',
         'scripts/downloadXml',
     ],
-    packages=['xml2ddl', 'doc'],
-    package_dir={'doc': 'doc'},
+    packages=['xml2ddl'],
     package_data={'doc': ['*.html','*.pdf'],},
 )

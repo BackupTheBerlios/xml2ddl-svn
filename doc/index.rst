@@ -31,19 +31,43 @@ since the XML can store more information than most databases easily permit.
 Links
 =====
 
+`Berlios download <http://developer.berlios.de/project/showfiles.php?group_id=2209>`_ for the files.
+
 The main project page is at `Berlios <http://developer.berlios.de/projects/xml2ddl/>`_
 
-Detailed documentation is created through the many `test cases <testdetails.html>`_.
+`Recent changes <http://xml2ddl.berlios.de/CHANGELOG.txt>`_
+
+The results of the `test cases <testdetails.html>`_.
 
 You can add comments or find some help in the `wiki pages <http://openfacts.berlios.de/index-en.phtml?title=XML%20to%20DDL>`_. 
 
-I you like you can read this document in `PDF form <index.pdf>`_.
+You can also read this document in `PDF form <index.pdf>`_.
+
+Or visit my `blog <http://scottkirkwood.blogspot.com>`_.
 
 This code was written with Agile Data Modeling techniques in mind
 see also
 `Ten Steps to a Robust DB <http://www.sdmagazine.com/documents/s=826/sdm0302h/>`_, 
 `Agile Data Modeling <http://www.sdmagazine.com/documents/s=826/sdm0407g/>`_.
 
+Installing
+==========
+
+Requirements:
+
+ * Python 2.3
+ 
+ * Optionally, one of:
+ 
+   * psycopg (PostgreSQL)
+   
+   * MySQLdb (MySQL)
+   
+   * cx_Oracle (Oracle)
+   
+   * kinterbasdb (firebird)
+   
+   
 Simple Example
 ==============
 
