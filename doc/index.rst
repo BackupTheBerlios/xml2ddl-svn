@@ -753,6 +753,8 @@ It also generates code for PHP and produces nicer documentation.
 Written in the Perl programming language is `SQL Fairy <http://sqlfairy.sourceforge.net/>`_.
 It seems to do a lot of what I'm doing but is even larger in scope.
 
+Jeff Atwood at Coding Horror asks "`Is Your Database Under Version Control? <http://www.codinghorror.com/blog/archives/000743.html>`".
+
 .. _PostgreSQL: http://www.postgresql.com/
 .. _Firebird: http://firebird.sourceforge.net/
 .. _MySQL: http://www.mysql.com/

@@ -1,0 +1,29 @@
+For VNC change /.vnc/xstartup so that it start with gnome
+
+--------SNIP--------
+#!/bin/sh
+
+# Uncomment the following two lines for normal desktop:
+#unset SESSION_MANAGER
+#exec /etc/X11/xinit/xinitrc
+
+[ -x /etc/vnc/xstartup ] && exec /etc/vnc/xstartup
+[ -r $HOME/.Xresources ] && xrdb $HOME/.Xresources
+xsetroot -solid grey
+#vncconfig -iconic &
+xterm -geometry 80x24+10+10 -ls -title "$VNCDESKTOP Desktop" &
+unset SESSION_MANAGER
+exec gnome-session &
+--------SNIP--------
+
+$ vnc4server -geometry 640x480 -alwaysshared -depth 16
+
+$ vnc2swf.py -o out.swf localhost:1
+
+$ vncviewer localhost:1
+...
+(Record an existing screen with audio recording)
+$ vnc2swf.py -o out.swf -S "arecord -r 22050 voice.wav" localhost:0
+
+$ vncserver -kill :1
+
