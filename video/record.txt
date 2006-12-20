@@ -16,14 +16,25 @@ unset SESSION_MANAGER
 exec gnome-session &
 --------SNIP--------
 
-$ vnc4server -geometry 640x480 -alwaysshared -depth 16
-
-$ vnc2swf.py -o out.swf localhost:1
+$ vncserver -geometry 800x600 -alwaysshared -depth 16 -fp /usr/share/fonts/X11/misc/
 
 $ vncviewer localhost:1
-...
+
+$ vnc2swf.py -o out.swf localhost:1
+or...
 (Record an existing screen with audio recording)
 $ vnc2swf.py -o out.swf -S "arecord -r 22050 voice.wav" localhost:0
 
 $ vncserver -kill :1
+
+
+-----------------
+$ psql test
+test=# \d
+test=# \d students
+$ downloadXml -u scott -d test -p postgres
+$ downloadXml -u scott -d test -p postgres > school-schema.xml
+$ svn add school-schema.xml
+$ svn commit -m "Added schema"
+$ 
 
