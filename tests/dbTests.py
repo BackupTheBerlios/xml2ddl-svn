@@ -37,6 +37,7 @@ class DbTests:
             info = conn_info[self.strDbms]
             
             #self.conn = psycopg.connect('dbname=%(dbname)s user=%(user)s password=%(pass)s' % info)
+            print info
             self.conn = psycopg.connect('host=%(host)s dbname=%(dbname)s user=%(user)s password=%(pass)s' % info)
             ddt = DbDmlTest.DbDmlTest(self.strDbms, self.testList, log)
             ddt.doTests(self.conn, info['version'], bExec = bExec)

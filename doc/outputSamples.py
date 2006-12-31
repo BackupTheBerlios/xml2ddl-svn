@@ -40,9 +40,11 @@ class OutputSamples:
         print
     
     def writeHeader(self, fo):
+        fo.write('<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" \n  "http://www.w3.org/TR/html4/loose.dtd">')
         fo.write('<html>\n')
         fo.write('<head>\n')
         fo.write('<link rel="stylesheet" href="default.css" type="text/css" />\n')
+        fo.write('<title>Test Cases</title>\n')
         fo.write('</head>\n')
         fo.write('<body>\n')
         fo.write('<div class="document" id="xml-to-ddl">\n')
@@ -59,7 +61,7 @@ class OutputSamples:
     The output comes directly from the test files which are used to unit test xml2ddl.
     
     """)
-        fo.write('</head>\n')
+        fo.write('</div>\n')
     
     def writeLeftRight(self, fo, before, after):
         fo.write('<table width="100%" class="beforeafter">\n')
@@ -69,7 +71,7 @@ class OutputSamples:
         fo.write('</tr>\n')
         fo.write('<tr>\n')
         
-        fo.write('<td"><div class="xml">\n')
+        fo.write('<td><div class="xml">\n')
         fo.write(self.prettyXml(before.toxml()))
         fo.write('</div></td>\n')
         
@@ -143,7 +145,7 @@ class OutputSamples:
         nTestNumber = 0
         
         self.fo.write('<table>')
-        self.fo.write('<td></td><td><h2>Index</h2></td>\n')
+        self.fo.write('<tr><td></td><td><h2>Index</h2></td></tr>\n')
         for testFilename in files:
             nTestNumber += 1
             doc = parse(testFilename)
@@ -151,7 +153,7 @@ class OutputSamples:
             
             self.fo.write('<tr>')
             self.fo.write('<td align="right">%d -</td>' % (nTestNumber))
-            self.fo.write('<td><a href="%s" class="ddltitle">%s</a></td>\n' % ("#_%d" % (nTestNumber), strDesc))
+            self.fo.write('<td><a href="%s" class="ddltitle">%s</a></td>\n' % ("#a_%d" % (nTestNumber), strDesc))
             self.fo.write('</tr>')
             
             doc.unlink()
@@ -165,7 +167,7 @@ class OutputSamples:
         nTestNumber = 0
         
         self.fo.write('<table style="border-collapse:collapse;borderspacing:0">')
-        self.fo.write('<td></td><td><h2>Index</h2></td>\n')
+        self.fo.write('<tr><td></td><td><h2>Index</h2></td></tr>\n')
         self.fo.write('<tr>')
         self.fo.write('<td style="text-align:right">Description</td>')
         for dbms in self.allDbmss:
@@ -178,7 +180,7 @@ class OutputSamples:
             strDesc = doc.getElementsByTagName('test')[0].getAttribute('title')
             
             self.fo.write('<tr>')
-            self.fo.write('<td style="text-align:right"><a href="%s" class="ddltitle">%s</a></td>\n' % ("#_%d" % (nTestNumber), strDesc))
+            self.fo.write('<td style="text-align:right"><a href="%s" class="ddltitle">%s</a></td>\n' % ("#a_%d" % (nTestNumber), strDesc))
 
             strSupportTxt = '<img alt="yes" src="yes.gif"/>'
             strFailsTxt = '<img alt="no" src="no.gif"/>'
@@ -212,7 +214,7 @@ class OutputSamples:
     
             strDesc = doc.getElementsByTagName('test')[0].getAttribute('title')
             
-            self.fo.write('<div id="%s" class="ddltitle">%d %s</div>\n' % ("_%d" % (nTestNumber), nTestNumber, strDesc))
+            self.fo.write('<div id="%s" class="ddltitle">%d %s</div>\n' % ("a_%d" % (nTestNumber), nTestNumber, strDesc))
             self.fo.write('<small>%s</small>\n' % (testFilename))
             
             docBefore = doc.getElementsByTagName('before')[0].firstChild.nextSibling

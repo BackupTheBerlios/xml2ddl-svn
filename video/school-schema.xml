@@ -2,9 +2,8 @@
 
 <table name="students" fullname="Students" desc="List of student names">
     <columns>
-        <column name="studend_id" type="integer" null="no" key="1"/>
-        <column name="student_name" type="varchar" size="80" null="no"
-            fullname="Student Name" 
+        <column name="studnt_id" oldname="studend_id" type="integer" null="no" key="1"/>
+        <column name="student_name" type="varchar" size="20" null="no"
             desc="The full name of the student."/>
     </columns>
 </table>

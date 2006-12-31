@@ -36,5 +36,7 @@ $ downloadXml -u scott -d test -p postgres
 $ downloadXml -u scott -d test -p postgres > school-schema.xml
 $ svn add school-schema.xml
 $ svn commit -m "Added schema"
+$ vi school-schema.txt
 $ 
+
 
