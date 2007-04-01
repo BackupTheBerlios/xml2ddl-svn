@@ -32,11 +32,18 @@ $ vncserver -kill :1
 $ psql test
 test=# \d
 test=# \d students
+test=# \q
 $ downloadXml -u scott -d test -p postgres
 $ downloadXml -u scott -d test -p postgres > school-schema.xml
 $ svn add school-schema.xml
 $ svn commit -m "Added schema"
 $ vi school-schema.txt
-$ 
+fix error with name
+change 20 to 40 for the name
+
+$ diffxml2ddl school-schema.xml
+
+Look the it knows how to change it
+$ diffxml2ddl school-schema.xml > psql test
 
 

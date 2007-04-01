@@ -231,6 +231,9 @@ class OutputSamples:
         
         
     def prettyXml(self, strText):
+        if len(strText.strip()) == 0:
+            return "&nbsp;"
+        
         re_special_lt = re.compile(r'<')
         strText = re_special_lt.sub('&lt;', strText)
     

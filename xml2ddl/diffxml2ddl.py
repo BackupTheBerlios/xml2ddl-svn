@@ -651,7 +651,7 @@ def safeGet(dom, strKey, default = None):
     return default
     
 def parseCommandLine():
-    usage = "usage: %prog [options] <filename>"
+    usage = "usage: %prog [options] <new-xml-schemal> <old-xml-schema>"
     parser = optparse.OptionParser(usage)
     parser.add_option("-b", "--dbms",
                   dest="strDbms", metavar="DBMS", default="postgres",
@@ -666,7 +666,7 @@ def parseCommandLine():
     else:
         strNewFile = args[0]
     
-    if len(args) == 2:
+    if len(args) >= 2:
         strOldFile = args[1]
     else:
         strOldFile = './.svn/text-base/%s.svn-base' % strNewFile
