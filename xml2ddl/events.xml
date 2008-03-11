@@ -1,0 +1,21 @@
+<?xml version="1.0"?>
+<!-- arch-tag: 03140dfe-68af-4f2b-a3e7-746812125e81 -->
+
+<autograph:report
+    xmlns:xi="http://www.w3.org/2003/XInclude"
+    xmlns:autograph="http://cfconsulting.ca/autograph/1.0" >
+
+    <autograph:graphparams>
+	<autograph:tablemode name="simple" />
+    </autograph:graphparams>
+
+    <autograph:includeschemas>
+	<autograph:schema name="event" />
+	<autograph:schema name="product" />
+	<!-- <autograph:schema name="financial" /> -->
+    </autograph:includeschemas>
+
+    <xi:include href="./auto_sus.xml" />
+</autograph:report>
+
+
