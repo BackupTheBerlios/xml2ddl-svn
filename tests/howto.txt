@@ -1,0 +1,6 @@
+$ sudo -u postgres createuser --superuser --pwprompt scott
+CREATE ROLE
+$ sudo -u postgres createdb --owner scott test
+CREATE DATABASE
+sudo -u postgres createlang plpgsql test
+
